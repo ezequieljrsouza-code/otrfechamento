@@ -107,7 +107,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     flex: 1;
     min-width: 0;
     border-radius: 6px;
-    overflow: hidden;
     background: #fff;
   }
   table {
@@ -152,6 +151,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   .scroll {
     max-height: 560px;
     overflow-y: auto;
+  }
+  .scroll-full {
+    overflow: visible;
   }
   .empty-hint {
     padding: 24px 10px;
@@ -392,7 +394,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <th>ID ROTA</th><th>PREFIXO</th><th>PLACA</th><th>MLP</th><th>FACILITY</th><th>ORH</th>
       </tr>
     </table>
-    <div class="scroll">
+    <div class="scroll-full">
       <table>
         <colgroup>
           <col style="width:17%"><col style="width:15%"><col style="width:16%">
@@ -419,7 +421,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <th>ID ROTA</th><th>PREFIXO</th><th>PLACA</th><th>MLP</th><th>FACILITY</th><th>ORH</th>
       </tr>
     </table>
-    <div class="scroll">
+    <div class="scroll-full">
       <table>
         <colgroup>
           <col style="width:17%"><col style="width:15%"><col style="width:16%">
