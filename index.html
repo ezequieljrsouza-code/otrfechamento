@@ -126,6 +126,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     border-color: #ddd;
     cursor: not-allowed;
   }
+  #printMeexBtn {
+    background: #fff;
+    border: 1px solid #FFE94D;
+    color: #8A7300;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #printMeexBtn:hover { background: #FFFBE0; }
+  #printMeexBtn:disabled {
+    color: #999;
+    border-color: #ddd;
+    cursor: not-allowed;
+  }
   #fileName {
     font-size: 12.5px;
     color: #666;
@@ -492,10 +508,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <textarea id="meexPasteInput" placeholder="Cole aqui o conteúdo copiado das rotas NEX..."></textarea>
   <div class="paste-actions">
     <button id="genMeexBtn">Gerar tabela</button>
+    <button id="printMeexBtn">PRINT</button>
     <span id="meexStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
   </div>
 </div>
 
+<div id="captureAreaMeex">
 <div class="single-panel">
   <table>
     <colgroup>
@@ -522,6 +540,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </tbody>
     </table>
   </div>
+</div>
 </div>
 
 <div class="report-box">
@@ -1004,6 +1023,44 @@ let insucessosSortDir = null; // null, 'desc', 'asc'
 document.getElementById('genMeexBtn').addEventListener('click', generateMeexTable);
 document.getElementById('copyMeexReportBtn').addEventListener('click', copyMeexReport);
 document.getElementById('thInsucessos').addEventListener('click', toggleSortInsucessos);
+document.getElementById('printMeexBtn').addEventListener('click', generateHdImageMeex);
+
+async function generateHdImageMeex() {
+  if (typeof html2canvas === 'undefined') {
+    document.getElementById('meexStatusMsg').textContent = 'Não foi possível carregar a biblioteca de imagem.';
+    return;
+  }
+  if (currentMeexRows.length === 0) {
+    document.getElementById('meexStatusMsg').textContent = 'Gere a tabela antes de criar a imagem.';
+    return;
+  }
+  const btn = document.getElementById('printMeexBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    const target = document.getElementById('captureAreaMeex');
+    const canvas = await html2canvas(target, {
+      scale: 3,
+      backgroundColor: '#fafaf7',
+      useCORS: true
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    const dd = String(new Date().getDate()).padStart(2, '0');
+    const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+    const yyyy = new Date().getFullYear();
+    link.download = `rotas_meexs_nex_${dd}-${mm}-${yyyy}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    document.getElementById('meexStatusMsg').textContent = 'Erro ao gerar imagem: ' + err.message;
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
 
 function toggleSortInsucessos() {
   if (currentMeexRows.length === 0) return;
