@@ -464,7 +464,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <th colspan="8">Gestão de Rotas ME Extras</th>
     </tr>
     <tr class="head-row">
-      <th>Rota_ID</th><th>Data_Rota</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
+      <th>Rota_ID</th><th>Data_Rota</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th id="thInsucessos" style="cursor:pointer;">Insucessos <span id="sortArrow"></span></th><th>Pendentes</th>
     </tr>
   </table>
   <div class="scroll">
@@ -886,9 +886,22 @@ function switchTab(n) {
 
 // ===== Rotas MEEXs NEX (paste parser) =====
 let meexReportText = '';
+let currentMeexRows = [];
+let insucessosSortDir = null; // null, 'desc', 'asc'
 
 document.getElementById('genMeexBtn').addEventListener('click', generateMeexTable);
 document.getElementById('copyMeexReportBtn').addEventListener('click', copyMeexReport);
+document.getElementById('thInsucessos').addEventListener('click', toggleSortInsucessos);
+
+function toggleSortInsucessos() {
+  if (currentMeexRows.length === 0) return;
+  insucessosSortDir = insucessosSortDir === 'desc' ? 'asc' : 'desc';
+  const sorted = [...currentMeexRows].sort((a, b) =>
+    insucessosSortDir === 'desc' ? b.insucessos - a.insucessos : a.insucessos - b.insucessos
+  );
+  document.getElementById('sortArrow').textContent = insucessosSortDir === 'desc' ? '▼' : '▲';
+  renderMeexRows(sorted);
+}
 
 function todayBR() {
   const d = new Date();
@@ -945,6 +958,9 @@ function generateMeexTable() {
 
   if (rows.length === 0) {
     statusEl.textContent = 'Não foi possível identificar rotas no texto colado.';
+    currentMeexRows = [];
+    insucessosSortDir = null;
+    document.getElementById('sortArrow').textContent = '';
     renderMeexRows([]);
     renderMeexReport([]);
     document.getElementById('copyMeexReportBtn').disabled = true;
@@ -955,6 +971,9 @@ function generateMeexTable() {
     statusEl.textContent = 'Aviso: algumas rotas podem não ter sido reconhecidas corretamente (verifique a formatação colada).';
   }
 
+  currentMeexRows = rows;
+  insucessosSortDir = null;
+  document.getElementById('sortArrow').textContent = '';
   renderMeexRows(rows);
   renderMeexReport(rows);
   document.getElementById('copyMeexReportBtn').disabled = false;
