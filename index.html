@@ -494,6 +494,35 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </div>
 
 <script>
+const FIREBASE_URL = 'https://otrfechamento-default-rtdb.europe-west1.firebasedatabase.app';
+
+async function saveToCloud(path, data) {
+  try {
+    const res = await fetch(`${FIREBASE_URL}/${path}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: data, savedAt: new Date().toISOString() })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return true;
+  } catch (err) {
+    console.error('Erro ao salvar na nuvem:', err);
+    return false;
+  }
+}
+
+async function loadFromCloud(path) {
+  try {
+    const res = await fetch(`${FIREBASE_URL}/${path}.json`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    return json ? json.data : null;
+  } catch (err) {
+    console.error('Erro ao carregar da nuvem:', err);
+    return null;
+  }
+}
+
 let currentData = { driver: [], me_extra: [] };
 let currentReportText = '';
 
@@ -601,6 +630,12 @@ function handleFile(e) {
       renderDashboard(data);
       document.getElementById('downloadBtn').disabled = false;
       document.getElementById('copyReportBtn').disabled = false;
+
+      saveToCloud('rotas12h', data).then(ok => {
+        if (!ok) {
+          document.getElementById('statusMsg').textContent = 'Dados exibidos, mas não foi possível salvar na nuvem.';
+        }
+      });
     } catch (err) {
       document.getElementById('statusMsg').textContent = 'Erro: ' + err.message;
     }
@@ -979,6 +1014,12 @@ function generateMeexTable() {
   renderMeexRows(rows);
   renderMeexReport(rows);
   document.getElementById('copyMeexReportBtn').disabled = false;
+
+  saveToCloud('rotasMeexNex', rows).then(ok => {
+    if (!ok) {
+      statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
+    }
+  });
 }
 
 function renderMeexRows(rows) {
@@ -1018,6 +1059,30 @@ function copyMeexReport() {
     document.getElementById('meexStatusMsg').textContent = 'Não foi possível copiar automaticamente. Selecione o texto manualmente.';
   });
 }
+
+// ===== Carregar automaticamente os últimos dados salvos na nuvem =====
+async function initFromCloud() {
+  const rotas12h = await loadFromCloud('rotas12h');
+  if (rotas12h && (rotas12h.driver || rotas12h.me_extra)) {
+    currentData = { driver: rotas12h.driver || [], me_extra: rotas12h.me_extra || [] };
+    renderTables(currentData);
+    renderReport(currentData);
+    renderDashboard(currentData);
+    document.getElementById('downloadBtn').disabled = false;
+    document.getElementById('copyReportBtn').disabled = false;
+    document.getElementById('fileName').textContent = 'Últimos dados salvos na nuvem';
+  }
+
+  const meexRows = await loadFromCloud('rotasMeexNex');
+  if (meexRows && Array.isArray(meexRows) && meexRows.length > 0) {
+    currentMeexRows = meexRows;
+    renderMeexRows(meexRows);
+    renderMeexReport(meexRows);
+    document.getElementById('copyMeexReportBtn').disabled = false;
+  }
+}
+
+initFromCloud();
 </script>
 
 </body>
