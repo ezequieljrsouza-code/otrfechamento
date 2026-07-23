@@ -438,25 +438,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="panel">
     <table>
       <colgroup>
-        <col style="width:17%"><col style="width:15%"><col style="width:16%">
-        <col style="width:26%"><col style="width:14%"><col style="width:12%">
+        <col style="width:15%"><col style="width:13%"><col style="width:14%">
+        <col style="width:22%"><col style="width:12%"><col style="width:12%"><col style="width:12%">
       </colgroup>
       <tr class="title-row">
-        <th colspan="5">Rota &gt; 12h | MLP</th>
+        <th colspan="6">Rota &gt; 12h | MLP</th>
         <th class="total-cell" id="totalMlp">Total: 0</th>
       </tr>
       <tr class="head-row">
-        <th>ID ROTA</th><th>PREFIXO</th><th>PLACA</th><th>MLP</th><th>FACILITY</th><th>ORH</th>
+        <th>ID ROTA</th><th>PREFIXO</th><th>PLACA</th><th>MLP</th><th>FACILITY</th><th>TIPO FACILITY</th><th>ORH</th>
       </tr>
     </table>
     <div class="scroll-full">
       <table>
         <colgroup>
-          <col style="width:17%"><col style="width:15%"><col style="width:16%">
-          <col style="width:26%"><col style="width:14%"><col style="width:12%">
+          <col style="width:15%"><col style="width:13%"><col style="width:14%">
+          <col style="width:22%"><col style="width:12%"><col style="width:12%"><col style="width:12%">
         </colgroup>
         <tbody id="bodyMlp">
-          <tr><td colspan="6" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
+          <tr><td colspan="7" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
         </tbody>
       </table>
     </div>
@@ -465,25 +465,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="panel">
     <table>
       <colgroup>
-        <col style="width:17%"><col style="width:15%"><col style="width:16%">
-        <col style="width:26%"><col style="width:14%"><col style="width:12%">
+        <col style="width:15%"><col style="width:13%"><col style="width:14%">
+        <col style="width:22%"><col style="width:12%"><col style="width:12%"><col style="width:12%">
       </colgroup>
       <tr class="title-row">
-        <th colspan="5">Rota &gt; 12h | ME Extra</th>
+        <th colspan="6">Rota &gt; 12h | ME Extra</th>
         <th class="total-cell" id="totalMe">Total: 0</th>
       </tr>
       <tr class="head-row">
-        <th>ID ROTA</th><th>PREFIXO</th><th>PLACA</th><th>MLP</th><th>FACILITY</th><th>ORH</th>
+        <th>ID ROTA</th><th>PREFIXO</th><th>PLACA</th><th>MLP</th><th>FACILITY</th><th>TIPO FACILITY</th><th>ORH</th>
       </tr>
     </table>
     <div class="scroll-full">
       <table>
         <colgroup>
-          <col style="width:17%"><col style="width:15%"><col style="width:16%">
-          <col style="width:26%"><col style="width:14%"><col style="width:12%">
+          <col style="width:15%"><col style="width:13%"><col style="width:14%">
+          <col style="width:22%"><col style="width:12%"><col style="width:12%"><col style="width:12%">
         </colgroup>
         <tbody id="bodyMe">
-          <tr><td colspan="6" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
+          <tr><td colspan="7" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
         </tbody>
       </table>
     </div>
@@ -507,7 +507,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <textarea id="meexPasteInput" placeholder="Cole aqui o conteúdo copiado das rotas NEX..."></textarea>
   <div class="paste-actions">
     <button id="genMeexBtn">Gerar tabela</button>
-    <button id="printMeexBtn">PRINT</button>
+    <button id="printMeexBtn">Gerar imagem (HD)</button>
     <span id="meexStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
   </div>
 </div>
@@ -740,12 +740,13 @@ function renderRows(bodyId, items) {
   const body = document.getElementById(bodyId);
   body.innerHTML = '';
   if (items.length === 0) {
-    body.innerHTML = '<tr><td colspan="6" class="empty-hint">Nenhuma rota encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="empty-hint">Nenhuma rota encontrada</td></tr>';
     return;
   }
   items.forEach(it => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${it.id_rota}</td><td>${it.prefixo}</td><td>${it.placa}</td><td>${it.mlp}</td><td>${it.facility}</td><td>${it.orh_fmt}</td>`;
+    const tipoFacility = FACILITY_MAP[it.prefixo] || '-';
+    tr.innerHTML = `<td>${it.id_rota}</td><td>${it.prefixo}</td><td>${it.placa}</td><td>${it.mlp}</td><td>${it.facility}</td><td>${tipoFacility}</td><td>${it.orh_fmt}</td>`;
     body.appendChild(tr);
   });
 }
@@ -800,6 +801,18 @@ function renderReport(data) {
 let chartTipo = null;
 let chartFacility = null;
 let chartCarrier = null;
+
+const FACILITY_MAP = {
+  'BRDPA11404': 'DC', 'BRDPA11445': 'DC', 'BRDPA11446': 'DC', 'BRDPA11447': 'DC',
+  'BRDPA11448': 'DC', 'BRDPA11449': 'DC', 'BRDPA11452': 'DC', 'BRDPA193': 'DC', 'BRDPA26': 'DC',
+  'BRNPA11416': 'NEX', 'BRNPA11420': 'NEX', 'BRNPA11425': 'NEX', 'BRNPA11440': 'NEX',
+  'BRNPA11441': 'NEX', 'BRNPA11447': 'NEX', 'BRNPA11448': 'NEX', 'BRNPA11454': 'NEX',
+  'BRNPA11457': 'NEX', 'BRNPA11458': 'NEX', 'BRNPA193': 'NEX', 'BRNPA26': 'NEX',
+  'BRNPA535': 'NEX', 'BRNPA71': 'NEX', 'BRNPA736': 'NEX', 'BRNPA75': 'NEX', 'BRNPA769': 'NEX',
+  'EPA1': 'XPT', 'EPA2': 'XPT', 'EPA3': 'XPT', 'EPA4': 'XPT', 'EPA5': 'XPT',
+  'EPA6': 'XPT', 'EPA7': 'XPT', 'EPA8': 'XPT', 'EPA9': 'XPT', 'ETO4': 'XPT',
+  'SPA1': 'SVC'
+};
 
 const CHART_COLORS = ['#FFF159', '#5B9BD5', '#F2B84B', '#E07A5F', '#7A9E7E', '#A084CA', '#4C9F70', '#D46A6A'];
 
@@ -902,8 +915,14 @@ function renderDashboard(data) {
 
   // Chart 3: MLP por transportadora (carrier)
   const carrierCounts = {};
+  const carrierFacilities = {};
   data.driver.forEach(it => {
     carrierCounts[it.mlp] = (carrierCounts[it.mlp] || 0) + 1;
+    const fac = FACILITY_MAP[it.prefixo];
+    if (fac) {
+      if (!carrierFacilities[it.mlp]) carrierFacilities[it.mlp] = new Set();
+      carrierFacilities[it.mlp].add(fac);
+    }
   });
   const carrierEntries = Object.entries(carrierCounts).sort((a, b) => b[1] - a[1]);
 
@@ -914,7 +933,10 @@ function renderDashboard(data) {
     chartCarrier = new Chart(document.getElementById('chartCarrier'), {
       type: 'bar',
       data: {
-        labels: carrierEntries.map(e => e[0]),
+        labels: carrierEntries.map(e => {
+          const facs = carrierFacilities[e[0]] ? [...carrierFacilities[e[0]]].join(' / ') : '';
+          return facs ? [e[0], facs] : [e[0]];
+        }),
         datasets: [{
           data: carrierEntries.map(e => e[1]),
           backgroundColor: CHART_COLORS[3],
@@ -946,7 +968,7 @@ function copyReport() {
 }
 
 function downloadXlsx() {
-  const headers = ['ID ROTA', 'PREFIXO', 'PLACA', 'MLP', 'FACILITY', 'ORH'];
+  const headers = ['ID ROTA', 'PREFIXO', 'PLACA', 'MLP', 'FACILITY', 'TIPO FACILITY', 'ORH'];
   const gapCols = 1;
   const blockWidth = headers.length;
 
@@ -978,7 +1000,8 @@ function downloadXlsx() {
       row[2] = d.placa;
       row[3] = d.mlp;
       row[4] = d.facility;
-      row[5] = d.orh_fmt;
+      row[5] = FACILITY_MAP[d.prefixo] || '-';
+      row[6] = d.orh_fmt;
     }
     const m = currentData.me_extra[i];
     if (m) {
@@ -987,14 +1010,15 @@ function downloadXlsx() {
       row[block2Start + 2] = m.placa;
       row[block2Start + 3] = m.mlp;
       row[block2Start + 4] = m.facility;
-      row[block2Start + 5] = m.orh_fmt;
+      row[block2Start + 5] = FACILITY_MAP[m.prefixo] || '-';
+      row[block2Start + 6] = m.orh_fmt;
     }
     aoa.push(row);
   }
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws['!merges'] = merges;
-  const colWidths = [12, 12, 10, 26, 10, 9];
+  const colWidths = [12, 12, 10, 26, 10, 12, 9];
   const cols = [];
   colWidths.forEach(w => cols.push({ wch: w }));
   cols.push({ wch: 3 });
