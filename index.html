@@ -1147,7 +1147,7 @@ function titleCase(str) {
 function parseMeexText(text) {
   const ids = [...text.matchAll(/#(\d+)/g)].map(m => m[1]);
 
-  const nexNameMatches = [...text.matchAll(/([A-Z]{2,}[A-Z0-9]*)\s*·\s*AM\d+\s+([a-zà-ÿ]+(?:\s[a-zà-ÿ]+)+)\s+Extra\b/gi)]
+  const nexNameMatches = [...text.matchAll(/([A-Z]{2,}[A-Z0-9]*)\s*·\s*[A-Z]{2,4}\d{0,2}\s+([a-zà-ÿ]+(?:\s[a-zà-ÿ]+)+)\s+Extra\b/gi)]
     .map(m => ({ nex: m[1].toUpperCase(), name: titleCase(m[2]) }));
 
   const countMatches = [...text.matchAll(/(\d+)\s*pendentes?,\s*(\d+)\s*com\s*falhas?,\s*(\d+)\s*bem-sucedidos/gi)]
