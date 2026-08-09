@@ -374,21 +374,70 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .single-panel table { table-layout: fixed; }
   td.pend-alert { color: #a32d2d; font-weight: 700; }
+  .dsorhc-cards-row {
+    max-width: 1300px;
+    margin: 0 auto 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .dsorhc-card {
+    flex: 1;
+    min-width: 190px;
+    background: #fff;
+    border: 2px solid #92c353;
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .dsorhc-card .dsorhc-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .dsorhc-card .dsorhc-card-name {
+    font-weight: 700;
+    font-size: 12.5px;
+    color: #1a1a1a;
+  }
+  .dsorhc-card .dsorhc-card-rotas {
+    font-size: 11px;
+    color: #666;
+  }
+  .dsorhc-card .dsorhc-metric-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    padding: 1px 0;
+  }
+  .dsorhc-card .dsorhc-metric-label { color: #475569; }
+  .dsorhc-card .dsorhc-metric-val { font-weight: 700; }
+  .farol-green { color: #16a34a; }
+  .farol-yellow { color: #ca8a04; }
+  .farol-red { color: #dc2626; }
+  .farol-none { color: #999; }
+  tr.dsorhc-total-row td { font-weight: 700; background: #FFF159 !important; }
 </style>
 </head>
 <body>
 
+<div class="toolbar" style="max-width:1300px;margin:0 auto 14px;">
+  <label class="file-btn" for="globalCsvInput">Subir CSV</label>
+  <input type="file" id="globalCsvInput" accept=".csv" />
+  <span id="globalCsvFileName">Nenhum arquivo carregado</span>
+  <span id="globalCsvStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+</div>
+
 <div class="tab-bar">
   <button class="tab-btn active" id="tabBtn1" onclick="switchTab(1)">Rota &gt; 12h</button>
   <button class="tab-btn" id="tabBtn2" onclick="switchTab(2)">Rotas MEEXs NEX</button>
+  <button class="tab-btn" id="tabBtn3" onclick="switchTab(3)">DS_ORHC</button>
+  <button class="tab-btn" id="tabBtn4" onclick="switchTab(4)">Ambulância</button>
 </div>
 
 <div id="tab-panel-1" class="tab-panel active">
 
 <div class="toolbar">
-  <label class="file-btn" for="csvInput">Subir CSV</label>
-  <input type="file" id="csvInput" accept=".csv" />
-  <span id="fileName">Nenhum arquivo carregado</span>
   <button id="downloadBtn" disabled>Baixar planilha (.xlsx)</button>
   <button id="printImgBtn">Print</button>
   <span id="statusMsg"></span>
@@ -556,6 +605,97 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 </div>
 
+<div id="tab-panel-3" class="tab-panel">
+
+<div class="toolbar">
+  <span id="dsOrhcStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+</div>
+
+<div id="captureAreaDsOrhc">
+<div class="dsorhc-cards-row" id="dsOrhcCards"></div>
+
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:9%"><col style="width:14%"><col style="width:6%">
+      <col style="width:9%"><col style="width:6%"><col style="width:9%">
+      <col style="width:9%"><col style="width:9%"><col style="width:9%">
+      <col style="width:10%"><col style="width:10%"><col style="width:10%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="12">Gestão de Aderências nos Indicadores: ORH | DS</th>
+    </tr>
+    <tr class="head-row">
+      <th>Origem</th><th>Facility</th><th>Rotas</th><th>Total Pacotes</th><th>SPR</th>
+      <th>Entregues</th><th>Pendentes</th><th>Insucessos</th><th>Steam Out</th>
+      <th>ORHC</th><th>DS Realizado</th><th>DS Previsto</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:9%"><col style="width:14%"><col style="width:6%">
+        <col style="width:9%"><col style="width:6%"><col style="width:9%">
+        <col style="width:9%"><col style="width:9%"><col style="width:9%">
+        <col style="width:10%"><col style="width:10%"><col style="width:10%">
+      </colgroup>
+      <tbody id="bodyDsOrhc">
+        <tr><td colspan="12" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<div class="report-box">
+  <div class="report-head">
+    <h3>Report automático — REPORT FINAL</h3>
+    <button id="copyDsOrhcReportBtn" disabled>Copiar report</button>
+  </div>
+  <div class="report-line" id="dsOrhcReportBox">Suba o CSV para gerar o report automático.</div>
+</div>
+
+</div>
+
+<div id="tab-panel-4" class="tab-panel">
+
+<div id="captureAreaAmbulancia">
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:18%"><col style="width:22%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="4">Ambulância</th>
+      <th class="total-cell" id="totalAmbulancia">Total: 0</th>
+    </tr>
+    <tr class="head-row">
+      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:18%"><col style="width:22%">
+      </colgroup>
+      <tbody id="bodyAmbulancia">
+        <tr><td colspan="5" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<div class="report-box">
+  <div class="report-head">
+    <h3>Report automático</h3>
+    <button id="copyAmbulanciaReportBtn" disabled>Copiar report</button>
+  </div>
+  <div class="report-line" id="ambulanciaReportBox">Suba o CSV para gerar o report automático.</div>
+</div>
+
+</div>
+
 <script>
 const FIREBASE_URL = 'https://otrfechamento-default-rtdb.europe-west1.firebasedatabase.app';
 
@@ -599,7 +739,6 @@ const HEADERS_NEEDED = [
   'timingData.orh'
 ];
 
-document.getElementById('csvInput').addEventListener('change', handleFile);
 document.getElementById('downloadBtn').addEventListener('click', downloadXlsx);
 document.getElementById('copyReportBtn').addEventListener('click', copyReport);
 document.getElementById('printImgBtn').addEventListener('click', generateHdImage);
@@ -662,21 +801,7 @@ function fmtHours(min) {
   return h + 'h' + String(m).padStart(2, '0');
 }
 
-function handleFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  document.getElementById('fileName').textContent = file.name;
-  document.getElementById('statusMsg').textContent = '';
-
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    try {
-      let text = evt.target.result;
-      text = text.replace(/^\uFEFF/, '');
-      const lines = text.split(/\r\n|\n/).filter(l => l.length > 0);
-      if (lines.length < 2) throw new Error('Arquivo vazio ou sem dados');
-
-      const header = parseCsvLine(lines[0], ';');
+function processRota12hCsv(header, dataLines) {
       const idx = {};
       HEADERS_NEEDED.forEach(h => {
         const pos = header.indexOf(h);
@@ -686,8 +811,8 @@ function handleFile(e) {
 
       const data = { driver: [], me_extra: [] };
 
-      for (let i = 1; i < lines.length; i++) {
-        const cols = parseCsvLine(lines[i], ';');
+      for (let i = 0; i < dataLines.length; i++) {
+        const cols = parseCsvLine(dataLines[i], ';');
         if (cols.length < header.length) continue;
 
         const dt = cols[idx['deliveryType']];
@@ -733,11 +858,6 @@ function handleFile(e) {
           document.getElementById('statusMsg').textContent = 'Dados exibidos, mas não foi possível salvar na nuvem.';
         }
       });
-    } catch (err) {
-      document.getElementById('statusMsg').textContent = 'Erro: ' + err.message;
-    }
-  };
-  reader.readAsText(file, 'UTF-8');
 }
 
 function renderRows(bodyId, items) {
@@ -1071,8 +1191,12 @@ function downloadXlsx() {
 function switchTab(n) {
   document.getElementById('tab-panel-1').classList.toggle('active', n === 1);
   document.getElementById('tab-panel-2').classList.toggle('active', n === 2);
+  document.getElementById('tab-panel-3').classList.toggle('active', n === 3);
+  document.getElementById('tab-panel-4').classList.toggle('active', n === 4);
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
+  document.getElementById('tabBtn3').classList.toggle('active', n === 3);
+  document.getElementById('tabBtn4').classList.toggle('active', n === 4);
 }
 
 // ===== Rotas MEEXs NEX (paste parser) =====
@@ -1252,8 +1376,505 @@ function copyMeexReport() {
   });
 }
 
+// ===== Rotas MEEXs NEX — upload de CSV (alternativa ao colar texto) =====
+const MEEX_CSV_HEADERS_NEEDED = [
+  'id', 'deliveryType', 'facilityId', 'driver.driverName', 'initDate',
+  'counters.delivered', 'counters.notDelivered', 'counters.pending'
+];
+
+function unixToBR(unixSeconds) {
+  const d = new Date(unixSeconds * 1000);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return dd + '/' + mm + '/' + yyyy;
+}
+
+function processMeexCsv(header, dataLines) {
+      const statusEl = document.getElementById('meexStatusMsg');
+      const idx = {};
+      MEEX_CSV_HEADERS_NEEDED.forEach(h => {
+        const pos = header.indexOf(h);
+        if (pos === -1) throw new Error('Coluna esperada nao encontrada: ' + h);
+        idx[h] = pos;
+      });
+
+      const excluirNEX = DS_XPT_FACILITIES.concat(['SPA1']);
+      const rows = [];
+      for (let i = 0; i < dataLines.length; i++) {
+        const cols = parseCsvLine(dataLines[i], ';');
+        if (cols.length < header.length) continue;
+
+        const deliveryType = (cols[idx['deliveryType']] || '').trim();
+        if (deliveryType !== 'me_extra') continue;
+
+        const facilityId = (cols[idx['facilityId']] || '').trim();
+        if (!facilityId || excluirNEX.includes(facilityId)) continue;
+
+        const driverName = (cols[idx['driver.driverName']] || '').trim();
+        const initDate = parseFloat(cols[idx['initDate']]);
+        const entregues = parseFloat(cols[idx['counters.delivered']]) || 0;
+        const insucessos = parseFloat(cols[idx['counters.notDelivered']]) || 0;
+        const pendentes = parseFloat(cols[idx['counters.pending']]) || 0;
+
+        rows.push({
+          rota_id: (cols[idx['id']] || '').trim(),
+          data_rota: !isNaN(initDate) && initDate > 0 ? unixToBR(initDate) : todayBR(),
+          motorista: driverName ? titleCase(driverName) : '-',
+          facility: 'Envios Extra',
+          id_facility: facilityId,
+          entregues: entregues,
+          insucessos: insucessos,
+          pendentes: pendentes
+        });
+      }
+
+      if (rows.length === 0) {
+        statusEl.textContent = 'Nenhuma rota NEX (Envios Extra) encontrada no CSV.';
+        return;
+      }
+
+      currentMeexRows = rows;
+      insucessosSortDir = null;
+      document.getElementById('sortArrow').textContent = '';
+      renderMeexRows(rows);
+      renderMeexReport(rows);
+      document.getElementById('copyMeexReportBtn').disabled = false;
+
+      saveToCloud('rotasMeexNex', rows).then(ok => {
+        if (!ok) {
+          statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
+        }
+      });
+}
+
+// ===== DS_ORHC (Gestão de Aderências nos Indicadores: ORH | DS) =====
+const DS_XPT_FACILITIES = ['EPA1','EPA2','EPA3','EPA4','EPA5','EPA6','EPA7','EPA8','EPA9','EMN1','ETO4'];
+
+const DS_HEADERS_NEEDED = [
+  'deliveryType', 'facilityId', 'carrier', 'facilityType', 'substatus', 'cluster',
+  'counters.total', 'counters.delivered', 'counters.pending',
+  'counters.notDelivered', 'shipmentData.spr', 'timingData.orh', 'timingData.stemOut'
+];
+const DS_ORHC_LIMIT_MIN = 528;
+const DS_STEMOUT_LIMIT_MIN = 90;
+
+let dsOrhcRows = [];
+let dsOrhcReportText = '';
+
+document.getElementById('copyDsOrhcReportBtn').addEventListener('click', copyDsOrhcReport);
+
+function dsPct(v) {
+  return v.toFixed(2).replace('.', ',') + '%';
+}
+
+function dsFarolOrhc(pct) {
+  if (pct === null) return { text: '-', cls: 'farol-none' };
+  const t = dsPct(pct);
+  if (pct >= 85) return { text: t + ' 🟢', cls: 'farol-green' };
+  if (pct >= 75) return { text: t + ' 🟡', cls: 'farol-yellow' };
+  return { text: t + ' 🔴', cls: 'farol-red' };
+}
+
+function dsFarolDelivery(pct) {
+  if (pct === null) return { text: '-', cls: 'farol-none' };
+  const t = dsPct(pct);
+  if (pct >= 99) return { text: t + ' 🟢', cls: 'farol-green' };
+  if (pct >= 98) return { text: t + ' 🟡', cls: 'farol-yellow' };
+  return { text: t + ' 🔴', cls: 'farol-red' };
+}
+
+function calcDsOrhcMetrics(rows) {
+  const rotas = rows.length;
+  const totalPacotes = rows.reduce((s, r) => s + r.total, 0);
+  const spr = rows.reduce((s, r) => s + r.spr, 0);
+  const entregues = rows.reduce((s, r) => s + r.delivered, 0);
+  const pendentes = rows.reduce((s, r) => s + r.pending, 0);
+  const insucessos = rows.reduce((s, r) => s + r.notDelivered, 0);
+  const steamOkCount = rows.filter(r => r.stemOutOk).length;
+  const steamOutPct = rotas > 0 ? (steamOkCount / rotas * 100) : null;
+  const orhcOkCount = rows.filter(r => r.orhOk).length;
+  const orhcPct = rotas > 0 ? (orhcOkCount / rotas * 100) : null;
+  const dsRealPct = totalPacotes > 0 ? (entregues / totalPacotes * 100) : null;
+  const dsPrevPct = totalPacotes > 0 ? ((1 - (insucessos / totalPacotes)) * 100) : null;
+  return { rotas, totalPacotes, spr, entregues, pendentes, insucessos, steamOutPct, orhcPct, dsRealPct, dsPrevPct };
+}
+
+function makeDsOrhcGroup(origem, facility, reportLabel, rowsForGroup) {
+  const m = calcDsOrhcMetrics(rowsForGroup);
+  return {
+    origem, facility, reportLabel,
+    metrics: m,
+    orhcFarol: dsFarolOrhc(m.orhcPct),
+    dsRealFarol: dsFarolDelivery(m.dsRealPct),
+    dsPrevFarol: dsFarolDelivery(m.dsPrevPct)
+  };
+}
+
+function buildDsOrhcGroups(rows) {
+  const groups = [];
+
+  const xptExtraRows = rows.filter(r => r.deliveryType === 'me_extra' && DS_XPT_FACILITIES.includes(r.facilityId));
+  if (xptExtraRows.length > 0) groups.push(makeDsOrhcGroup('XPT', 'Envios Extra', 'Envios Extra (XPT)', xptExtraRows));
+
+  DS_XPT_FACILITIES.forEach(fac => {
+    const facRows = rows.filter(r => r.facilityId === fac && r.deliveryType === 'driver' && !r.isAmbulance);
+    if (facRows.length > 0) groups.push(makeDsOrhcGroup('XPT', fac, fac, facRows));
+  });
+
+  const svcExtraRows = rows.filter(r => r.deliveryType === 'me_extra' && r.facilityId === 'SPA1');
+  if (svcExtraRows.length > 0) groups.push(makeDsOrhcGroup('SVC', 'Envios Extra', 'Envios Extra (SVC)', svcExtraRows));
+
+  const svcCarriers = [];
+  const seenCarriers = new Set();
+  rows.forEach(r => {
+    if (r.deliveryType === 'driver' && r.facilityType !== 'exchange_point' && !r.isAmbulance && r.carrier && !seenCarriers.has(r.carrier)) {
+      seenCarriers.add(r.carrier);
+      svcCarriers.push(r.carrier);
+    }
+  });
+  svcCarriers.sort();
+  svcCarriers.forEach(carrier => {
+    const facRows = rows.filter(r => r.deliveryType === 'driver' && r.facilityType !== 'exchange_point' && !r.isAmbulance && r.carrier === carrier);
+    groups.push(makeDsOrhcGroup('SVC', carrier, carrier, facRows));
+  });
+
+  const excluirNEX = DS_XPT_FACILITIES.concat(['SPA1']);
+  const nexExtraRows = rows.filter(r => r.deliveryType === 'me_extra' && !excluirNEX.includes(r.facilityId));
+  if (nexExtraRows.length > 0) groups.push(makeDsOrhcGroup('NEX', 'Envios Extra', 'Envios Extra (NEX)', nexExtraRows));
+
+  const ambRows = rows.filter(r => r.isAmbulance);
+  if (ambRows.length > 0) groups.push(makeDsOrhcGroup('AMBULÂNCIA', 'Geral', 'Geral', ambRows));
+
+  return groups;
+}
+
+function buildDsOrhcCards(rows) {
+  const carriers = [];
+  const seen = new Set();
+  rows.forEach(r => { if (r.carrier && !seen.has(r.carrier)) { seen.add(r.carrier); carriers.push(r.carrier); } });
+  carriers.sort();
+  return carriers.map(carrier => {
+    const carRows = rows.filter(r => r.carrier === carrier);
+    const m = calcDsOrhcMetrics(carRows);
+    return {
+      carrier, rotas: m.rotas,
+      orhcFarol: dsFarolOrhc(m.orhcPct),
+      dsRealFarol: dsFarolDelivery(m.dsRealPct),
+      dsPrevFarol: dsFarolDelivery(m.dsPrevPct)
+    };
+  });
+}
+
+function renderDsOrhcTable(groups, allRows) {
+  const body = document.getElementById('bodyDsOrhc');
+  body.innerHTML = '';
+  if (groups.length === 0) {
+    body.innerHTML = '<tr><td colspan="12" class="empty-hint">Nenhum dado encontrado</td></tr>';
+    return;
+  }
+  groups.forEach(g => {
+    const m = g.metrics;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${g.origem}</td><td>${g.facility}</td><td>${m.rotas}</td>` +
+      `<td>${m.totalPacotes}</td><td>${m.spr}</td><td>${m.entregues}</td><td>${m.pendentes}</td><td>${m.insucessos}</td>` +
+      `<td>${m.steamOutPct === null ? '-' : dsPct(m.steamOutPct)}</td>` +
+      `<td class="${g.orhcFarol.cls}">${g.orhcFarol.text}</td>` +
+      `<td class="${g.dsRealFarol.cls}">${g.dsRealFarol.text}</td>` +
+      `<td class="${g.dsPrevFarol.cls}">${g.dsPrevFarol.text}</td>`;
+    body.appendChild(tr);
+  });
+
+  const totalRotas = groups.reduce((s, g) => s + g.metrics.rotas, 0);
+  const totalPacotes = groups.reduce((s, g) => s + g.metrics.totalPacotes, 0);
+  const totalSpr = groups.reduce((s, g) => s + g.metrics.spr, 0);
+  const totalEntregues = groups.reduce((s, g) => s + g.metrics.entregues, 0);
+  const totalPendentes = groups.reduce((s, g) => s + g.metrics.pendentes, 0);
+  const totalInsucessos = groups.reduce((s, g) => s + g.metrics.insucessos, 0);
+  const steamOkAll = allRows.filter(r => r.stemOutOk).length;
+  const steamOutTotalPct = allRows.length > 0 ? (steamOkAll / allRows.length * 100) : null;
+  const orhcOkAll = allRows.filter(r => r.orhOk).length;
+  const orhcTotalPct = allRows.length > 0 ? (orhcOkAll / allRows.length * 100) : null;
+  const dsRealTotalPct = totalPacotes > 0 ? (totalEntregues / totalPacotes * 100) : null;
+  const dsPrevTotalPct = totalPacotes > 0 ? ((1 - (totalInsucessos / totalPacotes)) * 100) : null;
+  const orhcTotalFarol = dsFarolOrhc(orhcTotalPct);
+  const dsRealTotalFarol = dsFarolDelivery(dsRealTotalPct);
+  const dsPrevTotalFarol = dsFarolDelivery(dsPrevTotalPct);
+
+  const trTotal = document.createElement('tr');
+  trTotal.className = 'dsorhc-total-row';
+  trTotal.innerHTML = `<td colspan="2">TOTAL</td><td>${totalRotas}</td>` +
+    `<td>${totalPacotes}</td><td>${totalSpr}</td><td>${totalEntregues}</td><td>${totalPendentes}</td><td>${totalInsucessos}</td>` +
+    `<td>${steamOutTotalPct === null ? '-' : dsPct(steamOutTotalPct)}</td>` +
+    `<td class="${orhcTotalFarol.cls}">${orhcTotalFarol.text}</td>` +
+    `<td class="${dsRealTotalFarol.cls}">${dsRealTotalFarol.text}</td>` +
+    `<td class="${dsPrevTotalFarol.cls}">${dsPrevTotalFarol.text}</td>`;
+  body.appendChild(trTotal);
+}
+
+function renderDsOrhcCards(cards) {
+  const wrap = document.getElementById('dsOrhcCards');
+  wrap.innerHTML = '';
+  cards.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'dsorhc-card';
+    div.innerHTML = `
+      <div class="dsorhc-card-head">
+        <span class="dsorhc-card-name">🚚 ${c.carrier}</span>
+        <span class="dsorhc-card-rotas">Rotas: ${c.rotas}</span>
+      </div>
+      <div class="dsorhc-metric-row"><span class="dsorhc-metric-label">ORHC</span><span class="dsorhc-metric-val ${c.orhcFarol.cls}">${c.orhcFarol.text}</span></div>
+      <div class="dsorhc-metric-row"><span class="dsorhc-metric-label">DS Realizado</span><span class="dsorhc-metric-val ${c.dsRealFarol.cls}">${c.dsRealFarol.text}</span></div>
+      <div class="dsorhc-metric-row"><span class="dsorhc-metric-label">DS Previsto</span><span class="dsorhc-metric-val ${c.dsPrevFarol.cls}">${c.dsPrevFarol.text}</span></div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function buildDsOrhcReportFinal(groups) {
+  const dsRed = groups.filter(g => g.dsRealFarol.cls === 'farol-red')
+    .sort((a, b) => (a.metrics.dsRealPct ?? 0) - (b.metrics.dsRealPct ?? 0));
+  const dsGreen = groups.filter(g => g.dsRealFarol.cls === 'farol-green');
+  const orhcRed = groups.filter(g => g.orhcFarol.cls === 'farol-red');
+  const orhcGreen = groups.filter(g => g.orhcFarol.cls === 'farol-green');
+
+  const lines = [];
+  lines.push('📋 REPORT FINAL — DELIVERY SUCCESS (DS)');
+  lines.push('');
+  lines.push('Ofensores DS (Realizado)');
+  if (dsRed.length === 0) {
+    lines.push('Nenhum ofensor encontrado.');
+  } else {
+    dsRed.forEach(g => lines.push('🔴 ' + g.reportLabel + ' — DS: ' + dsPct(g.metrics.dsRealPct) + ' | Insucessos: ' + g.metrics.insucessos));
+    lines.push('⚠️ Vão conseguir reverter os insucessos?');
+  }
+  lines.push('');
+  lines.push('🟢 Parabéns — DS Realizado no verde!');
+  lines.push(dsGreen.length === 0 ? 'Nenhum indicador no verde ainda.' : '🎉 Excelente trabalho! Vamos manter o Indicador DS 🟢');
+  lines.push('');
+  lines.push('');
+  lines.push('📋 REPORT FINAL — ORHC');
+  lines.push('');
+  lines.push('Ofensores ORHC');
+  if (orhcRed.length === 0) {
+    lines.push('Nenhum ofensor encontrado.');
+  } else {
+    orhcRed.forEach(g => lines.push('🔴 ' + g.reportLabel + ' — ORHC: ' + dsPct(g.metrics.orhcPct)));
+  }
+  lines.push('');
+  lines.push('🟢 Parabéns — ORHC no verde!');
+  lines.push(orhcGreen.length === 0
+    ? 'Nenhum indicador no verde ainda.'
+    : '🎉 Excelente trabalho! Os seguintes Facilities estão com ORHC no verde: ' + orhcGreen.map(g => g.reportLabel).join(', '));
+
+  return lines.join('\n');
+}
+
+function renderDsOrhc(rows) {
+  const groups = buildDsOrhcGroups(rows);
+  const cards = buildDsOrhcCards(rows);
+  renderDsOrhcTable(groups, rows);
+  renderDsOrhcCards(cards);
+  dsOrhcReportText = buildDsOrhcReportFinal(groups);
+  document.getElementById('dsOrhcReportBox').textContent = dsOrhcReportText;
+}
+
+function processDsOrhcCsv(header, dataLines) {
+      const idx = {};
+      DS_HEADERS_NEEDED.forEach(h => {
+        const pos = header.indexOf(h);
+        if (pos === -1) throw new Error('Coluna esperada nao encontrada: ' + h);
+        idx[h] = pos;
+      });
+
+      const rows = [];
+      for (let i = 0; i < dataLines.length; i++) {
+        const cols = parseCsvLine(dataLines[i], ';');
+        if (cols.length < header.length) continue;
+
+        const substatus = (cols[idx['substatus']] || '').trim();
+        if (substatus === 'at_destination_facility') continue;
+
+        const facilityId = (cols[idx['facilityId']] || '').trim();
+        const deliveryType = (cols[idx['deliveryType']] || '').trim();
+        if (!facilityId || !deliveryType) continue;
+
+        const carrier = (cols[idx['carrier']] || '').trim();
+        const facilityType = (cols[idx['facilityType']] || '').trim();
+        const cluster = (cols[idx['cluster']] || '').trim();
+        const isAmbulance = cluster === '';
+        const total = parseFloat(cols[idx['counters.total']]) || 0;
+        const delivered = parseFloat(cols[idx['counters.delivered']]) || 0;
+        const pending = parseFloat(cols[idx['counters.pending']]) || 0;
+        const notDelivered = parseFloat(cols[idx['counters.notDelivered']]) || 0;
+        const spr = parseFloat(cols[idx['shipmentData.spr']]) || 0;
+        const orh = parseFloat(cols[idx['timingData.orh']]);
+        const orhOk = !isNaN(orh) && orh <= DS_ORHC_LIMIT_MIN;
+        const stemOut = parseFloat(cols[idx['timingData.stemOut']]);
+        const stemOutOk = !isNaN(stemOut) && stemOut <= DS_STEMOUT_LIMIT_MIN;
+
+        rows.push({ facilityId, deliveryType, carrier, facilityType, isAmbulance, total, delivered, pending, notDelivered, spr, orhOk, stemOutOk });
+      }
+
+      dsOrhcRows = rows;
+      renderDsOrhc(rows);
+      document.getElementById('copyDsOrhcReportBtn').disabled = false;
+
+      saveToCloud('dsOrhc', rows).then(ok => {
+        if (!ok) {
+          document.getElementById('dsOrhcStatusMsg').textContent = 'Dados exibidos, mas não foi possível salvar na nuvem.';
+        }
+      });
+}
+
+function copyDsOrhcReport() {
+  if (!dsOrhcReportText) return;
+  navigator.clipboard.writeText(dsOrhcReportText).then(() => {
+    const btn = document.getElementById('copyDsOrhcReportBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }).catch(() => {
+    document.getElementById('dsOrhcStatusMsg').textContent = 'Não foi possível copiar automaticamente. Selecione o texto manualmente.';
+  });
+}
+
+// ===== Ambulância =====
+const AMBULANCIA_HEADERS_NEEDED = ['id', 'cluster', 'substatus', 'facilityId', 'carrier', 'vehicle.license', 'shipmentData.spr'];
+
+let ambulanciaRows = [];
+let ambulanciaReportText = '';
+
+document.getElementById('copyAmbulanciaReportBtn').addEventListener('click', copyAmbulanciaReport);
+
+function processAmbulanciaCsv(header, dataLines) {
+  const idx = {};
+  AMBULANCIA_HEADERS_NEEDED.forEach(h => {
+    const pos = header.indexOf(h);
+    if (pos === -1) throw new Error('Coluna esperada nao encontrada: ' + h);
+    idx[h] = pos;
+  });
+
+  const rows = [];
+  let totalRoutes = 0;
+  for (let i = 0; i < dataLines.length; i++) {
+    const cols = parseCsvLine(dataLines[i], ';');
+    if (cols.length < header.length) continue;
+
+    const substatus = (cols[idx['substatus']] || '').trim();
+    if (substatus === 'at_destination_facility') continue;
+    totalRoutes++;
+
+    const cluster = (cols[idx['cluster']] || '').trim();
+    if (cluster !== '') continue;
+
+    rows.push({
+      id_rota: (cols[idx['id']] || '').trim(),
+      spr: (cols[idx['shipmentData.spr']] || '').trim(),
+      placa: (cols[idx['vehicle.license']] || '').trim(),
+      facility: (cols[idx['facilityId']] || '').trim(),
+      mlp: (cols[idx['carrier']] || '').trim()
+    });
+  }
+
+  ambulanciaRows = rows;
+  renderAmbulanciaTable(rows);
+  ambulanciaReportText = buildAmbulanciaReport(rows, totalRoutes);
+  document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
+  document.getElementById('copyAmbulanciaReportBtn').disabled = false;
+
+  saveToCloud('ambulancia', { rows: rows, totalRoutes: totalRoutes });
+}
+
+function renderAmbulanciaTable(rows) {
+  const body = document.getElementById('bodyAmbulancia');
+  body.innerHTML = '';
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="5" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
+  } else {
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td>`;
+      body.appendChild(tr);
+    });
+  }
+  document.getElementById('totalAmbulancia').textContent = 'Total: ' + rows.length;
+}
+
+function buildAmbulanciaReport(rows, totalRoutes) {
+  const total = rows.length;
+  const percentual = totalRoutes > 0 ? (total / totalRoutes * 100) : 0;
+  const percentualStr = dsPct(percentual);
+
+  const contador = {};
+  rows.forEach(r => {
+    const mlp = r.mlp || '-';
+    contador[mlp] = (contador[mlp] || 0) + 1;
+  });
+  const ofensores = Object.entries(contador).sort((a, b) => b[1] - a[1]);
+
+  const lines = [];
+  lines.push('O indicador Ambulâncias finalizou o dia com: ' + percentualStr);
+  lines.push('Total de ambulâncias consideradas: ' + total);
+  lines.push('Ofensores (MLP) em ordem decrescente:');
+  ofensores.forEach(([mlp, count]) => {
+    const pct = total > 0 ? ((count / total) * 100).toFixed(2) : '0.00';
+    lines.push('- ' + mlp + ': ' + count + ' ambulâncias (' + pct + '%)');
+  });
+
+  return lines.join('\n');
+}
+
+function copyAmbulanciaReport() {
+  if (!ambulanciaReportText) return;
+  navigator.clipboard.writeText(ambulanciaReportText).then(() => {
+    const btn = document.getElementById('copyAmbulanciaReportBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }).catch(() => {});
+}
+
+// ===== Upload único de CSV — atualiza todas as guias =====
+document.getElementById('globalCsvInput').addEventListener('change', handleGlobalCsvFile);
+
+function handleGlobalCsvFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('globalCsvFileName').textContent = file.name;
+  const statusEl = document.getElementById('globalCsvStatusMsg');
+  statusEl.textContent = '';
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    let text = evt.target.result;
+    text = text.replace(/^\uFEFF/, '');
+    const lines = text.split(/\r\n|\n/).filter(l => l.length > 0);
+    if (lines.length < 2) {
+      statusEl.textContent = 'Erro: arquivo vazio ou sem dados.';
+      return;
+    }
+
+    const header = parseCsvLine(lines[0], ';');
+    const dataLines = lines.slice(1);
+
+    const errors = [];
+    try { processRota12hCsv(header, dataLines); } catch (err) { errors.push('Rota > 12h: ' + err.message); }
+    try { processMeexCsv(header, dataLines); } catch (err) { errors.push('Rotas MEEXs NEX: ' + err.message); }
+    try { processDsOrhcCsv(header, dataLines); } catch (err) { errors.push('DS_ORHC: ' + err.message); }
+    try { processAmbulanciaCsv(header, dataLines); } catch (err) { errors.push('Ambulância: ' + err.message); }
+
+    if (errors.length > 0) {
+      statusEl.textContent = 'Atenção: ' + errors.join(' | ');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
 // ===== Carregar automaticamente os últimos dados salvos na nuvem =====
 async function initFromCloud() {
+  let anyLoaded = false;
+
   const rotas12h = await loadFromCloud('rotas12h');
   if (rotas12h && (rotas12h.driver || rotas12h.me_extra)) {
     currentData = { driver: rotas12h.driver || [], me_extra: rotas12h.me_extra || [] };
@@ -1262,7 +1883,7 @@ async function initFromCloud() {
     renderDashboard(currentData);
     document.getElementById('downloadBtn').disabled = false;
     document.getElementById('copyReportBtn').disabled = false;
-    document.getElementById('fileName').textContent = 'Últimos dados salvos na nuvem';
+    anyLoaded = true;
   }
 
   const meexRows = await loadFromCloud('rotasMeexNex');
@@ -1271,6 +1892,28 @@ async function initFromCloud() {
     renderMeexRows(meexRows);
     renderMeexReport(meexRows);
     document.getElementById('copyMeexReportBtn').disabled = false;
+  }
+
+  const dsOrhcSaved = await loadFromCloud('dsOrhc');
+  if (dsOrhcSaved && Array.isArray(dsOrhcSaved) && dsOrhcSaved.length > 0) {
+    dsOrhcRows = dsOrhcSaved;
+    renderDsOrhc(dsOrhcRows);
+    document.getElementById('copyDsOrhcReportBtn').disabled = false;
+    anyLoaded = true;
+  }
+
+  const ambulanciaSaved = await loadFromCloud('ambulancia');
+  if (ambulanciaSaved && Array.isArray(ambulanciaSaved.rows) && ambulanciaSaved.rows.length > 0) {
+    ambulanciaRows = ambulanciaSaved.rows;
+    renderAmbulanciaTable(ambulanciaRows);
+    ambulanciaReportText = buildAmbulanciaReport(ambulanciaRows, ambulanciaSaved.totalRoutes || ambulanciaRows.length);
+    document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
+    document.getElementById('copyAmbulanciaReportBtn').disabled = false;
+    anyLoaded = true;
+  }
+
+  if (anyLoaded) {
+    document.getElementById('globalCsvFileName').textContent = 'Últimos dados salvos na nuvem';
   }
 }
 
