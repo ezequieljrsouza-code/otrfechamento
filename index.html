@@ -2086,12 +2086,12 @@ document.getElementById('copyLmReportBtn').addEventListener('click', copyLmRepor
 document.getElementById('printLmBtn').addEventListener('click', generateHdImageLm);
 
 function parseLmText(text) {
-  const mainMatches = [...text.matchAll(/([=>]?[A-Za-z0-9_]+)\s*·\s*#(\d+)[ \t]*\r?\n[ \t]*\r?\n([^\r\n·]+)[ \t]*\r?\n·[ \t]*\r?\n([A-Z0-9-]+)[ \t]*\r?\n·/g)]
+  const mainMatches = [...text.matchAll(/(?:([=>]?[A-Za-z0-9_]+)\s*·\s*#(\d+)|Rota\s*#(\d+))[ \t]*\r?\n[ \t]*\r?\n([^\r\n·]+)[ \t]*\r?\n·[ \t]*\r?\n([A-Z0-9-]+)[ \t]*\r?\n·/g)]
     .map(m => ({
-      prefixoRaw: m[1].trim(),
-      pedido: m[2],
-      transportadora: titleCase(m[3]),
-      placa: m[4].trim()
+      prefixoRaw: (m[1] || '-').trim(),
+      pedido: m[2] || m[3],
+      transportadora: titleCase(m[4]),
+      placa: m[5].trim()
     }));
 
   const driverMatches = [...text.matchAll(/([A-Za-zÀ-ÿ]+(?:\s[A-Za-zÀ-ÿ]+)+)[ \t]*\r?\n[ \t]*\r?\n(MLP|Extra)[ \t]*\r?\n[ \t]*\r?\n(Bronce|Prata|Plata|Oro|Platino)\b/g)]
