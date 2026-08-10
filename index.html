@@ -413,7 +413,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     gap: 12px;
     margin-top: 10px;
   }
-  #genMeexBtn {
+  #genMeexBtn, #genLmBtn {
     background: #FFF159;
     border: none;
     color: #3a3300;
@@ -489,6 +489,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <button class="sidebar-item" id="tabBtn2" onclick="switchTab(2)">Rotas MEEXs NEX</button>
   <button class="sidebar-item" id="tabBtn3" onclick="switchTab(3)">DS_ORHC</button>
   <button class="sidebar-item" id="tabBtn4" onclick="switchTab(4)">Ambulância</button>
+  <button class="sidebar-item" id="tabBtn5" onclick="switchTab(5)">Estratificar Rotas LM</button>
 </nav>
 
 <div class="content" id="mainContent">
@@ -763,6 +764,61 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <button id="copyAmbulanciaReportBtn" disabled>Copiar report</button>
   </div>
   <div class="report-line" id="ambulanciaReportBox">Suba o CSV para gerar o report automático.</div>
+</div>
+
+</div>
+
+<div id="tab-panel-5" class="tab-panel">
+
+<div class="paste-area">
+  <textarea id="lmPasteInput" placeholder="Cole aqui o conteúdo copiado do Monitoramento Last Mile..."></textarea>
+  <div class="paste-actions">
+    <button id="genLmBtn">Gerar tabela</button>
+    <button id="printLmBtn" class="btn-print">PRINT</button>
+    <span id="lmStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+  </div>
+</div>
+
+<div id="captureAreaLm">
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:10%"><col style="width:8%"><col style="width:16%">
+      <col style="width:7%"><col style="width:8%"><col style="width:12%">
+      <col style="width:10%"><col style="width:8%"><col style="width:8%">
+      <col style="width:8%"><col style="width:5%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="11">Rotas LM</th>
+    </tr>
+    <tr class="head-row" id="headRowLm">
+      <th>PREFIXO</th><th>ID DA ROTA</th><th>MOTORISTA</th><th>TIPO</th><th>NÍVEL</th>
+      <th>TRANSPORTADORA</th><th>PLACA</th><th>PENDENTES</th><th>INSUCESSOS</th>
+      <th>ENTREGUES</th><th>TOTAL</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:10%"><col style="width:8%"><col style="width:16%">
+        <col style="width:7%"><col style="width:8%"><col style="width:12%">
+        <col style="width:10%"><col style="width:8%"><col style="width:8%">
+        <col style="width:8%"><col style="width:5%">
+      </colgroup>
+      <tbody id="bodyLm">
+        <tr><td colspan="11" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<div class="report-box">
+  <div class="report-head">
+    <h3>Report automático</h3>
+    <button id="copyLmReportBtn" class="btn-secondary" disabled>Copiar report</button>
+  </div>
+  <div class="report-line" id="lmReportBox">Cole o conteúdo acima e gere a tabela para ver o report automático.</div>
 </div>
 
 </div>
@@ -1268,10 +1324,12 @@ function switchTab(n) {
   document.getElementById('tab-panel-2').classList.toggle('active', n === 2);
   document.getElementById('tab-panel-3').classList.toggle('active', n === 3);
   document.getElementById('tab-panel-4').classList.toggle('active', n === 4);
+  document.getElementById('tab-panel-5').classList.toggle('active', n === 5);
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
   document.getElementById('tabBtn3').classList.toggle('active', n === 3);
   document.getElementById('tabBtn4').classList.toggle('active', n === 4);
+  document.getElementById('tabBtn5').classList.toggle('active', n === 5);
 }
 
 function toggleSidebar() {
@@ -2016,6 +2074,175 @@ function handleGlobalCsvFile(e) {
   reader.readAsText(file, 'UTF-8');
 }
 
+// ===== Estratificar Rotas LM (paste parser) =====
+let lmReportText = '';
+let currentLmRows = [];
+
+document.getElementById('genLmBtn').addEventListener('click', generateLmTable);
+document.getElementById('copyLmReportBtn').addEventListener('click', copyLmReport);
+document.getElementById('printLmBtn').addEventListener('click', generateHdImageLm);
+
+function parseLmText(text) {
+  const mainMatches = [...text.matchAll(/([=>]?[A-Za-z0-9_]+)\s*·\s*#(\d+)[ \t]*\r?\n[ \t]*\r?\n([^\r\n·]+)[ \t]*\r?\n·[ \t]*\r?\n([A-Z0-9-]+)[ \t]*\r?\n·/g)]
+    .map(m => ({
+      prefixoRaw: m[1].trim(),
+      pedido: m[2],
+      transportadora: titleCase(m[3]),
+      placa: m[4].trim()
+    }));
+
+  const driverMatches = [...text.matchAll(/([A-Za-zÀ-ÿ]+(?:\s[A-Za-zÀ-ÿ]+)+)[ \t]*\r?\n[ \t]*\r?\n(MLP|Extra)[ \t]*\r?\n[ \t]*\r?\n(Bronce|Prata|Plata|Oro|Platino)\b/g)]
+    .map(m => ({ nome: titleCase(m[1]), tipo: m[2], nivel: m[3] }));
+
+  const countMatches = [...text.matchAll(/(\d+)\s*pendentes?,\s*(\d+)\s*com\s*falhas?,\s*(\d+)\s*bem-sucedidos?/gi)]
+    .map(m => ({ pend: parseInt(m[1], 10), falha: parseInt(m[2], 10), sucesso: parseInt(m[3], 10) }));
+
+  const unitsMatches = [...text.matchAll(/SPR[ \t]*\r?\n[ \t]*(\d+)\s*(?:unidades|de\s*entrega)/g)]
+    .map(m => parseInt(m[1], 10));
+
+  const counts = [mainMatches.length, driverMatches.length, countMatches.length, unitsMatches.length];
+  const n = Math.min(...counts);
+  const rows = [];
+
+  for (let i = 0; i < n; i++) {
+    const prefixoRaw = mainMatches[i].prefixoRaw;
+    const idRota = prefixoRaw.charAt(0) === '=' ? "'" + prefixoRaw : prefixoRaw;
+    rows.push({
+      id_rota: idRota,
+      pedido: mainMatches[i].pedido,
+      motorista: driverMatches[i].nome,
+      tipo: driverMatches[i].tipo,
+      nivel: driverMatches[i].nivel,
+      transportadora: mainMatches[i].transportadora,
+      placa: mainMatches[i].placa,
+      pendentes: countMatches[i].pend,
+      insucessos: countMatches[i].falha,
+      sucessos: countMatches[i].sucesso,
+      total: unitsMatches[i]
+    });
+  }
+
+  return { rows, mismatch: !counts.every(c => c === counts[0]) };
+}
+
+function generateLmTable() {
+  const text = document.getElementById('lmPasteInput').value;
+  const statusEl = document.getElementById('lmStatusMsg');
+  statusEl.textContent = '';
+
+  if (!text || !text.trim()) {
+    statusEl.textContent = 'Cole o conteúdo antes de gerar a tabela.';
+    return;
+  }
+
+  const { rows, mismatch } = parseLmText(text);
+
+  if (rows.length === 0) {
+    statusEl.textContent = 'Não foi possível identificar rotas no texto colado.';
+    currentLmRows = [];
+    resetSort('headRowLm');
+    renderLmRows([]);
+    renderLmReport([]);
+    document.getElementById('copyLmReportBtn').disabled = true;
+    return;
+  }
+
+  if (mismatch) {
+    statusEl.textContent = 'Aviso: algumas rotas podem não ter sido reconhecidas corretamente (verifique a formatação colada).';
+  }
+
+  currentLmRows = rows;
+  resetSort('headRowLm');
+  renderLmRows(rows);
+  renderLmReport(rows);
+  document.getElementById('copyLmReportBtn').disabled = false;
+
+  saveToCloud('estratificarRotasLm', rows).then(ok => {
+    if (!ok) {
+      statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
+    }
+  });
+}
+
+function renderLmRows(rows) {
+  const body = document.getElementById('bodyLm');
+  body.innerHTML = '';
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="11" class="empty-hint">Nenhuma rota encontrada</td></tr>';
+    return;
+  }
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
+    tr.innerHTML = `<td>${r.id_rota}</td><td>${r.pedido}</td><td>${r.motorista}</td><td>${r.tipo}</td><td>${r.nivel}</td>` +
+      `<td>${r.transportadora}</td><td>${r.placa}</td>${pendCell}<td>${r.insucessos}</td><td>${r.sucessos}</td><td>${r.total}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+function renderLmReport(rows) {
+  if (rows.length === 0) {
+    lmReportText = '';
+    document.getElementById('lmReportBox').textContent = 'Cole o conteúdo acima e gere a tabela para ver o report automático.';
+    return;
+  }
+  const dataAtual = todayBR();
+  const totalPend = rows.reduce((s, r) => s + r.pendentes, 0);
+  const totalFalhas = rows.reduce((s, r) => s + r.insucessos, 0);
+  const totalSucesso = rows.reduce((s, r) => s + r.sucessos, 0);
+  lmReportText = `Estratificação de Rotas LM: ${rows.length} rotas do dia ${dataAtual}, sendo ${totalPend} pendentes, ${totalFalhas} com falha e ${totalSucesso} entregues.`;
+  document.getElementById('lmReportBox').textContent = lmReportText;
+}
+
+function copyLmReport() {
+  if (!lmReportText) return;
+  navigator.clipboard.writeText(lmReportText).then(() => {
+    const btn = document.getElementById('copyLmReportBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }).catch(() => {
+    document.getElementById('lmStatusMsg').textContent = 'Não foi possível copiar automaticamente. Selecione o texto manualmente.';
+  });
+}
+
+async function generateHdImageLm() {
+  if (typeof html2canvas === 'undefined') {
+    document.getElementById('lmStatusMsg').textContent = 'Não foi possível carregar a biblioteca de imagem.';
+    return;
+  }
+  if (currentLmRows.length === 0) {
+    document.getElementById('lmStatusMsg').textContent = 'Gere a tabela antes de criar a imagem.';
+    return;
+  }
+  const btn = document.getElementById('printLmBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    const target = document.getElementById('captureAreaLm');
+    const canvas = await html2canvas(target, {
+      scale: 3,
+      backgroundColor: '#fafaf7',
+      useCORS: true
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    const dd = String(new Date().getDate()).padStart(2, '0');
+    const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+    const yyyy = new Date().getFullYear();
+    link.download = `estratificar_rotas_lm_${dd}-${mm}-${yyyy}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    document.getElementById('lmStatusMsg').textContent = 'Erro ao gerar imagem: ' + err.message;
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
+
 // ===== Carregar automaticamente os últimos dados salvos na nuvem =====
 async function initFromCloud() {
   const rotas12h = await loadFromCloud('rotas12h');
@@ -2051,6 +2278,15 @@ async function initFromCloud() {
     ambulanciaReportText = buildAmbulanciaReport(ambulanciaRows, ambulanciaSaved.totalRoutes || ambulanciaRows.length);
     document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
     document.getElementById('copyAmbulanciaReportBtn').disabled = false;
+  }
+
+  const lmRows = await loadFromCloud('estratificarRotasLm');
+  if (lmRows && Array.isArray(lmRows) && lmRows.length > 0) {
+    currentLmRows = lmRows;
+    resetSort('headRowLm');
+    renderLmRows(lmRows);
+    renderLmReport(lmRows);
+    document.getElementById('copyLmReportBtn').disabled = false;
   }
 }
 
@@ -2129,6 +2365,12 @@ makeSortable('headRowAmbulancia',
   [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp],
   () => ambulanciaRows,
   renderAmbulanciaTable
+);
+
+makeSortable('headRowLm',
+  [r => r.id_rota, r => r.pedido, r => r.motorista, r => r.tipo, r => r.nivel, r => r.transportadora, r => r.placa, r => r.pendentes, r => r.insucessos, r => r.sucessos, r => r.total],
+  () => currentLmRows,
+  renderLmRows
 );
 
 initFromCloud();
