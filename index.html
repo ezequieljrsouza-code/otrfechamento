@@ -157,7 +157,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .toolbar label.file-btn:hover { background: #FFE94D; }
   #globalCsvInput { display: none; }
-  #downloadBtn {
+  #downloadBtn, #downloadLmBtn {
     background: #FFF159;
     border: none;
     color: #3A3300;
@@ -167,7 +167,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     border-radius: 6px;
     cursor: pointer;
   }
-  #downloadBtn:disabled {
+  #downloadBtn:disabled, #downloadLmBtn:disabled {
     background: #e2e2da;
     color: #999;
     cursor: not-allowed;
@@ -774,6 +774,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <textarea id="lmPasteInput" placeholder="Cole aqui o conteúdo copiado do Monitoramento Last Mile..."></textarea>
   <div class="paste-actions">
     <button id="genLmBtn">Gerar tabela</button>
+    <button id="downloadLmBtn" disabled>Baixar planilha (.xlsx)</button>
     <button id="printLmBtn" class="btn-print">PRINT</button>
     <span id="lmStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
   </div>
@@ -789,7 +790,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <col style="width:8%"><col style="width:5%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="11">Rotas LM</th>
+      <th colspan="10">Rotas LM</th>
+      <th class="total-cell" id="totalLm">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowLm">
       <th>PREFIXO</th><th>ID DA ROTA</th><th>MOTORISTA</th><th>TIPO</th><th>NÍVEL</th>
@@ -2079,6 +2081,7 @@ let lmReportText = '';
 let currentLmRows = [];
 
 document.getElementById('genLmBtn').addEventListener('click', generateLmTable);
+document.getElementById('downloadLmBtn').addEventListener('click', downloadLmXlsx);
 document.getElementById('copyLmReportBtn').addEventListener('click', copyLmReport);
 document.getElementById('printLmBtn').addEventListener('click', generateHdImageLm);
 
@@ -2144,6 +2147,7 @@ function generateLmTable() {
     renderLmRows([]);
     renderLmReport([]);
     document.getElementById('copyLmReportBtn').disabled = true;
+    document.getElementById('downloadLmBtn').disabled = true;
     return;
   }
 
@@ -2156,6 +2160,7 @@ function generateLmTable() {
   renderLmRows(rows);
   renderLmReport(rows);
   document.getElementById('copyLmReportBtn').disabled = false;
+  document.getElementById('downloadLmBtn').disabled = false;
 
   saveToCloud('estratificarRotasLm', rows).then(ok => {
     if (!ok) {
@@ -2169,15 +2174,34 @@ function renderLmRows(rows) {
   body.innerHTML = '';
   if (rows.length === 0) {
     body.innerHTML = '<tr><td colspan="11" class="empty-hint">Nenhuma rota encontrada</td></tr>';
-    return;
+  } else {
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.pedido}</td><td>${r.motorista}</td><td>${r.tipo}</td><td>${r.nivel}</td>` +
+        `<td>${r.transportadora}</td><td>${r.placa}</td>${pendCell}<td>${r.insucessos}</td><td>${r.sucessos}</td><td>${r.total}</td>`;
+      body.appendChild(tr);
+    });
   }
-  rows.forEach(r => {
-    const tr = document.createElement('tr');
-    const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
-    tr.innerHTML = `<td>${r.id_rota}</td><td>${r.pedido}</td><td>${r.motorista}</td><td>${r.tipo}</td><td>${r.nivel}</td>` +
-      `<td>${r.transportadora}</td><td>${r.placa}</td>${pendCell}<td>${r.insucessos}</td><td>${r.sucessos}</td><td>${r.total}</td>`;
-    body.appendChild(tr);
+  document.getElementById('totalLm').textContent = 'Total: ' + rows.length;
+}
+
+function downloadLmXlsx() {
+  const headers = ['PREFIXO', 'ID DA ROTA', 'MOTORISTA', 'TIPO', 'NÍVEL', 'TRANSPORTADORA', 'PLACA', 'PENDENTES', 'INSUCESSOS', 'ENTREGUES', 'TOTAL'];
+  const aoa = [headers];
+  currentLmRows.forEach(r => {
+    aoa.push([r.id_rota, Number(r.pedido), r.motorista, r.tipo, r.nivel, r.transportadora, r.placa, r.pendentes, r.insucessos, r.sucessos, r.total]);
   });
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [
+    { wch: 14 }, { wch: 12 }, { wch: 28 }, { wch: 8 }, { wch: 10 },
+    { wch: 18 }, { wch: 12 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 8 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Rotas LM');
+  XLSX.writeFile(wb, 'estratificar_rotas_lm.xlsx');
 }
 
 function renderLmReport(rows) {
@@ -2287,6 +2311,7 @@ async function initFromCloud() {
     renderLmRows(lmRows);
     renderLmReport(lmRows);
     document.getElementById('copyLmReportBtn').disabled = false;
+    document.getElementById('downloadLmBtn').disabled = false;
   }
 }
 
