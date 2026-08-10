@@ -69,13 +69,75 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </script>
 <style>
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
     font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background: #fafaf7;
+    background: #ededed;
     margin: 0;
-    padding: 20px;
+    padding: 0;
     color: #333;
   }
+
+  /* ===== Topbar (Mercado Libre style) ===== */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 58px;
+    background: #FFE600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 18px;
+    z-index: 200;
+    box-shadow: 0 1px 4px rgba(0,0,0,.18);
+  }
+  .hamburger-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .hamburger-btn:hover { background: rgba(0,0,0,.07); }
+  .hamburger-btn svg { width: 22px; height: 22px; }
+  .topbar-logo { display: flex; align-items: center; flex-shrink: 0; }
+  .topbar-logo svg { height: 26px; width: auto; display: block; }
+  .topbar-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #2d3277;
+    padding-left: 10px;
+    margin-left: 2px;
+    border-left: 1px solid rgba(45,50,119,.25);
+  }
+
+  /* ===== Sidebar (left menu, ML admin style) ===== */
+  .sidebar {
+    position: fixed;
+    top: 58px; left: 0; bottom: 0;
+    width: 220px;
+    background: #1c1c1c;
+    padding: 14px 0;
+    overflow-y: auto;
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: transform .18s ease;
+  }
+  .sidebar.collapsed { transform: translateX(-220px); }
+  .content {
+    margin-left: 220px;
+    margin-top: 58px;
+    padding: 18px 22px 36px;
+    transition: margin-left .18s ease;
+  }
+  .content.full { margin-left: 0; }
   .toolbar {
     display: flex;
     align-items: center;
@@ -84,17 +146,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     flex-wrap: wrap;
   }
   .toolbar label.file-btn {
-    background: #fff;
-    border: 1px solid #FFE94D;
-    color: #8A7300;
-    font-weight: 600;
+    background: #FFF159;
+    border: none;
+    color: #3A3300;
+    font-weight: 700;
     font-size: 13px;
-    padding: 8px 14px;
+    padding: 9px 16px;
     border-radius: 6px;
     cursor: pointer;
   }
-  .toolbar label.file-btn:hover { background: #FFFBE0; }
-  #csvInput { display: none; }
+  .toolbar label.file-btn:hover { background: #FFE94D; }
+  #globalCsvInput { display: none; }
   #downloadBtn {
     background: #FFF159;
     border: none;
@@ -110,34 +172,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     color: #999;
     cursor: not-allowed;
   }
-  #printImgBtn {
+  .btn-print {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: #fff;
-    border: 1px solid #FFE94D;
-    color: #8A7300;
+    border: 1px solid #3483FA;
+    color: #3483FA;
     font-weight: 700;
     font-size: 13px;
     padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
   }
-  #printImgBtn:hover { background: #FFFBE0; }
-  #printImgBtn:disabled {
-    color: #999;
-    border-color: #ddd;
-    cursor: not-allowed;
-  }
-  #printMeexBtn {
-    background: #fff;
-    border: 1px solid #FFE94D;
-    color: #8A7300;
-    font-weight: 700;
-    font-size: 13px;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  #printMeexBtn:hover { background: #FFFBE0; }
-  #printMeexBtn:disabled {
+  .btn-print:hover { background: #EBF3FF; }
+  .btn-print:disabled {
     color: #999;
     border-color: #ddd;
     cursor: not-allowed;
@@ -192,6 +241,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     font-size: 11.5px;
     text-align: center;
   }
+  .head-row th.sortable-th { cursor: pointer; user-select: none; }
+  .head-row th.sortable-th:hover { background: #FFDD00; }
+  .sort-arrow { display: inline-block; min-width: 10px; font-size: 9px; margin-left: 2px; }
   tbody tr:nth-child(odd) td { background: #FFFBE0; }
   tbody tr:nth-child(even) td { background: #ffffff; }
   tbody td {
@@ -217,7 +269,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .report-box {
     max-width: 900px;
-    margin: 24px auto 0;
+    margin: 20px 0 0;
     background: #fff;
     border-radius: 8px;
     padding: 16px 20px;
@@ -256,85 +308,90 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     white-space: pre-line;
   }
   .dashboard {
-    max-width: 1300px;
-    margin: 0 auto 24px;
+    margin: 0 0 14px;
   }
   .kpi-row {
     display: flex;
-    gap: 14px;
-    margin-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 12px;
     flex-wrap: wrap;
   }
   .kpi-card {
     flex: 1;
-    min-width: 130px;
+    min-width: 110px;
     background: #fff;
     border-radius: 8px;
-    padding: 14px 16px;
+    padding: 10px 12px;
     text-align: center;
     border-top: 4px solid #FFF159;
   }
   .kpi-card .kpi-label {
-    font-size: 11.5px;
+    font-size: 11px;
     color: #888;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .03em;
   }
   .kpi-card .kpi-value {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 700;
     color: #8A7300;
-    margin-top: 4px;
+    margin-top: 2px;
   }
   .charts-row {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
   }
   .chart-card {
     flex: 1;
-    min-width: 280px;
+    min-width: 240px;
     background: #fff;
     border-radius: 8px;
-    padding: 14px 16px;
+    padding: 10px 12px;
   }
   .chart-card h4 {
-    margin: 0 0 10px;
-    font-size: 13px;
+    margin: 0 0 4px;
+    font-size: 12px;
     color: #2f4858;
     text-align: center;
   }
   .chart-card .chart-wrap {
     position: relative;
-    height: 230px;
+    height: 175px;
   }
-  .tab-bar {
+  .sidebar-item {
     display: flex;
-    gap: 8px;
-    max-width: 1300px;
-    margin: 0 auto 18px;
-  }
-  .tab-btn {
-    background: #fff;
-    border: 1px solid #ddd;
-    color: #666;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    color: #c9c9c9;
     font-weight: 600;
-    font-size: 13px;
-    padding: 9px 18px;
-    border-radius: 6px 6px 0 0;
+    font-size: 13.5px;
+    text-align: left;
+    padding: 11px 18px;
     cursor: pointer;
+    width: 100%;
   }
-  .tab-btn.active {
-    background: #FFF159;
-    color: #3a3300;
-    border-color: #FFF159;
+  .sidebar-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .sidebar-item.active {
+    background: rgba(255,230,0,.1);
+    border-left-color: #FFE600;
+    color: #fff;
   }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
-  .paste-area {
+  .page-title {
     max-width: 1300px;
-    margin: 0 auto 18px;
+    margin: 0 0 14px;
+    font-size: 21px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .paste-area {
+    margin: 0 0 18px;
     background: #fff;
     border-radius: 8px;
     padding: 16px 20px;
@@ -367,16 +424,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     cursor: pointer;
   }
   .single-panel {
-    max-width: 1300px;
-    margin: 0 auto 18px;
+    margin: 0 0 18px;
     border-radius: 6px;
     background: #fff;
   }
   .single-panel table { table-layout: fixed; }
   td.pend-alert { color: #a32d2d; font-weight: 700; }
   .dsorhc-cards-row {
-    max-width: 1300px;
-    margin: 0 auto 18px;
+    margin: 0 0 18px;
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
@@ -421,25 +476,35 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </head>
 <body>
 
-<div class="toolbar" style="max-width:1300px;margin:0 auto 14px;">
+<header class="topbar">
+  <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Abrir/fechar menu">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#2d3277" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <div class="topbar-logo"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 812.049 199.625" id="mercado-libre"><defs><clipPath id="a" clipPathUnits="userSpaceOnUse"><path d="M0 595.28h841.89V0H0Z" fill="#000000"></path></clipPath></defs><g clip-path="url(#a)" transform="matrix(1.33333 0 0 -1.33333 -156.587 518.874)"><path d="M0 0c0 38.238-47.506 69.407-106.113 69.407-58.604 0-106.111-31.169-106.111-69.407 0-.986-.013-3.716-.013-4.063 0-40.564 41.524-73.419 106.109-73.419C-41.142-77.482 0-44.636 0-4.071Z" transform="translate(329.677 316.919)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c0-36.048-45.681-65.271-102.031-65.271-56.352 0-102.028 29.223-102.028 65.271 0 36.052 45.676 65.276 102.028 65.276C-45.681 65.276 0 36.052 0 0" transform="translate(325.614 316.953)" fill="#ffe600" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-.055-.103-1.072-1.156-.413-2.002C1.199-4.059 6.17-5.238 11.199-4.111c2.995.673 6.831 3.727 10.551 6.676 4.029 3.202 8.028 6.407 12.047 7.682 4.255 1.354 6.981.774 8.782.228 1.977-.589 4.299-1.89 8.006-4.671C57.566.556 85.642-23.947 90.49-28.185c3.906 1.766 21.264 9.239 44.858 14.44-2.048 12.578-9.702 24.084-21.304 33.507-16.169-6.792-35.934-10.336-55.261-.898-.098.041-10.559 4.992-20.877 4.748C22.574 23.257 15.933 16.62 8.9 9.594Z" transform="translate(189.705 337.547)" fill="#fff" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-.328.293-33.01 28.887-40.411 34.452-4.285 3.213-6.669 4.033-9.171 4.351-1.302.169-3.103-.073-4.36-.417-3.444-.937-7.947-3.948-11.945-7.118-4.141-3.297-8.042-6.402-11.665-7.213-4.625-1.037-10.276.187-12.854 1.93-1.047.702-1.781 1.514-2.135 2.339-.951 2.209.807 3.974 1.094 4.27l9.018 9.754a188.323 188.323 0 0 0 3.184 3.124c-2.911-.379-5.599-1.122-8.217-1.851-3.267-.919-6.41-1.792-9.589-1.791-1.328 0-8.441 1.166-9.79 1.533-8.161 2.234-15.324 4.409-26.024 9.403-12.818-9.543-21.393-21.476-23.868-34.62 1.84-.488 4.81-1.371 6.055-1.648 29.012-6.451 38.05-13.097 39.688-14.482 1.775 1.972 4.334 3.223 7.192 3.223 3.212-.004 6.104-1.617 7.861-4.109 1.663 1.311 3.954 2.433 6.916 2.432 1.345 0 2.742-.249 4.151-.728 3.271-1.123 4.96-3.302 5.838-5.273a9.685 9.685 0 0 0 4.037.856c1.562 0 3.187-.356 4.825-1.065 5.349-2.295 6.183-7.55 5.696-11.512.382.046.765.062 1.154.062 6.342-.003 11.499-5.158 11.499-11.504 0-1.963-.502-3.81-1.374-5.429 1.724-.971 6.124-3.167 9.986-2.678 3.085.392 4.256 1.444 4.677 2.038.287.407.591.883.306 1.225l-8.185 9.094s-1.348 1.275-.902 1.768c.462.506 1.292-.219 1.883-.714 4.167-3.479 9.253-8.731 9.253-8.731.085-.055.424-.719 2.304-1.056 1.621-.29 4.485-.123 6.471 1.505.5.413 1.001.93 1.419 1.457-.031-.022-.06-.06-.09-.073 2.093 2.68-.233 5.39-.233 5.39l-9.558 10.732s-1.365 1.263-.902 1.772c.417.441 1.296-.224 1.894-.722 3.028-2.531 7.304-6.823 11.399-10.835.798-.588 4.403-2.812 9.169.32 2.897 1.895 3.477 4.228 3.395 5.987-.201 2.328-2.019 3.989-2.019 3.989L-25.983 2.561s-1.378 1.179-.889 1.775c.395.5 1.294-.222 1.879-.714 4.16-3.479 15.419-13.8 15.419-13.8.157-.114 4.048-2.883 8.855.177C1-8.902 2.098-7.245 2.191-5.322 2.356-1.982 0 0 0 0" transform="translate(279.054 306.698)" fill="#fff" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-2.024.024-4.24-1.179-4.53-1.004-.158.107.125.919.315 1.387.194.468 2.86 8.489-3.638 11.274-4.973 2.137-8.01-.266-9.056-1.351-.275-.286-.397-.262-.428.101-.1 1.443-.746 5.351-5.04 6.658-6.132 1.881-10.076-2.402-11.077-3.946-.447 3.495-3.404 6.209-7.025 6.213a7.119 7.119 0 1 1-.006-14.236 7.06 7.06 0 0 1 4.922 1.986c.04-.035.056-.103.035-.239-.299-1.761-.85-8.161 5.85-10.765 2.688-1.042 4.973-.268 6.867 1.061.567.399.657.232.577-.301-.243-1.647.064-5.169 5.004-7.171 3.759-1.526 5.983.038 7.44 1.384.634.58.808.484.84-.41.179-4.765 4.136-8.545 8.94-8.548 4.949-.003 8.959 3.999 8.964 8.944C8.958-4.013 4.948-.055 0 0" transform="translate(215.733 290.06)" fill="#fff" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-4.486.005-8.132 3.487-8.296 7.929-.014.383-.052 1.395-.908 1.395-.353 0-.658-.211-1.011-.528-.986-.916-2.243-1.844-4.077-1.844-.834 0-1.735.192-2.688.583-4.738 1.917-4.802 5.172-4.608 6.48.051.35.068.711-.171.996l-.289.26h-.297c-.242 0-.488-.099-.825-.337-1.372-.96-2.684-1.428-4.021-1.428a6.28 6.28 0 0 0-2.246.437c-6.235 2.429-5.742 8.316-5.438 10.088.046.358-.044.637-.272.822l-.441.363-.412-.396a6.418 6.418 0 0 0-4.477-1.811c-3.571.003-6.478 2.907-6.476 6.476a6.482 6.482 0 0 0 6.486 6.471c3.227 0 5.976-2.428 6.389-5.652l.22-1.739.955 1.47c.108.174 2.724 4.131 7.537 4.126.914 0 1.86-.147 2.811-.441 3.835-1.171 4.485-4.649 4.586-6.097.068-.846.669-.884.786-.884.331 0 .576.208.748.392a6.542 6.542 0 0 0 4.769 2.01c1.127-.002 2.329-.269 3.57-.804C-2 25.722-4.765 17.976-4.798 17.894c-.525-1.284-.544-1.85-.052-2.178l.241-.112h.175c.276 0 .618.118 1.182.309.83.287 2.083.72 3.253.717h.003c4.59-.052 8.322-3.786 8.319-8.323C8.317 3.723 4.584 0 0 0m64.583 37.33c-10.065 8.787-33.33 29.012-39.63 33.743-3.601 2.706-6.056 4.136-8.211 4.779-.97.292-2.308.625-4.033.627-1.605 0-3.325-.29-5.122-.862-4.071-1.288-8.128-4.513-12.052-7.631l-.202-.16c-3.656-2.905-7.434-5.911-10.292-6.549a17.375 17.375 0 0 0-3.812-.427c-3.2.005-6.077.927-7.156 2.304-.178.227-.063.596.353 1.125l.054.071 8.855 9.543c6.938 6.936 13.489 13.484 28.568 13.832.251.006.505.01.755.01 9.385-.006 18.769-4.208 19.821-4.695 8.803-4.291 17.887-6.473 27.021-6.481 9.517-.003 19.336 2.353 29.662 7.108a82.382 82.382 0 0 1-3.589 2.84c-9.07-3.933-17.712-5.921-26.047-5.917-8.516.007-17.027 2.052-25.287 6.082-.435.208-10.797 5.093-21.576 5.099-.282 0-.571-.006-.852-.009-12.667-.296-19.803-4.796-24.6-8.736-4.667-.112-8.693-1.239-12.275-2.239-3.196-.888-5.957-1.66-8.65-1.657-1.108 0-3.105.101-3.285.107-3.096.095-18.692 3.921-31.101 8.617a82.258 82.258 0 0 1-3.673-2.765c12.962-5.315 28.737-9.425 33.715-9.748 1.384-.09 2.861-.247 4.338-.25 3.294 0 6.578.925 9.762 1.814 1.878.529 3.953 1.102 6.131 1.52-.581-.57-1.161-1.15-1.742-1.736l-9-9.732c-.71-.714-2.244-2.623-1.232-4.973.403-.948 1.221-1.854 2.364-2.626 2.146-1.443 5.985-2.419 9.551-2.422 1.352 0 2.632.134 3.81.399 3.771.847 7.727 3.997 11.918 7.329 3.34 2.654 8.085 6.023 11.718 7.012 1.013.277 2.258.447 3.262.447.299-.002.58-.011.845-.048 2.399-.305 4.72-1.122 8.863-4.231 7.383-5.548 40.069-34.138 40.387-34.421.025-.019 2.106-1.817 1.961-4.805-.077-1.665-1.003-3.146-2.61-4.174-1.395-.882-2.835-1.334-4.291-1.334-2.185.005-3.688 1.029-3.785 1.098-.12.098-11.318 10.366-15.437 13.814-.658.544-1.294 1.033-1.941 1.033a1.062 1.062 0 0 1-.855-.403c-.648-.798.078-1.904.933-2.631l13.083-13.148c.016-.016 1.627-1.528 1.805-3.544.102-2.18-.938-4.001-3.105-5.424-1.544-1.014-3.108-1.531-4.637-1.531-2.008 0-3.418.916-3.729 1.132l-1.878 1.849c-3.429 3.375-6.97 6.863-9.561 9.027-.632.525-1.308 1.009-1.952 1.009-.315 0-.603-.118-.823-.349-.297-.329-.501-.92.235-1.899.302-.403.659-.737.659-.737l9.548-10.718c.079-.096 1.967-2.339.213-4.577l-.335-.426a8.92 8.92 0 0 0-.888-.854c-1.627-1.338-3.803-1.482-4.663-1.482-.463 0-.907.041-1.294.109-.94.17-1.573.433-1.878.796l-.117.117c-.521.542-5.333 5.452-9.314 8.775-.525.44-1.178.996-1.856.996-.333 0-.633-.131-.861-.386-.789-.864.396-2.152.897-2.626l8.142-8.977c-.01-.082-.114-.268-.311-.552-.292-.4-1.279-1.387-4.233-1.762a8.965 8.965 0 0 0-1.078-.063c-3.046 0-6.293 1.478-7.968 2.367a12.1 12.1 0 0 1 1.156 5.161c.005 6.701-5.437 12.149-12.138 12.155-.142 0-.294-.006-.439-.011.22 3.06-.212 8.852-6.158 11.404-1.71.741-3.418 1.117-5.077 1.117a10.35 10.35 0 0 1-3.724-.673c-1.23 2.393-3.276 4.137-5.945 5.048-1.473.51-2.94.767-4.357.767-2.474 0-4.754-.726-6.788-2.173-1.947 2.42-4.891 3.857-7.99 3.857-2.71 0-5.319-1.086-7.251-2.999-2.533 1.934-12.586 8.32-39.489 14.428-1.303.295-4.293 1.153-6.126 1.689a43.295 43.295 0 0 1-.688-4.415s4.963-1.188 5.939-1.406c27.483-6.105 36.564-12.453 38.1-13.652a10.376 10.376 0 0 1-.793-3.955c-.003-5.674 4.614-10.3 10.296-10.306.638 0 1.269.054 1.891.17.855-4.177 3.588-7.345 7.768-8.969 1.219-.471 2.456-.711 3.668-.711a9.393 9.393 0 0 1 2.345.292c.771-1.961 2.51-4.403 6.391-5.979 1.359-.549 2.721-.836 4.045-.836a8.98 8.98 0 0 1 3.145.563A12.149 12.149 0 0 1-.003-3.827 12.128 12.128 0 0 1 8.699-.14c1.959-1.091 6.101-3.06 10.28-3.069.542 0 1.051.038 1.557.102 4.153.525 6.087 2.146 6.974 3.41.159.219.304.454.427.695.982-.279 2.06-.509 3.294-.512 2.268 0 4.444.772 6.646 2.374 2.161 1.563 3.698 3.797 3.918 5.703.004.025.011.055.014.083.726-.151 1.474-.23 2.222-.23 2.334 0 4.629.73 6.824 2.166 4.234 2.776 4.97 6.403 4.9 8.774a11.028 11.028 0 0 1 2.25-.235c2.194 0 4.346.662 6.398 1.97 2.623 1.677 4.202 4.245 4.44 7.235.167 2.032-.338 4.081-1.408 5.842 7.092 3.056 23.305 8.971 42.395 13.272a43.48 43.48 0 0 1-.592 4.397c-23.1-5.126-40.336-12.585-44.655-14.507" transform="translate(215.733 272.79)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0v-31.213h-12.467v28.721c0 13.946 7.019 20.871 20.964 20.871 6.279 0 11.081-1.385 14.59-4.155 3.511 2.678 8.311 3.97 14.593 3.97 13.946 0 20.872-6.925 20.779-20.87v-28.723h-6.373c-4.063.279-6.094 2.217-6.094 6.096V-.184c-.277 5.08-3.049 7.574-8.497 7.574s-8.221-2.494-8.311-7.574v-31.029H16.809V0c-.279 5.081-3.047 7.574-8.496 7.574C2.863 7.574.092 5.081 0 0" transform="translate(372.385 355.185)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c.369 15.793 8.172 24.571 24.519 24.571h3.708V11.827l-5.708-.123c-6.835 0-10.052-4.407-10.052-11.518v-25.397H0Z" transform="translate(491.065 348.993)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0v3.998c-2.863-1.201-6.188-1.691-9.79-2.429-4.894-.924-7.389-3.233-7.389-6.834.278-3.879 2.31-5.725 6.188-5.725C-4.156-10.99 0-6.926 0 0m-16.38 13.811-11.437.013c.437 9.438 5.187 15.728 19.135 15.728 13.484 0 20.319-4.433 20.596-13.484V-.555c0-13.483-8.127-19.486-21.335-20.409-11.727-.923-19.855 4.525-19.855 15.33.277 11.73 8.774 14.868 21.149 16.069 5.264.646 7.942 2.217 7.942 4.894-.277 2.771-2.863 4.09-7.942 4.156-5.753.076-7.606-3.365-8.253-5.674" transform="translate(604.442 344.432)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-.092-9.883 3.231-14.869 10.251-14.869 7.018 0 10.526 4.986 10.526 14.869-.276 9.42-3.692 14.038-10.342 14.038C3.787 14.038.367 9.42 0 0m32.968 40.619V-3.418c0-14.683-7.665-21.979-22.903-21.887-15.145.279-22.719 8.497-22.719 24.75 0 16.623 6.465 25.12 19.486 25.582 6.097 0 10.808-2.494 13.945-7.573v15.571l.03 1.375c4.062 6.062 12.161 6.219 12.161 6.219" transform="translate(636.068 348.537)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0h3.215v-64.7H-9.067v56.795C-9.067-6.062-5.25 0 0 0" transform="translate(450.313 316.343)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-7.02 0-10.345 4.985-10.252 14.867.37 9.421 3.787 14.038 10.437 14.038 6.649 0 10.065-4.617 10.343-14.038C10.528 4.985 7.019 0 0 0m3.6 39.895c-6.093 0-10.712-2.494-13.852-7.573l-.002 21.94h-1.391c-6.125-.074-9.343-3.344-10.889-6.016v.422V11.45c0-14.682 7.665-21.979 22.903-21.888 15.147.28 22.718 8.498 22.718 24.751 0 16.623-6.465 25.121-19.487 25.582" transform="translate(513.629 262.081)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-1.565 1.717-3.945 2.578-7.137 2.578-2.087 0-3.82-.354-5.201-1.059-1.381-.707-2.486-1.581-3.314-2.624-.829-1.044-1.413-2.149-1.75-3.315-.338-1.166-.537-2.209-.598-3.13H3.268C2.654-4.236 1.564-1.72 0 0m-14.777-25.043c1.963-1.904 4.787-2.855 8.469-2.855 2.639 0 4.912.659 6.814 1.98 1.901 1.319 3.068 2.716 3.498 4.189h11.51c-1.842-5.708-4.665-9.791-8.471-12.245-3.807-2.456-8.41-3.683-13.811-3.683-3.744 0-7.121.598-10.128 1.795-3.008 1.197-5.555 2.901-7.641 5.11-2.088 2.21-3.699 4.848-4.834 7.919-1.137 3.067-1.703 6.444-1.703 10.127 0 3.559.582 6.873 1.749 9.944 1.165 3.068 2.823 5.722 4.971 7.964 2.149 2.24 4.71 4.005 7.689 5.294 2.976 1.289 6.274 1.933 9.897 1.933 4.051 0 7.58-.783 10.588-2.347 3.007-1.565 5.479-3.669 7.412-6.307 1.934-2.64 3.329-5.648 4.19-9.024.858-3.376 1.165-6.905.92-10.587H-18c.184-4.235 1.257-7.306 3.223-9.207" transform="translate(467.522 361.289)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-2.108 0-3.876-.481-5.302-1.441a11.454 11.454 0 0 1-3.486-3.721c-.9-1.52-1.535-3.193-1.907-5.022a27.243 27.243 0 0 1-.558-5.44c0-1.737.186-3.503.558-5.301.372-1.799.976-3.427 1.813-4.883a10.419 10.419 0 0 1 3.395-3.58c1.425-.93 3.162-1.395 5.208-1.395 3.162 0 5.594.884 7.3 2.65 1.705 1.767 2.774 4.139 3.208 7.115h12.742c-.869-6.387-3.348-11.253-7.44-14.601-4.093-3.348-9.332-5.022-15.718-5.022-3.595 0-6.897.604-9.904 1.813-3.008 1.209-5.565 2.898-7.672 5.069-2.109 2.169-3.752 4.758-4.929 7.765-1.178 3.007-1.767 6.308-1.767 9.905 0 3.72.542 7.175 1.628 10.369 1.084 3.193 2.68 5.952 4.789 8.277 2.107 2.325 4.68 4.139 7.719 5.441C-7.286 9.3-3.813 9.951.093 9.951c2.851 0 5.594-.372 8.23-1.116 2.635-.744 4.99-1.876 7.069-3.395A18.198 18.198 0 0 0 20.46-.232c1.302-2.265 2.046-4.946 2.231-8.045H9.765C8.896-2.76 5.641 0 0 0" transform="translate(546.94 364.02)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c.372-1.83 1.007-3.473 1.907-4.929a10.138 10.138 0 0 1 3.58-3.488c1.489-.869 3.348-1.302 5.58-1.302 2.233 0 4.107.433 5.626 1.302a10.032 10.032 0 0 1 3.627 3.488C21.219-3.473 21.855-1.83 22.228 0c.372 1.828.557 3.704.557 5.626 0 1.921-.185 3.813-.557 5.673-.373 1.86-1.009 3.502-1.908 4.93-.899 1.425-2.108 2.587-3.627 3.487-1.519.898-3.393 1.348-5.626 1.348-2.232 0-4.091-.45-5.58-1.348-1.488-.9-2.682-2.062-3.58-3.487-.9-1.428-1.535-3.07-1.907-4.93a28.863 28.863 0 0 1-.558-5.673C-.558 3.704-.372 1.828 0 0m-11.997 16.089c1.178 3.13 2.851 5.796 5.022 7.998 2.169 2.2 4.774 3.906 7.812 5.115 3.037 1.209 6.447 1.813 10.23 1.813 3.782 0 7.207-.604 10.277-1.813 3.069-1.209 5.687-2.915 7.858-5.115 2.17-2.202 3.844-4.868 5.023-7.998 1.176-3.131 1.766-6.619 1.766-10.463 0-3.845-.59-7.316-1.766-10.416-1.179-3.101-2.853-5.751-5.023-7.951-2.171-2.202-4.789-3.892-7.858-5.069-3.07-1.177-6.495-1.767-10.277-1.767-3.783 0-7.193.59-10.23 1.767-3.038 1.177-5.643 2.867-7.812 5.069-2.171 2.2-3.844 4.85-5.022 7.951-1.178 3.1-1.767 6.571-1.767 10.416 0 3.844.589 7.332 1.767 10.463" transform="translate(690.486 342.956)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c.369 15.793 8.172 24.57 24.519 24.57h3.708V11.827l-5.708-.124c-6.835 0-10.052-4.406-10.052-11.517v-25.397H0Z" transform="translate(543.94 276.993)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M0 0c-1.565 1.718-3.945 2.578-7.137 2.578-2.087 0-3.82-.353-5.201-1.058-1.381-.708-2.486-1.582-3.314-2.624-.829-1.044-1.413-2.15-1.75-3.316-.338-1.166-.537-2.209-.598-3.129H3.268C2.654-4.235 1.564-1.719 0 0m-14.777-25.043c1.963-1.903 4.787-2.854 8.469-2.854 2.639 0 4.912.659 6.814 1.979 1.901 1.319 3.068 2.717 3.498 4.189h11.51c-1.842-5.708-4.665-9.791-8.471-12.245-3.807-2.456-8.41-3.682-13.811-3.682-3.744 0-7.121.597-10.128 1.795-3.008 1.197-5.555 2.9-7.641 5.109-2.088 2.211-3.699 4.849-4.834 7.919-1.137 3.067-1.703 6.444-1.703 10.128 0 3.559.582 6.873 1.749 9.943 1.165 3.069 2.823 5.723 4.971 7.964 2.149 2.24 4.71 4.005 7.689 5.294 2.976 1.289 6.274 1.934 9.897 1.934 4.051 0 7.58-.784 10.588-2.348 3.007-1.564 5.479-3.668 7.412-6.307 1.934-2.64 3.329-5.648 4.19-9.023.858-3.376 1.165-6.905.92-10.588H-18c.184-4.234 1.257-7.305 3.223-9.207" transform="translate(606.379 289.286)" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path><path d="M478.989 305.155h-12.285v11.188h12.285zM478.989 251.643h-12.285v47.888h12.285z" fill="#2d3277" fill-opacity="1" fill-rule="nonzero" stroke="none"></path></g></svg></div>
+  <div class="topbar-title">Fechamento OTR</div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-item active" id="tabBtn1" onclick="switchTab(1)">Rota &gt; 12h</button>
+  <button class="sidebar-item" id="tabBtn2" onclick="switchTab(2)">Rotas MEEXs NEX</button>
+  <button class="sidebar-item" id="tabBtn3" onclick="switchTab(3)">DS_ORHC</button>
+  <button class="sidebar-item" id="tabBtn4" onclick="switchTab(4)">Ambulância</button>
+</nav>
+
+<div class="content" id="mainContent">
+
+<div class="toolbar" style="margin:0 0 14px;">
   <label class="file-btn" for="globalCsvInput">Subir CSV</label>
   <input type="file" id="globalCsvInput" accept=".csv" />
   <span id="globalCsvFileName">Nenhum arquivo carregado</span>
   <span id="globalCsvStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
 </div>
 
-<div class="tab-bar">
-  <button class="tab-btn active" id="tabBtn1" onclick="switchTab(1)">Rota &gt; 12h</button>
-  <button class="tab-btn" id="tabBtn2" onclick="switchTab(2)">Rotas MEEXs NEX</button>
-  <button class="tab-btn" id="tabBtn3" onclick="switchTab(3)">DS_ORHC</button>
-  <button class="tab-btn" id="tabBtn4" onclick="switchTab(4)">Ambulância</button>
-</div>
-
 <div id="tab-panel-1" class="tab-panel active">
 
 <div class="toolbar">
   <button id="downloadBtn" disabled>Baixar planilha (.xlsx)</button>
-  <button id="printImgBtn">Print</button>
+  <button id="printImgBtn" class="btn-print">PRINT</button>
   <span id="statusMsg"></span>
 </div>
 
@@ -498,7 +563,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <th colspan="6">Rota &gt; 12h | MLP</th>
         <th class="total-cell" id="totalMlp">Total: 0</th>
       </tr>
-      <tr class="head-row">
+      <tr class="head-row" id="headRowMlp">
         <th>ID ROTA</th><th>PREFIXO</th><th>PLACA</th><th>MLP</th><th>FACILITY</th><th>TIPO FACILITY</th><th>ORH</th>
       </tr>
     </table>
@@ -525,7 +590,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <th colspan="6">Rota &gt; 12h | ME Extra</th>
         <th class="total-cell" id="totalMe">Total: 0</th>
       </tr>
-      <tr class="head-row">
+      <tr class="head-row" id="headRowMe">
         <th>ID ROTA</th><th>PREFIXO</th><th>PLACA</th><th>MLP</th><th>FACILITY</th><th>TIPO FACILITY</th><th>ORH</th>
       </tr>
     </table>
@@ -560,7 +625,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <textarea id="meexPasteInput" placeholder="Cole aqui o conteúdo copiado das rotas NEX..."></textarea>
   <div class="paste-actions">
     <button id="genMeexBtn">Gerar tabela</button>
-    <button id="printMeexBtn">Gerar imagem (HD)</button>
+    <button id="printMeexBtn" class="btn-print">PRINT</button>
     <span id="meexStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
   </div>
 </div>
@@ -576,8 +641,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <tr class="title-row">
       <th colspan="8">Gestão de Rotas ME Extras</th>
     </tr>
-    <tr class="head-row">
-      <th>Rota_ID</th><th>Data_Rota</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th id="thInsucessos" style="cursor:pointer;">Insucessos <span id="sortArrow"></span></th><th>Pendentes</th>
+    <tr class="head-row" id="headRowMeex">
+      <th>Rota_ID</th><th>Data_Rota</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
     </tr>
   </table>
   <div class="scroll-full">
@@ -608,6 +673,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div id="tab-panel-3" class="tab-panel">
 
 <div class="toolbar">
+  <button id="printDsOrhcBtn" class="btn-print">PRINT</button>
   <span id="dsOrhcStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
 </div>
 
@@ -625,7 +691,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <tr class="title-row">
       <th colspan="12">Gestão de Aderências nos Indicadores: ORH | DS</th>
     </tr>
-    <tr class="head-row">
+    <tr class="head-row" id="headRowDsOrhc">
       <th>Origem</th><th>Facility</th><th>Rotas</th><th>Total Pacotes</th><th>SPR</th>
       <th>Entregues</th><th>Pendentes</th><th>Insucessos</th><th>Steam Out</th>
       <th>ORHC</th><th>DS Realizado</th><th>DS Previsto</th>
@@ -659,6 +725,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 <div id="tab-panel-4" class="tab-panel">
 
+<div class="toolbar">
+  <button id="printAmbulanciaBtn" class="btn-print">PRINT</button>
+  <span id="ambulanciaStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+</div>
+
 <div id="captureAreaAmbulancia">
 <div class="single-panel">
   <table>
@@ -669,7 +740,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <th colspan="4">Ambulância</th>
       <th class="total-cell" id="totalAmbulancia">Total: 0</th>
     </tr>
-    <tr class="head-row">
+    <tr class="head-row" id="headRowAmbulancia">
       <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th>
     </tr>
   </table>
@@ -692,6 +763,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <button id="copyAmbulanciaReportBtn" disabled>Copiar report</button>
   </div>
   <div class="report-line" id="ambulanciaReportBox">Suba o CSV para gerar o report automático.</div>
+</div>
+
 </div>
 
 </div>
@@ -876,6 +949,8 @@ function renderRows(bodyId, items) {
 }
 
 function renderTables(data) {
+  resetSort('headRowMlp');
+  resetSort('headRowMe');
   renderRows('bodyMlp', data.driver);
   renderRows('bodyMe', data.me_extra);
   document.getElementById('totalMlp').textContent = 'Total: ' + data.driver.length;
@@ -1199,14 +1274,17 @@ function switchTab(n) {
   document.getElementById('tabBtn4').classList.toggle('active', n === 4);
 }
 
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('mainContent').classList.toggle('full');
+}
+
 // ===== Rotas MEEXs NEX (paste parser) =====
 let meexReportText = '';
 let currentMeexRows = [];
-let insucessosSortDir = null; // null, 'desc', 'asc'
 
 document.getElementById('genMeexBtn').addEventListener('click', generateMeexTable);
 document.getElementById('copyMeexReportBtn').addEventListener('click', copyMeexReport);
-document.getElementById('thInsucessos').addEventListener('click', toggleSortInsucessos);
 document.getElementById('printMeexBtn').addEventListener('click', generateHdImageMeex);
 
 async function generateHdImageMeex() {
@@ -1244,16 +1322,6 @@ async function generateHdImageMeex() {
     btn.textContent = original;
     btn.disabled = false;
   }
-}
-
-function toggleSortInsucessos() {
-  if (currentMeexRows.length === 0) return;
-  insucessosSortDir = insucessosSortDir === 'desc' ? 'asc' : 'desc';
-  const sorted = [...currentMeexRows].sort((a, b) =>
-    insucessosSortDir === 'desc' ? b.insucessos - a.insucessos : a.insucessos - b.insucessos
-  );
-  document.getElementById('sortArrow').textContent = insucessosSortDir === 'desc' ? '▼' : '▲';
-  renderMeexRows(sorted);
 }
 
 function todayBR() {
@@ -1312,8 +1380,7 @@ function generateMeexTable() {
   if (rows.length === 0) {
     statusEl.textContent = 'Não foi possível identificar rotas no texto colado.';
     currentMeexRows = [];
-    insucessosSortDir = null;
-    document.getElementById('sortArrow').textContent = '';
+    resetSort('headRowMeex');
     renderMeexRows([]);
     renderMeexReport([]);
     document.getElementById('copyMeexReportBtn').disabled = true;
@@ -1325,8 +1392,7 @@ function generateMeexTable() {
   }
 
   currentMeexRows = rows;
-  insucessosSortDir = null;
-  document.getElementById('sortArrow').textContent = '';
+  resetSort('headRowMeex');
   renderMeexRows(rows);
   renderMeexReport(rows);
   document.getElementById('copyMeexReportBtn').disabled = false;
@@ -1435,8 +1501,7 @@ function processMeexCsv(header, dataLines) {
       }
 
       currentMeexRows = rows;
-      insucessosSortDir = null;
-      document.getElementById('sortArrow').textContent = '';
+      resetSort('headRowMeex');
       renderMeexRows(rows);
       renderMeexReport(rows);
       document.getElementById('copyMeexReportBtn').disabled = false;
@@ -1461,8 +1526,47 @@ const DS_STEMOUT_LIMIT_MIN = 90;
 
 let dsOrhcRows = [];
 let dsOrhcReportText = '';
+let dsOrhcGroupsCache = [];
 
 document.getElementById('copyDsOrhcReportBtn').addEventListener('click', copyDsOrhcReport);
+document.getElementById('printDsOrhcBtn').addEventListener('click', generateHdImageDsOrhc);
+
+async function generateHdImageDsOrhc() {
+  if (typeof html2canvas === 'undefined') {
+    document.getElementById('dsOrhcStatusMsg').textContent = 'Não foi possível carregar a biblioteca de imagem.';
+    return;
+  }
+  if (dsOrhcRows.length === 0) {
+    document.getElementById('dsOrhcStatusMsg').textContent = 'Suba o CSV antes de criar a imagem.';
+    return;
+  }
+  const btn = document.getElementById('printDsOrhcBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    const target = document.getElementById('captureAreaDsOrhc');
+    const canvas = await html2canvas(target, {
+      scale: 3,
+      backgroundColor: '#fafaf7',
+      useCORS: true
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    const dd = String(new Date().getDate()).padStart(2, '0');
+    const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+    const yyyy = new Date().getFullYear();
+    link.download = `ds_orhc_${dd}-${mm}-${yyyy}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    document.getElementById('dsOrhcStatusMsg').textContent = 'Erro ao gerar imagem: ' + err.message;
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
 
 function dsPct(v) {
   return v.toFixed(2).replace('.', ',') + '%';
@@ -1673,6 +1777,8 @@ function buildDsOrhcReportFinal(groups) {
 function renderDsOrhc(rows) {
   const groups = buildDsOrhcGroups(rows);
   const cards = buildDsOrhcCards(rows);
+  dsOrhcGroupsCache = groups;
+  resetSort('headRowDsOrhc');
   renderDsOrhcTable(groups, rows);
   renderDsOrhcCards(cards);
   dsOrhcReportText = buildDsOrhcReportFinal(groups);
@@ -1746,6 +1852,44 @@ let ambulanciaRows = [];
 let ambulanciaReportText = '';
 
 document.getElementById('copyAmbulanciaReportBtn').addEventListener('click', copyAmbulanciaReport);
+document.getElementById('printAmbulanciaBtn').addEventListener('click', generateHdImageAmbulancia);
+
+async function generateHdImageAmbulancia() {
+  if (typeof html2canvas === 'undefined') {
+    document.getElementById('ambulanciaStatusMsg').textContent = 'Não foi possível carregar a biblioteca de imagem.';
+    return;
+  }
+  if (ambulanciaRows.length === 0) {
+    document.getElementById('ambulanciaStatusMsg').textContent = 'Suba o CSV antes de criar a imagem.';
+    return;
+  }
+  const btn = document.getElementById('printAmbulanciaBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    const target = document.getElementById('captureAreaAmbulancia');
+    const canvas = await html2canvas(target, {
+      scale: 3,
+      backgroundColor: '#fafaf7',
+      useCORS: true
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    const dd = String(new Date().getDate()).padStart(2, '0');
+    const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+    const yyyy = new Date().getFullYear();
+    link.download = `ambulancia_${dd}-${mm}-${yyyy}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    document.getElementById('ambulanciaStatusMsg').textContent = 'Erro ao gerar imagem: ' + err.message;
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
 
 function processAmbulanciaCsv(header, dataLines) {
   const idx = {};
@@ -1778,6 +1922,7 @@ function processAmbulanciaCsv(header, dataLines) {
   }
 
   ambulanciaRows = rows;
+  resetSort('headRowAmbulancia');
   renderAmbulanciaTable(rows);
   ambulanciaReportText = buildAmbulanciaReport(rows, totalRoutes);
   document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
@@ -1873,8 +2018,6 @@ function handleGlobalCsvFile(e) {
 
 // ===== Carregar automaticamente os últimos dados salvos na nuvem =====
 async function initFromCloud() {
-  let anyLoaded = false;
-
   const rotas12h = await loadFromCloud('rotas12h');
   if (rotas12h && (rotas12h.driver || rotas12h.me_extra)) {
     currentData = { driver: rotas12h.driver || [], me_extra: rotas12h.me_extra || [] };
@@ -1883,7 +2026,6 @@ async function initFromCloud() {
     renderDashboard(currentData);
     document.getElementById('downloadBtn').disabled = false;
     document.getElementById('copyReportBtn').disabled = false;
-    anyLoaded = true;
   }
 
   const meexRows = await loadFromCloud('rotasMeexNex');
@@ -1899,23 +2041,95 @@ async function initFromCloud() {
     dsOrhcRows = dsOrhcSaved;
     renderDsOrhc(dsOrhcRows);
     document.getElementById('copyDsOrhcReportBtn').disabled = false;
-    anyLoaded = true;
   }
 
   const ambulanciaSaved = await loadFromCloud('ambulancia');
   if (ambulanciaSaved && Array.isArray(ambulanciaSaved.rows) && ambulanciaSaved.rows.length > 0) {
     ambulanciaRows = ambulanciaSaved.rows;
+    resetSort('headRowAmbulancia');
     renderAmbulanciaTable(ambulanciaRows);
     ambulanciaReportText = buildAmbulanciaReport(ambulanciaRows, ambulanciaSaved.totalRoutes || ambulanciaRows.length);
     document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
     document.getElementById('copyAmbulanciaReportBtn').disabled = false;
-    anyLoaded = true;
-  }
-
-  if (anyLoaded) {
-    document.getElementById('globalCsvFileName').textContent = 'Últimos dados salvos na nuvem';
   }
 }
+
+// ===== Ordenação genérica dos cabeçalhos de tabela =====
+const sortState = {};
+
+function resetSort(headRowId) {
+  const state = sortState[headRowId];
+  if (state) { state.col = -1; state.dir = 1; }
+  const headRow = document.getElementById(headRowId);
+  if (!headRow) return;
+  headRow.querySelectorAll('.sort-arrow').forEach(a => a.textContent = '');
+}
+
+function makeSortable(headRowId, accessors, getRows, renderFn) {
+  const headRow = document.getElementById(headRowId);
+  if (!headRow) return;
+  const state = { col: -1, dir: 1 };
+  sortState[headRowId] = state;
+  const ths = Array.from(headRow.querySelectorAll('th'));
+  ths.forEach((th, i) => {
+    const accessor = accessors[i];
+    if (!accessor) return;
+    th.classList.add('sortable-th');
+    const arrow = document.createElement('span');
+    arrow.className = 'sort-arrow';
+    th.appendChild(arrow);
+    th.addEventListener('click', () => {
+      const rows = getRows();
+      if (!rows || rows.length === 0) return;
+      state.dir = (state.col === i) ? -state.dir : 1;
+      state.col = i;
+      ths.forEach((t, j) => {
+        const a = t.querySelector('.sort-arrow');
+        if (a) a.textContent = j === i ? (state.dir === 1 ? '▲' : '▼') : '';
+      });
+      const sorted = rows.slice().sort((a, b) => {
+        const va = accessor(a);
+        const vb = accessor(b);
+        if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * state.dir;
+        return String(va).localeCompare(String(vb), 'pt-BR', { numeric: true, sensitivity: 'base' }) * state.dir;
+      });
+      renderFn(sorted);
+    });
+  });
+}
+
+makeSortable('headRowMlp',
+  [it => it.id_rota, it => it.prefixo, it => it.placa, it => it.mlp, it => it.facility, it => FACILITY_MAP[it.prefixo] || '-', it => it.orh_min],
+  () => currentData.driver,
+  rows => renderRows('bodyMlp', rows)
+);
+
+makeSortable('headRowMe',
+  [it => it.id_rota, it => it.prefixo, it => it.placa, it => it.mlp, it => it.facility, it => FACILITY_MAP[it.prefixo] || '-', it => it.orh_min],
+  () => currentData.me_extra,
+  rows => renderRows('bodyMe', rows)
+);
+
+makeSortable('headRowMeex',
+  [r => r.rota_id, r => r.data_rota, r => r.motorista, r => r.facility, r => r.id_facility, r => r.entregues, r => r.insucessos, r => r.pendentes],
+  () => currentMeexRows,
+  renderMeexRows
+);
+
+makeSortable('headRowDsOrhc',
+  [g => g.origem, g => g.facility, g => g.metrics.rotas, g => g.metrics.totalPacotes, g => g.metrics.spr,
+   g => g.metrics.entregues, g => g.metrics.pendentes, g => g.metrics.insucessos,
+   g => g.metrics.steamOutPct === null ? -1 : g.metrics.steamOutPct,
+   g => g.orhcFarol.text, g => g.dsRealFarol.text, g => g.dsPrevFarol.text],
+  () => dsOrhcGroupsCache,
+  sorted => { dsOrhcGroupsCache = sorted; renderDsOrhcTable(sorted, dsOrhcRows); }
+);
+
+makeSortable('headRowAmbulancia',
+  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp],
+  () => ambulanciaRows,
+  renderAmbulanciaTable
+);
 
 initFromCloud();
 </script>
