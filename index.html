@@ -545,6 +545,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="toolbar" style="margin:0 0 14px;">
   <label class="file-btn" for="globalCsvInput">Subir CSV</label>
   <input type="file" id="globalCsvInput" accept=".csv" />
+  <span id="globalCsvFileName" style="font-size:12.5px;color:#555;"></span>
   <span id="globalCsvStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
   <span class="last-upload-info" id="lastUploadInfo">
     <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.3-6.4M3 12a9 9 0 0 0 15.3 6.4"/><path d="M21 3v5h-5M3 21v-5h5"/></svg>
@@ -2218,7 +2219,11 @@ function handleGlobalCsvFile(e) {
   statusEl.textContent = '';
 
   const reader = new FileReader();
+  reader.onerror = function() {
+    statusEl.textContent = 'Erro ao ler o arquivo: ' + (reader.error ? reader.error.message : 'motivo desconhecido');
+  };
   reader.onload = function(evt) {
+   try {
     let text = evt.target.result;
     text = text.replace(/^\uFEFF/, '');
     const lines = text.split(/\r\n|\n/).filter(l => l.length > 0);
@@ -2241,6 +2246,9 @@ function handleGlobalCsvFile(e) {
     }
 
     registerUpload(file.name);
+   } catch (err) {
+     statusEl.textContent = 'Erro inesperado ao processar o CSV: ' + err.message;
+   }
   };
   reader.readAsText(file, 'UTF-8');
 }
