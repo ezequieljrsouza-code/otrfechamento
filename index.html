@@ -157,6 +157,32 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .toolbar label.file-btn:hover { background: #FFE94D; }
   #globalCsvInput { display: none; }
+  .last-upload-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: #5a5f7a;
+    background: #f1f2f8;
+    border: 1px solid #dfe1ee;
+    border-radius: 20px;
+    padding: 5px 12px 5px 8px;
+  }
+  .last-upload-info .sync-icon {
+    width: 15px;
+    height: 15px;
+    flex: none;
+    color: #2d3277;
+  }
+  .last-upload-info.syncing .sync-icon {
+    animation: syncSpin 0.9s linear infinite;
+    color: #ca8a04;
+  }
+  .last-upload-info.sync-error .sync-icon { color: #dc2626; }
+  @keyframes syncSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
   #downloadBtn, #downloadLmBtn {
     background: #FFF159;
     border: none;
@@ -467,6 +493,28 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .dsorhc-card .dsorhc-metric-label { color: #475569; }
   .dsorhc-card .dsorhc-metric-val { font-weight: 700; }
+  .dsorhc-card.dsorhc-card-summary { border-color: #2d3277; background: #f4f5fb; }
+  .dsorhc-card .dsorhc-card-facility {
+    font-size: 11px;
+    color: #666;
+    margin: -3px 0 6px;
+  }
+  .ambulancia-cards-columns {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin: 0 0 18px;
+  }
+  .ambulancia-cards-col { flex: 1; min-width: 0; }
+  .ambulancia-cards-col .cards-col-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin: 0 0 6px;
+  }
+  .ambulancia-cards-col .dsorhc-cards-row { margin: 0; }
   .farol-green { color: #16a34a; }
   .farol-yellow { color: #ca8a04; }
   .farol-red { color: #dc2626; }
@@ -497,8 +545,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="toolbar" style="margin:0 0 14px;">
   <label class="file-btn" for="globalCsvInput">Subir CSV</label>
   <input type="file" id="globalCsvInput" accept=".csv" />
-  <span id="globalCsvFileName">Nenhum arquivo carregado</span>
   <span id="globalCsvStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+  <span class="last-upload-info" id="lastUploadInfo">
+    <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.3-6.4M3 12a9 9 0 0 0 15.3 6.4"/><path d="M21 3v5h-5M3 21v-5h5"/></svg>
+    <span id="lastUploadText">Nenhum upload registrado</span>
+  </span>
 </div>
 
 <div id="tab-panel-1" class="tab-panel active">
@@ -732,6 +783,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </div>
 
 <div id="captureAreaAmbulancia">
+<div class="ambulancia-cards-columns">
+  <div class="ambulancia-cards-col">
+    <div class="cards-col-label">SPA1</div>
+    <div class="dsorhc-cards-row" id="ambulanciaCardsOther"></div>
+  </div>
+  <div class="ambulancia-cards-col">
+    <div class="cards-col-label">SPA2</div>
+    <div class="dsorhc-cards-row" id="ambulanciaCardsEpa"></div>
+  </div>
+</div>
+
 <div class="single-panel">
   <table>
     <colgroup>
@@ -855,6 +917,44 @@ async function loadFromCloud(path) {
     console.error('Erro ao carregar da nuvem:', err);
     return null;
   }
+}
+
+// ===== Indicador de último upload (data/hora + ícone de sincronização) =====
+function formatUploadTimestamp(isoString) {
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) return '';
+  const datePart = d.toLocaleDateString('pt-BR');
+  const timePart = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return `${datePart} às ${timePart}`;
+}
+
+function setLastUploadDisplay(info) {
+  const wrap = document.getElementById('lastUploadInfo');
+  const textEl = document.getElementById('lastUploadText');
+  if (!wrap || !textEl) return;
+  wrap.classList.remove('syncing', 'sync-error');
+  if (info && info.timestamp) {
+    const when = formatUploadTimestamp(info.timestamp);
+    textEl.textContent = info.fileName ? `Último upload: ${info.fileName} — ${when}` : `Último upload: ${when}`;
+  } else {
+    textEl.textContent = 'Nenhum upload registrado';
+  }
+}
+
+function setSyncStatus(status) {
+  const wrap = document.getElementById('lastUploadInfo');
+  if (!wrap) return;
+  wrap.classList.remove('syncing', 'sync-error');
+  if (status === 'syncing') wrap.classList.add('syncing');
+  else if (status === 'error') wrap.classList.add('sync-error');
+}
+
+async function registerUpload(fileName) {
+  const info = { fileName: fileName, timestamp: new Date().toISOString() };
+  setSyncStatus('syncing');
+  setLastUploadDisplay(info);
+  const ok = await saveToCloud('lastUpload', info);
+  setSyncStatus(ok ? 'idle' : 'error');
 }
 
 let currentData = { driver: [], me_extra: [] };
@@ -1984,6 +2084,7 @@ function processAmbulanciaCsv(header, dataLines) {
   ambulanciaRows = rows;
   resetSort('headRowAmbulancia');
   renderAmbulanciaTable(rows);
+  renderAmbulanciaCardGroups(rows, totalRoutes);
   ambulanciaReportText = buildAmbulanciaReport(rows, totalRoutes);
   document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
   document.getElementById('copyAmbulanciaReportBtn').disabled = false;
@@ -2004,6 +2105,72 @@ function renderAmbulanciaTable(rows) {
     });
   }
   document.getElementById('totalAmbulancia').textContent = 'Total: ' + rows.length;
+}
+
+const AMBULANCIA_EPA_FACILITIES = ['EPA1', 'EPA2', 'EPA3', 'EPA4', 'EPA5', 'EPA6', 'EPA7', 'EPA8', 'EPA9', 'ETO4'];
+
+function buildAmbulanciaCards(rows, totalRoutes) {
+  const total = rows.length;
+  const geralPct = totalRoutes > 0 ? (total / totalRoutes * 100) : null;
+
+  const groups = {};
+  const order = [];
+  rows.forEach(r => {
+    const mlp = r.mlp || '-';
+    if (!groups[mlp]) { groups[mlp] = { count: 0, facilities: new Set() }; order.push(mlp); }
+    groups[mlp].count++;
+    if (r.facility) groups[mlp].facilities.add(r.facility);
+  });
+  order.sort((a, b) => groups[b].count - groups[a].count);
+
+  const cards = [{
+    summary: true,
+    icon: '📊',
+    label: 'Geral',
+    facility: null,
+    count: total,
+    metricLabel: '% do total de rotas',
+    pct: geralPct
+  }];
+  order.forEach(mlp => {
+    const g = groups[mlp];
+    cards.push({
+      summary: false,
+      icon: '🚑',
+      label: mlp,
+      facility: [...g.facilities].sort().join(', ') || '-',
+      count: g.count,
+      metricLabel: '% das ambulâncias',
+      pct: total > 0 ? (g.count / total * 100) : null
+    });
+  });
+
+  return cards;
+}
+
+function renderAmbulanciaCards(cards, containerId) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = '';
+  cards.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'dsorhc-card' + (c.summary ? ' dsorhc-card-summary' : '');
+    div.innerHTML = `
+      <div class="dsorhc-card-head">
+        <span class="dsorhc-card-name">${c.icon} ${c.label}</span>
+        <span class="dsorhc-card-rotas">Ambulâncias: ${c.count}</span>
+      </div>
+      ${c.facility ? `<div class="dsorhc-card-facility">🏭 ${c.facility}</div>` : ''}
+      <div class="dsorhc-metric-row"><span class="dsorhc-metric-label">${c.metricLabel}</span><span class="dsorhc-metric-val">${c.pct === null ? '-' : dsPct(c.pct)}</span></div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function renderAmbulanciaCardGroups(rows, totalRoutes) {
+  const otherRows = rows.filter(r => !AMBULANCIA_EPA_FACILITIES.includes(r.facility));
+  const epaRows = rows.filter(r => AMBULANCIA_EPA_FACILITIES.includes(r.facility));
+  renderAmbulanciaCards(buildAmbulanciaCards(otherRows, totalRoutes), 'ambulanciaCardsOther');
+  renderAmbulanciaCards(buildAmbulanciaCards(epaRows, totalRoutes), 'ambulanciaCardsEpa');
 }
 
 function buildAmbulanciaReport(rows, totalRoutes) {
@@ -2072,6 +2239,8 @@ function handleGlobalCsvFile(e) {
     if (errors.length > 0) {
       statusEl.textContent = 'Atenção: ' + errors.join(' | ');
     }
+
+    registerUpload(file.name);
   };
   reader.readAsText(file, 'UTF-8');
 }
@@ -2269,6 +2438,8 @@ async function generateHdImageLm() {
 
 // ===== Carregar automaticamente os últimos dados salvos na nuvem =====
 async function initFromCloud() {
+  loadFromCloud('lastUpload').then(info => setLastUploadDisplay(info));
+
   const rotas12h = await loadFromCloud('rotas12h');
   if (rotas12h && (rotas12h.driver || rotas12h.me_extra)) {
     currentData = { driver: rotas12h.driver || [], me_extra: rotas12h.me_extra || [] };
@@ -2297,9 +2468,11 @@ async function initFromCloud() {
   const ambulanciaSaved = await loadFromCloud('ambulancia');
   if (ambulanciaSaved && Array.isArray(ambulanciaSaved.rows) && ambulanciaSaved.rows.length > 0) {
     ambulanciaRows = ambulanciaSaved.rows;
+    const ambulanciaTotalRoutes = ambulanciaSaved.totalRoutes || ambulanciaRows.length;
     resetSort('headRowAmbulancia');
     renderAmbulanciaTable(ambulanciaRows);
-    ambulanciaReportText = buildAmbulanciaReport(ambulanciaRows, ambulanciaSaved.totalRoutes || ambulanciaRows.length);
+    renderAmbulanciaCardGroups(ambulanciaRows, ambulanciaTotalRoutes);
+    ambulanciaReportText = buildAmbulanciaReport(ambulanciaRows, ambulanciaTotalRoutes);
     document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
     document.getElementById('copyAmbulanciaReportBtn').disabled = false;
   }
