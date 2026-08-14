@@ -1919,8 +1919,8 @@ function buildDsOrhcReportFinal(groups) {
     dsRed.forEach(g => lines.push('🔴 ' + g.reportLabel + ' — DS: ' + dsPct(g.metrics.dsRealPct) + ' | Insucessos: ' + g.metrics.insucessos));
   }
   lines.push('');
-  lines.push('🟢 Parabéns — DS Realizado no verde!');
-  lines.push(dsGreen.length === 0 ? 'Nenhum indicador no verde ainda.' : '🎉 Excelente trabalho! Vamos manter o Indicador DS 🟢');
+  lines.push('');
+  lines.push(dsGreen.length === 0 ? 'Nenhum indicador no verde ainda.' : '');
   lines.push('');
   lines.push('');
   lines.push('📋 REPORT FINAL — ORHC');
@@ -1932,10 +1932,10 @@ function buildDsOrhcReportFinal(groups) {
     orhcRed.forEach(g => lines.push('🔴 ' + g.reportLabel + ' — ORHC: ' + dsPct(g.metrics.orhcPct)));
   }
   lines.push('');
-  lines.push('🟢 Parabéns — ORHC no verde!');
+  lines.push('');
   lines.push(orhcGreen.length === 0
     ? 'Nenhum indicador no verde ainda.'
-    : '🎉 Excelente trabalho! Os seguintes Facilities estão com ORHC no verde: ' + orhcGreen.map(g => g.reportLabel).join(', '));
+    : '' + orhcGreen.map(g => g.reportLabel).join(', '));
 
   return lines.join('\n');
 }
