@@ -145,7 +145,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     margin-bottom: 18px;
     flex-wrap: wrap;
   }
-  .toolbar label.file-btn {
+  .toolbar label.file-btn,
+  .toolbar button.file-btn {
     background: #FFF159;
     border: none;
     color: #3A3300;
@@ -155,7 +156,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     border-radius: 6px;
     cursor: pointer;
   }
-  .toolbar label.file-btn:hover { background: #FFE94D; }
+  .toolbar label.file-btn:hover,
+  .toolbar button.file-btn:hover { background: #FFE94D; }
+  .toolbar button.file-btn.sync-btn { background: #2d3277; color: #fff; }
+  .toolbar button.file-btn.sync-btn:hover { background: #3e4b9a; }
+  .toolbar button.file-btn:disabled { opacity: 0.6; cursor: default; }
   #globalCsvInput { display: none; }
   .last-upload-info {
     display: inline-flex;
@@ -545,6 +550,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="toolbar" style="margin:0 0 14px;">
   <label class="file-btn" for="globalCsvInput">Subir CSV</label>
   <input type="file" id="globalCsvInput" accept=".csv" />
+  <button type="button" class="file-btn sync-btn" id="syncExecBtn">Sincronizar</button>
   <span id="globalCsvFileName" style="font-size:12.5px;color:#555;"></span>
   <span id="globalCsvStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
   <span class="last-upload-info" id="lastUploadInfo">
@@ -1911,7 +1917,6 @@ function buildDsOrhcReportFinal(groups) {
     lines.push('Nenhum ofensor encontrado.');
   } else {
     dsRed.forEach(g => lines.push('🔴 ' + g.reportLabel + ' — DS: ' + dsPct(g.metrics.dsRealPct) + ' | Insucessos: ' + g.metrics.insucessos));
-    lines.push('⚠️ Vão conseguir reverter os insucessos?');
   }
   lines.push('');
   lines.push('🟢 Parabéns — DS Realizado no verde!');
@@ -2210,26 +2215,39 @@ function copyAmbulanciaReport() {
 
 // ===== Upload único de CSV — atualiza todas as guias =====
 document.getElementById('globalCsvInput').addEventListener('change', handleGlobalCsvFile);
+document.getElementById('syncExecBtn').addEventListener('click', syncFromExecutable);
 
 function handleGlobalCsvFile(e) {
   const file = e.target.files[0];
   if (!file) return;
   document.getElementById('globalCsvFileName').textContent = file.name;
-  const statusEl = document.getElementById('globalCsvStatusMsg');
-  statusEl.textContent = '';
+  document.getElementById('globalCsvStatusMsg').textContent = '';
 
   const reader = new FileReader();
   reader.onerror = function() {
-    statusEl.textContent = 'Erro ao ler o arquivo: ' + (reader.error ? reader.error.message : 'motivo desconhecido');
+    document.getElementById('globalCsvStatusMsg').textContent = 'Erro ao ler o arquivo: ' + (reader.error ? reader.error.message : 'motivo desconhecido');
   };
   reader.onload = function(evt) {
-   try {
-    let text = evt.target.result;
+    try {
+      processGlobalCsvText(evt.target.result, file.name);
+    } catch (err) {
+      document.getElementById('globalCsvStatusMsg').textContent = 'Erro inesperado ao processar o CSV: ' + err.message;
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// Processa o texto do CSV bruto (mesmas colunas do Logistics_api_SPA1_SPA2.csv)
+// e atualiza todas as guias; usado tanto pelo upload manual quanto pela
+// sincronizacao automatica vinda do executavel via Firebase.
+function processGlobalCsvText(text, nomeExibicao) {
+    const statusEl = document.getElementById('globalCsvStatusMsg');
+    statusEl.textContent = '';
     text = text.replace(/^\uFEFF/, '');
     const lines = text.split(/\r\n|\n/).filter(l => l.length > 0);
     if (lines.length < 2) {
       statusEl.textContent = 'Erro: arquivo vazio ou sem dados.';
-      return;
+      return false;
     }
 
     const header = parseCsvLine(lines[0], ';');
@@ -2245,12 +2263,42 @@ function handleGlobalCsvFile(e) {
       statusEl.textContent = 'Atenção: ' + errors.join(' | ');
     }
 
-    registerUpload(file.name);
-   } catch (err) {
-     statusEl.textContent = 'Erro inesperado ao processar o CSV: ' + err.message;
-   }
-  };
-  reader.readAsText(file, 'UTF-8');
+    registerUpload(nomeExibicao);
+    return true;
+}
+
+// ===== Sincronizar automaticamente com o executável (via Firebase) =====
+// O executável "Painel de Expedição - Atualizador" publica o CSV bruto de
+// rotas (mesmas colunas do Logistics_api_SPA1_SPA2.csv) em /rawRoutesCsv no
+// mesmo Firebase deste painel. Este botão busca esse CSV e roda o mesmo
+// pipeline de processamento do upload manual, sem precisar baixar/subir arquivo.
+async function syncFromExecutable() {
+  const btn = document.getElementById('syncExecBtn');
+  const statusEl = document.getElementById('globalCsvStatusMsg');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Sincronizando...';
+  statusEl.textContent = '';
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(`${FIREBASE_URL}/rawRoutesCsv.json`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const payload = await res.json();
+    if (!payload || !payload.csv) {
+      statusEl.textContent = 'Nenhum dado sincronizado pelo executável ainda.';
+      setSyncStatus('idle');
+      return;
+    }
+    document.getElementById('globalCsvFileName').textContent = 'Sincronizado do executável';
+    processGlobalCsvText(payload.csv, `Sincronização automática — ${payload.totalRotas || '?'} rotas`);
+    setSyncStatus('idle');
+  } catch (err) {
+    statusEl.textContent = 'Erro ao sincronizar: ' + err.message;
+    setSyncStatus('error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
 }
 
 // ===== Estratificar Rotas LM (paste parser) =====
