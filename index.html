@@ -2289,7 +2289,7 @@ async function syncFromExecutable() {
       setSyncStatus('idle');
       return;
     }
-    document.getElementById('globalCsvFileName').textContent = 'Sincronizado do executável';
+    document.getElementById('globalCsvFileName').textContent = 'Sincronizado';
     processGlobalCsvText(payload.csv, `Sincronização automática — ${payload.totalRotas || '?'} rotas`);
     setSyncStatus('idle');
   } catch (err) {
