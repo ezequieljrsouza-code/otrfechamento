@@ -520,14 +520,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     margin: 0 0 6px;
   }
   .ambulancia-cards-col .dsorhc-cards-row { margin: 0; }
-  .ambulancia-cards-col .cards-col-sublabel {
-    font-size: 11px;
-    font-weight: 700;
-    color: #7c8494;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-    margin: 14px 0 6px;
-  }
   .farol-green { color: #16a34a; }
   .farol-yellow { color: #ca8a04; }
   .farol-red { color: #dc2626; }
@@ -1013,14 +1005,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="ambulancia-cards-col">
     <div class="cards-col-label">SPA1</div>
     <div class="dsorhc-cards-row" id="ambulanciaCardsOther"></div>
-    <div class="cards-col-sublabel">Por prefixo</div>
-    <div class="dsorhc-cards-row" id="ambulanciaCardsOtherPrefix"></div>
   </div>
   <div class="ambulancia-cards-col">
     <div class="cards-col-label">SPA2</div>
     <div class="dsorhc-cards-row" id="ambulanciaCardsEpa"></div>
-    <div class="cards-col-sublabel">Por prefixo</div>
-    <div class="dsorhc-cards-row" id="ambulanciaCardsEpaPrefix"></div>
   </div>
 </div>
 
@@ -2767,28 +2755,6 @@ function buildAmbulanciaCards(rows, totalRoutes) {
   return cards;
 }
 
-function buildAmbulanciaPrefixCards(rows, totalRoutes) {
-  const total = rows.length;
-  const counts = {};
-  const order = [];
-  rows.forEach(r => {
-    const prefixo = r.facility || '-';
-    if (!counts[prefixo]) { counts[prefixo] = 0; order.push(prefixo); }
-    counts[prefixo]++;
-  });
-  order.sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
-
-  return order.map(prefixo => ({
-    summary: false,
-    icon: '🏭',
-    label: prefixo,
-    facility: null,
-    count: counts[prefixo],
-    metricLabel: '% das ambulâncias',
-    pct: total > 0 ? (counts[prefixo] / total * 100) : null
-  }));
-}
-
 function renderAmbulanciaCards(cards, containerId, countLabel) {
   countLabel = countLabel || 'Ambulâncias';
   const wrap = document.getElementById(containerId);
@@ -2813,8 +2779,6 @@ function renderAmbulanciaCardGroups(rows, totalRoutes) {
   const epaRows = rows.filter(r => AMBULANCIA_EPA_FACILITIES.includes(r.facility));
   renderAmbulanciaCards(buildAmbulanciaCards(otherRows, totalRoutes), 'ambulanciaCardsOther');
   renderAmbulanciaCards(buildAmbulanciaCards(epaRows, totalRoutes), 'ambulanciaCardsEpa');
-  renderAmbulanciaCards(buildAmbulanciaPrefixCards(otherRows, totalRoutes), 'ambulanciaCardsOtherPrefix');
-  renderAmbulanciaCards(buildAmbulanciaPrefixCards(epaRows, totalRoutes), 'ambulanciaCardsEpaPrefix');
 }
 
 function buildAmbulanciaReportSection(label, rows, totalRoutes) {
