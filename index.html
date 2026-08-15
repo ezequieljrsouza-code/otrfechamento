@@ -1198,6 +1198,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </select>
   </div>
   <div class="solic-field">
+    <label for="solicPerfil">Perfil (Rental Utilitário sem Ajudante)</label>
+    <select id="solicPerfil">
+      <option value="">Selecione...</option>
+    </select>
+  </div>
+  <div class="solic-field">
     <label for="solicIdRotaPrincipal">ID Rota Principal</label>
     <input type="text" id="solicIdRotaPrincipal" placeholder="Ex: 424848628">
   </div>
@@ -1237,23 +1243,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:9%"><col style="width:12%"><col style="width:9%"><col style="width:8%"><col style="width:11%"><col style="width:11%"><col style="width:8%"><col style="width:16%"><col style="width:10%"><col style="width:6%">
+      <col style="width:8%"><col style="width:10%"><col style="width:8%"><col style="width:7%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:6%"><col style="width:14%"><col style="width:9%"><col style="width:5%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="9">Solicitações de Ambulância</th>
+      <th colspan="10">Solicitações de Ambulância</th>
       <th class="total-cell" id="totalAmbSolic">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowAmbSolic">
-      <th>DATA</th><th>SOLICITANTE</th><th>MLP</th><th>FACILITY</th><th>ID ROTA PRINCIPAL</th><th>ID ROTA AMB</th><th>SPR</th><th>MOTIVO</th><th>OTR</th><th></th>
+      <th>DATA</th><th>SOLICITANTE</th><th>MLP</th><th>FACILITY</th><th>PERFIL</th><th>ID ROTA PRINCIPAL</th><th>ID ROTA AMB</th><th>SPR</th><th>MOTIVO</th><th>OTR</th><th></th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:9%"><col style="width:12%"><col style="width:9%"><col style="width:8%"><col style="width:11%"><col style="width:11%"><col style="width:8%"><col style="width:16%"><col style="width:10%"><col style="width:6%">
+        <col style="width:8%"><col style="width:10%"><col style="width:8%"><col style="width:7%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:6%"><col style="width:14%"><col style="width:9%"><col style="width:5%">
       </colgroup>
       <tbody id="bodyAmbSolic">
-        <tr><td colspan="10" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>
+        <tr><td colspan="11" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>
       </tbody>
     </table>
   </div>
@@ -3147,7 +3153,8 @@ const motivosAutorizados = {
   "Sinistro": "Tentativa e/ou acontecimento de furtos e roubos.",
   "Falha Interna nos processos operacionais": "Atraso nas etapas operacionais, afetando o horário de saída do veículo no SVC. Exemplos: sorting, roteirização, expedição, atraso do middle, line haul e Ops Clock."
 };
-const AMB_SOLIC_MLP_OPCOES = ['BRJ', 'DHL', 'JL CASTRO', 'RODACOOP'];
+const AMB_SOLIC_MLP_OPCOES = ['BRJ', 'DHL', 'JL CASTRO', 'RODACOOP', 'BRJTransportes', 'COOPMETRO', 'Envios Extra', 'JL Castro', 'Kangu Logistics', 'PANTERA LOG TRAN', 'RodaCoop', 'WLS CARGO'];
+const AMB_SOLIC_PERFIL_OPCOES = ['Utilitário Localiza 2025', 'Utilitário TKS 2025', 'Utilitarios', 'Utilitários SDD', 'Utilitários Spot Kangu', 'Van', 'Van TKS 2025', 'Van Vamos 2026', 'Vuc', 'VUC dedicado com ajudante', 'Vuc LM 2026', 'Vuc SDD', 'Vuc TKS 2025', 'Vuc Vamos 2025', 'Yellow Pool Large Van – Equipe única'];
 const AMB_SOLIC_OTR_OPCOES = ['Elielson', 'Ezequiel', 'Fabricio', 'Francisco', 'Natalia', 'Nayara', 'Renan'];
 const AMB_SOLIC_FIREBASE_PATH = 'solicitacoesAmbulancia';
 
@@ -3156,6 +3163,7 @@ const AMB_SOLIC_FILTER_COLUMNS = [
   { key: 'solicitante', label: 'Solicitante' },
   { key: 'mlp', label: 'MLP' },
   { key: 'facility', label: 'Facility' },
+  { key: 'perfil', label: 'Perfil' },
   { key: 'motivo', label: 'Motivo' },
   { key: 'otr', label: 'OTR' }
 ];
@@ -3176,6 +3184,13 @@ function ambSolicPopulateSelects() {
     const opt = document.createElement('option');
     opt.value = v; opt.textContent = v;
     facSel.appendChild(opt);
+  });
+
+  const perfilSel = document.getElementById('solicPerfil');
+  AMB_SOLIC_PERFIL_OPCOES.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    perfilSel.appendChild(opt);
   });
 
   const motivoSel = document.getElementById('solicMotivo');
@@ -3295,11 +3310,11 @@ function renderAmbSolicTable(rows) {
   const body = document.getElementById('bodyAmbSolic');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="10" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>';
+    body.innerHTML = '<tr><td colspan="11" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>';
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${ambSolicDateLabel(r.data)}</td><td>${escapeAmbSolicHtml(r.solicitante)}</td><td>${r.mlp || ''}</td><td>${r.facility || ''}</td>` +
+      tr.innerHTML = `<td>${ambSolicDateLabel(r.data)}</td><td>${escapeAmbSolicHtml(r.solicitante)}</td><td>${r.mlp || ''}</td><td>${r.facility || ''}</td><td>${r.perfil || ''}</td>` +
         `<td>${escapeAmbSolicHtml(r.idRotaPrincipal)}</td><td>${escapeAmbSolicHtml(r.idRotaAmb)}</td><td>${r.sprTransferido || 0}</td>` +
         `<td>${escapeAmbSolicHtml(r.motivo)}</td><td>${r.otr || ''}</td>` +
         `<td><button type="button" class="solic-row-del" data-id="${r.id}" title="Excluir">×</button></td>`;
@@ -3484,6 +3499,7 @@ document.getElementById('ambSolicAddBtn').addEventListener('click', async () => 
     solicitante: document.getElementById('solicSolicitante').value.trim(),
     mlp: document.getElementById('solicMlp').value,
     facility: document.getElementById('solicFacility').value,
+    perfil: document.getElementById('solicPerfil').value,
     idRotaPrincipal: document.getElementById('solicIdRotaPrincipal').value.trim(),
     idRotaAmb: document.getElementById('solicIdRotaAmb').value.trim(),
     sprTransferido: parseInt(document.getElementById('solicSpr').value, 10) || 0,
@@ -3505,13 +3521,13 @@ document.getElementById('ambSolicAddBtn').addEventListener('click', async () => 
 document.getElementById('ambSolicExportBtn').addEventListener('click', () => {
   const rows = getAmbSolicFilteredRows();
   if (rows.length === 0) return;
-  const headers = ['DATA', 'SOLICITANTE', 'MLP', 'FACILITY', 'ID ROTA PRINCIPAL', 'ID ROTA AMB', 'SPR TRANSFERIDO', 'MOTIVO SOLICITAÇÃO', 'OTR'];
+  const headers = ['DATA', 'SOLICITANTE', 'MLP', 'FACILITY', 'PERFIL', 'ID ROTA PRINCIPAL', 'ID ROTA AMB', 'SPR TRANSFERIDO', 'MOTIVO SOLICITAÇÃO', 'OTR'];
   const aoa = [headers];
   rows.forEach(r => {
-    aoa.push([ambSolicDateLabel(r.data), r.solicitante || '', r.mlp || '', r.facility || '', r.idRotaPrincipal || '', r.idRotaAmb || '', r.sprTransferido || 0, r.motivo || '', r.otr || '']);
+    aoa.push([ambSolicDateLabel(r.data), r.solicitante || '', r.mlp || '', r.facility || '', r.perfil || '', r.idRotaPrincipal || '', r.idRotaAmb || '', r.sprTransferido || 0, r.motivo || '', r.otr || '']);
   });
   const ws = XLSX.utils.aoa_to_sheet(aoa);
-  ws['!cols'] = [{ wch: 12 }, { wch: 20 }, { wch: 12 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 42 }, { wch: 14 }];
+  ws['!cols'] = [{ wch: 12 }, { wch: 20 }, { wch: 12 }, { wch: 10 }, { wch: 26 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 42 }, { wch: 14 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Solicitações');
   XLSX.writeFile(wb, 'solicitacoes_ambulancia.xlsx');
@@ -3934,7 +3950,7 @@ makeSortable('headRowAmbHist',
 );
 
 makeSortable('headRowAmbSolic',
-  [r => r.data, r => r.solicitante, r => r.mlp, r => r.facility, r => r.idRotaPrincipal, r => r.idRotaAmb, r => r.sprTransferido, r => r.motivo, r => r.otr],
+  [r => r.data, r => r.solicitante, r => r.mlp, r => r.facility, r => r.perfil, r => r.idRotaPrincipal, r => r.idRotaAmb, r => r.sprTransferido, r => r.motivo, r => r.otr],
   () => getAmbSolicFilteredRows(),
   renderAmbSolicTable
 );
