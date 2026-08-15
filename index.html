@@ -1142,14 +1142,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="ambulancia-cards-col">
     <div class="cards-col-label">SPA1</div>
     <div class="dsorhc-cards-row" id="ambHistCardsOther"></div>
-    <div class="cards-col-sublabel">Por prefixo</div>
-    <div class="dsorhc-cards-row" id="ambHistCardsOtherPrefix"></div>
   </div>
   <div class="ambulancia-cards-col">
     <div class="cards-col-label">SPA2</div>
     <div class="dsorhc-cards-row" id="ambHistCardsEpa"></div>
-    <div class="cards-col-sublabel">Por prefixo</div>
-    <div class="dsorhc-cards-row" id="ambHistCardsEpaPrefix"></div>
   </div>
 </div>
 
@@ -3135,8 +3131,6 @@ function renderAmbHistCardGroups(rows, totalRoutes) {
   const epaRows = rows.filter(r => AMBULANCIA_EPA_FACILITIES.includes(r.facility));
   renderAmbulanciaCards(buildAmbulanciaCards(otherRows, totalRoutes), 'ambHistCardsOther');
   renderAmbulanciaCards(buildAmbulanciaCards(epaRows, totalRoutes), 'ambHistCardsEpa');
-  renderAmbulanciaCards(buildAmbulanciaPrefixCards(otherRows, totalRoutes), 'ambHistCardsOtherPrefix');
-  renderAmbulanciaCards(buildAmbulanciaPrefixCards(epaRows, totalRoutes), 'ambHistCardsEpaPrefix');
 }
 
 async function generateHdImageAmbHist() {
