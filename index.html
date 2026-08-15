@@ -821,6 +821,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   </div>
 </div>
 
+<div class="ambulancia-cards-columns">
+  <div class="ambulancia-cards-col">
+    <div class="cards-col-label">SPA1</div>
+    <div class="dsorhc-cards-row" id="rota12hCardsSpa1"></div>
+  </div>
+  <div class="ambulancia-cards-col">
+    <div class="cards-col-label">SPA2</div>
+    <div class="dsorhc-cards-row" id="rota12hCardsSpa2"></div>
+  </div>
+</div>
+
 <div class="wrap">
   <div class="panel">
     <table>
@@ -1591,6 +1602,15 @@ if (typeof Chart !== 'undefined') {
   });
 }
 
+function renderRota12hCardGroups(all, totalAll) {
+  const spa1Rows = all.filter(it => it.facility === 'SPA1');
+  const spa2Rows = all.filter(it => it.facility === 'SPA2');
+  const adapt = cards => cards.map(c => c.summary ? { ...c, facility: null } :
+    { ...c, facility: null, icon: '🚚', metricLabel: '% das rotas' });
+  renderAmbulanciaCards(adapt(buildAmbulanciaCards(spa1Rows, totalAll)), 'rota12hCardsSpa1', 'Rotas');
+  renderAmbulanciaCards(adapt(buildAmbulanciaCards(spa2Rows, totalAll)), 'rota12hCardsSpa2', 'Rotas');
+}
+
 function renderDashboard(data) {
   if (typeof Chart === 'undefined') {
     document.getElementById('statusMsg').textContent =
@@ -1610,6 +1630,8 @@ function renderDashboard(data) {
   document.getElementById('kpiMe').textContent = totalMe;
   document.getElementById('kpiSpa1').textContent = spa1;
   document.getElementById('kpiSpa2').textContent = spa2;
+
+  renderRota12hCardGroups(all, total);
 
   if (typeof Chart === 'undefined') return;
 
