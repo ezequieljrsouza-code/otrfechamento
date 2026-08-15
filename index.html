@@ -670,6 +670,69 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     background: #fff;
     min-width: 190px;
   }
+  .solic-form {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 0 0 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .solic-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 140px;
+  }
+  .solic-field label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #5a5f7a;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .solic-field input, .solic-field select {
+    border: 1px solid #dfe1ee;
+    border-radius: 6px;
+    padding: 7px 9px;
+    font-size: 12.5px;
+    font-family: inherit;
+    color: #333;
+    background: #fff;
+  }
+  .solic-field input:focus, .solic-field select:focus { border-color: #3483FA; outline: none; }
+  .solic-motivo-hint {
+    font-size: 10.5px;
+    color: #6d6a5a;
+    line-height: 1.35;
+    min-height: 14px;
+  }
+  .solic-add-btn {
+    background: #2d3277;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .solic-add-btn:hover { background: #3e4b9a; }
+  .solic-add-btn:disabled { opacity: .6; cursor: default; }
+  .solic-row-del {
+    border: none;
+    background: transparent;
+    color: #97937e;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 2px 5px;
+    border-radius: 5px;
+    line-height: 1;
+  }
+  .solic-row-del:hover { background: #fbe4e0; color: #b23127; }
 </style>
 </head>
 <body>
@@ -689,6 +752,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <button class="sidebar-item" id="tabBtn4" onclick="switchTab(4)">Ambulância</button>
   <button class="sidebar-item" id="tabBtn5" onclick="switchTab(5)">Estratificar Rotas LM</button>
   <button class="sidebar-item" id="tabBtn6" onclick="switchTab(6)">Histórico Ambulância</button>
+  <button class="sidebar-item" id="tabBtn7" onclick="switchTab(7)">Solicitações Ambulância</button>
 </nav>
 
 <div class="content" id="mainContent">
@@ -1079,27 +1143,120 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:18%"><col style="width:22%">
+      <col style="width:16%"><col style="width:10%"><col style="width:17%"><col style="width:15%"><col style="width:18%"><col style="width:14%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="4">Histórico Ambulância</th>
+      <th colspan="5">Histórico Ambulância</th>
       <th class="total-cell" id="totalAmbHist">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowAmbHist">
-      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th>
+      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>DATA</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:18%"><col style="width:22%">
+        <col style="width:16%"><col style="width:10%"><col style="width:17%"><col style="width:15%"><col style="width:18%"><col style="width:14%">
       </colgroup>
       <tbody id="bodyAmbHist">
-        <tr><td colspan="5" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
+        <tr><td colspan="6" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
       </tbody>
     </table>
   </div>
 </div>
+</div>
+
+</div>
+
+<div id="tab-panel-7" class="tab-panel">
+
+<div class="toolbar">
+  <span id="ambSolicStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+  <span class="spacer" style="flex:1;"></span>
+  <button type="button" class="file-btn" id="ambSolicExportBtn">Baixar planilha</button>
+</div>
+
+<div class="solic-form">
+  <div class="solic-field">
+    <label for="solicData">Data</label>
+    <input type="date" id="solicData">
+  </div>
+  <div class="solic-field">
+    <label for="solicSolicitante">Solicitante</label>
+    <input type="text" id="solicSolicitante" placeholder="Nome de quem solicitou">
+  </div>
+  <div class="solic-field">
+    <label for="solicMlp">MLP</label>
+    <select id="solicMlp">
+      <option value="">Selecione...</option>
+    </select>
+  </div>
+  <div class="solic-field">
+    <label for="solicFacility">Facility</label>
+    <select id="solicFacility">
+      <option value="">Selecione...</option>
+    </select>
+  </div>
+  <div class="solic-field">
+    <label for="solicIdRotaPrincipal">ID Rota Principal</label>
+    <input type="text" id="solicIdRotaPrincipal" placeholder="Ex: 424848628">
+  </div>
+  <div class="solic-field">
+    <label for="solicIdRotaAmb">ID Rota Amb</label>
+    <input type="text" id="solicIdRotaAmb" placeholder="Ex: 424848900">
+  </div>
+  <div class="solic-field">
+    <label for="solicSpr">SPR Transferido</label>
+    <input type="number" min="0" id="solicSpr" placeholder="0">
+  </div>
+  <div class="solic-field" style="min-width:220px;">
+    <label for="solicMotivo">Motivo Solicitação</label>
+    <select id="solicMotivo">
+      <option value="">Selecione...</option>
+    </select>
+    <span class="solic-motivo-hint" id="solicMotivoHint"></span>
+  </div>
+  <div class="solic-field">
+    <label for="solicOtr">OTR (liberado por)</label>
+    <select id="solicOtr">
+      <option value="">Selecione...</option>
+    </select>
+  </div>
+  <div class="solic-field">
+    <label>&nbsp;</label>
+    <button type="button" class="solic-add-btn" id="ambSolicAddBtn">+ Adicionar</button>
+  </div>
+</div>
+
+<div class="dsorhc-cards-row" id="ambSolicCards"></div>
+
+<div class="ambulancia-filterbar" id="ambSolicFilterBar">
+  <span class="filterbar-hint">Nenhuma solicitação registrada ainda.</span>
+</div>
+
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:9%"><col style="width:12%"><col style="width:9%"><col style="width:8%"><col style="width:11%"><col style="width:11%"><col style="width:8%"><col style="width:16%"><col style="width:10%"><col style="width:6%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="9">Solicitações de Ambulância</th>
+      <th class="total-cell" id="totalAmbSolic">Total: 0</th>
+    </tr>
+    <tr class="head-row" id="headRowAmbSolic">
+      <th>DATA</th><th>SOLICITANTE</th><th>MLP</th><th>FACILITY</th><th>ID ROTA PRINCIPAL</th><th>ID ROTA AMB</th><th>SPR</th><th>MOTIVO</th><th>OTR</th><th></th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:9%"><col style="width:12%"><col style="width:9%"><col style="width:8%"><col style="width:11%"><col style="width:11%"><col style="width:8%"><col style="width:16%"><col style="width:10%"><col style="width:6%">
+      </colgroup>
+      <tbody id="bodyAmbSolic">
+        <tr><td colspan="10" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 </div>
@@ -1645,12 +1802,14 @@ function switchTab(n) {
   document.getElementById('tab-panel-4').classList.toggle('active', n === 4);
   document.getElementById('tab-panel-5').classList.toggle('active', n === 5);
   document.getElementById('tab-panel-6').classList.toggle('active', n === 6);
+  document.getElementById('tab-panel-7').classList.toggle('active', n === 7);
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
   document.getElementById('tabBtn3').classList.toggle('active', n === 3);
   document.getElementById('tabBtn4').classList.toggle('active', n === 4);
   document.getElementById('tabBtn5').classList.toggle('active', n === 5);
   document.getElementById('tabBtn6').classList.toggle('active', n === 6);
+  document.getElementById('tabBtn7').classList.toggle('active', n === 7);
   if (n === 6 && !ambHistInitialized) {
     ambHistInitialized = true;
     ambHistPopulateDateSelect();
@@ -2236,7 +2395,8 @@ const AMBULANCIA_FILTER_COLUMNS = [
   { key: 'placa', label: 'Placa' },
   { key: 'facility', label: 'Facility' },
   { key: 'mlp', label: 'MLP' },
-  { key: 'data', label: 'Data' }
+  { key: 'data', label: 'Data' },
+  { key: 'status', label: 'Status' }
 ];
 
 document.addEventListener('click', () => {
@@ -2630,7 +2790,8 @@ const AMB_HIST_FILTER_COLUMNS = [
   { key: 'spr', label: 'SPR' },
   { key: 'placa', label: 'Placa' },
   { key: 'facility', label: 'Facility' },
-  { key: 'mlp', label: 'MLP' }
+  { key: 'mlp', label: 'MLP' },
+  { key: 'status', label: 'Status' }
 ];
 
 function ambHistDateKey(d) {
@@ -2867,11 +3028,11 @@ function renderAmbHistTable(rows) {
   const body = document.getElementById('bodyAmbHist');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="5" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td>`;
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.data || ''}</td>`;
       body.appendChild(tr);
     });
   }
@@ -2973,6 +3134,394 @@ function downloadAmbHistCsv() {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+// ===== Solicitações de Ambulância =====
+// Log manual de liberações de ambulância, no padrão da planilha "SOLICITAÇÕES
+// DE AMBULANCIA.xlsx". Persistido por registro no Firebase (path próprio,
+// AMB_SOLIC_FIREBASE_PATH) — não depende do CSV nem do botão "Sincronizar":
+// cada solicitação é salva assim que é adicionada, e some só se for excluída.
+const motivosAutorizados = {
+  "Acidente de trânsito": "Motorista causou ou se envolveu em algum tipo de acidente de trânsito.",
+  "Questões de Saúde": "Motorista ou ajudante passou mal.",
+  "Causas Externas": "Forte chuva, protestos ou greves que impactaram a operação.",
+  "Sinistro": "Tentativa e/ou acontecimento de furtos e roubos.",
+  "Falha Interna nos processos operacionais": "Atraso nas etapas operacionais, afetando o horário de saída do veículo no SVC. Exemplos: sorting, roteirização, expedição, atraso do middle, line haul e Ops Clock."
+};
+const AMB_SOLIC_MLP_OPCOES = ['BRJ', 'DHL', 'JL CASTRO', 'RODACOOP'];
+const AMB_SOLIC_OTR_OPCOES = ['Elielson', 'Ezequiel', 'Fabricio', 'Francisco', 'Natalia', 'Nayara', 'Renan'];
+const AMB_SOLIC_FIREBASE_PATH = 'solicitacoesAmbulancia';
+
+const AMB_SOLIC_FILTER_COLUMNS = [
+  { key: 'data', label: 'Data' },
+  { key: 'solicitante', label: 'Solicitante' },
+  { key: 'mlp', label: 'MLP' },
+  { key: 'facility', label: 'Facility' },
+  { key: 'motivo', label: 'Motivo' },
+  { key: 'otr', label: 'OTR' }
+];
+
+let ambSolicRows = [];
+let ambSolicFilters = {};
+
+function ambSolicPopulateSelects() {
+  const mlpSel = document.getElementById('solicMlp');
+  AMB_SOLIC_MLP_OPCOES.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    mlpSel.appendChild(opt);
+  });
+
+  const facSel = document.getElementById('solicFacility');
+  AMBULANCIA_EPA_FACILITIES.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    facSel.appendChild(opt);
+  });
+
+  const motivoSel = document.getElementById('solicMotivo');
+  Object.keys(motivosAutorizados).forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    opt.title = motivosAutorizados[v];
+    motivoSel.appendChild(opt);
+  });
+  motivoSel.addEventListener('change', () => {
+    const explicacao = motivosAutorizados[motivoSel.value] || '';
+    document.getElementById('solicMotivoHint').textContent = explicacao;
+    motivoSel.title = explicacao;
+  });
+
+  const otrSel = document.getElementById('solicOtr');
+  AMB_SOLIC_OTR_OPCOES.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    otrSel.appendChild(opt);
+  });
+
+  const dataInput = document.getElementById('solicData');
+  const hoje = new Date();
+  dataInput.value = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+}
+ambSolicPopulateSelects();
+
+async function ambSolicSaveRecord(record) {
+  try {
+    const res = await fetch(`${FIREBASE_URL}/${AMB_SOLIC_FIREBASE_PATH}/${record.id}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return true;
+  } catch (err) {
+    console.error('Erro ao salvar solicitação:', err);
+    return false;
+  }
+}
+
+async function ambSolicDeleteRecord(id) {
+  try {
+    const res = await fetch(`${FIREBASE_URL}/${AMB_SOLIC_FIREBASE_PATH}/${id}.json`, { method: 'DELETE' });
+    return res.ok;
+  } catch (err) {
+    console.error('Erro ao excluir solicitação:', err);
+    return false;
+  }
+}
+
+async function ambSolicLoadAll() {
+  try {
+    const res = await fetch(`${FIREBASE_URL}/${AMB_SOLIC_FIREBASE_PATH}.json`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json) return [];
+    return Object.keys(json).map(id => Object.assign({}, json[id], { id }));
+  } catch (err) {
+    console.error('Erro ao carregar solicitações:', err);
+    return [];
+  }
+}
+
+function ambSolicDateLabel(iso) {
+  if (!iso) return '';
+  const p = iso.split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : iso;
+}
+
+function getAmbSolicFilteredRows() {
+  return ambSolicRows.filter(r => AMB_SOLIC_FILTER_COLUMNS.every(col => {
+    const sel = ambSolicFilters[col.key];
+    if (!sel) return true;
+    return sel.has(ambVal(r, col.key));
+  }));
+}
+
+function buildAmbSolicCards(rows) {
+  const total = rows.length;
+  const groups = {};
+  const order = [];
+  rows.forEach(r => {
+    const otr = r.otr || '(sem responsável)';
+    if (!groups[otr]) { groups[otr] = 0; order.push(otr); }
+    groups[otr]++;
+  });
+  order.sort((a, b) => groups[b] - groups[a]);
+
+  const cards = [{ summary: true, icon: '📋', label: 'Geral', count: total, metricLabel: 'Total de solicitações', pct: null }];
+  order.forEach(otr => {
+    cards.push({ summary: false, icon: '🧑‍💼', label: otr, count: groups[otr], metricLabel: '% das liberações', pct: total > 0 ? (groups[otr] / total * 100) : null });
+  });
+  return cards;
+}
+
+function renderAmbSolicCards(rows) {
+  const wrap = document.getElementById('ambSolicCards');
+  wrap.innerHTML = '';
+  buildAmbSolicCards(rows).forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'dsorhc-card' + (c.summary ? ' dsorhc-card-summary' : '');
+    div.innerHTML = `
+      <div class="dsorhc-card-head">
+        <span class="dsorhc-card-name">${c.icon} ${c.label}</span>
+        <span class="dsorhc-card-rotas">Solicitações: ${c.count}</span>
+      </div>
+      <div class="dsorhc-metric-row"><span class="dsorhc-metric-label">${c.metricLabel}</span><span class="dsorhc-metric-val">${c.pct === null ? '-' : dsPct(c.pct)}</span></div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function renderAmbSolicTable(rows) {
+  const body = document.getElementById('bodyAmbSolic');
+  body.innerHTML = '';
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="10" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>';
+  } else {
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${ambSolicDateLabel(r.data)}</td><td>${escapeAmbSolicHtml(r.solicitante)}</td><td>${r.mlp || ''}</td><td>${r.facility || ''}</td>` +
+        `<td>${escapeAmbSolicHtml(r.idRotaPrincipal)}</td><td>${escapeAmbSolicHtml(r.idRotaAmb)}</td><td>${r.sprTransferido || 0}</td>` +
+        `<td>${escapeAmbSolicHtml(r.motivo)}</td><td>${r.otr || ''}</td>` +
+        `<td><button type="button" class="solic-row-del" data-id="${r.id}" title="Excluir">×</button></td>`;
+      body.appendChild(tr);
+    });
+  }
+  document.getElementById('totalAmbSolic').textContent = 'Total: ' + rows.length;
+  body.querySelectorAll('.solic-row-del').forEach(btn => {
+    btn.addEventListener('click', () => ambSolicDeleteRow(btn.getAttribute('data-id')));
+  });
+}
+
+function escapeAmbSolicHtml(s) {
+  return (s === undefined || s === null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+function applyAmbSolicFilters() {
+  const filtered = getAmbSolicFilteredRows();
+  renderAmbSolicTable(filtered);
+  renderAmbSolicCards(filtered);
+}
+
+function renderAmbSolicFilterBar() {
+  const bar = document.getElementById('ambSolicFilterBar');
+  bar.innerHTML = '';
+  if (ambSolicRows.length === 0) {
+    bar.innerHTML = '<span class="filterbar-hint">Nenhuma solicitação registrada ainda.</span>';
+    return;
+  }
+  const label = document.createElement('span');
+  label.className = 'filterbar-label';
+  label.textContent = 'Filtros';
+  bar.appendChild(label);
+
+  AMB_SOLIC_FILTER_COLUMNS.forEach(col => bar.appendChild(buildAmbSolicFilterWidget(col)));
+
+  const clearBtn = document.createElement('button');
+  clearBtn.type = 'button';
+  clearBtn.className = 'amb-filter-clearall';
+  clearBtn.textContent = 'Limpar filtros';
+  clearBtn.addEventListener('click', () => {
+    ambSolicFilters = {};
+    renderAmbSolicFilterBar();
+    applyAmbSolicFilters();
+  });
+  bar.appendChild(clearBtn);
+}
+
+function buildAmbSolicFilterWidget(col) {
+  const wrap = document.createElement('div');
+  wrap.className = 'amb-filter';
+
+  const allValues = [...new Set(ambSolicRows.map(r => ambVal(r, col.key)))]
+    .sort((a, b) => String(a).localeCompare(String(b), 'pt-BR', { numeric: true, sensitivity: 'base' }));
+
+  const activeSel = ambSolicFilters[col.key];
+  if (activeSel) wrap.classList.add('active');
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'amb-filter-btn';
+  btn.innerHTML = `<span>${col.label}${activeSel ? ' (' + activeSel.size + ')' : ''}</span><span class="amb-filter-arrow">▾</span>`;
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const wasOpen = wrap.classList.contains('open');
+    document.querySelectorAll('.amb-filter.open').forEach(el => el.classList.remove('open'));
+    if (!wasOpen) wrap.classList.add('open');
+  });
+
+  const panel = document.createElement('div');
+  panel.className = 'amb-filter-panel';
+  panel.addEventListener('click', e => e.stopPropagation());
+
+  const search = document.createElement('input');
+  search.type = 'text';
+  search.className = 'amb-filter-search';
+  search.placeholder = 'Buscar...';
+
+  const actions = document.createElement('div');
+  actions.className = 'amb-filter-actions';
+  const selAllLink = document.createElement('a');
+  selAllLink.textContent = 'Selecionar tudo';
+  const clearLink = document.createElement('a');
+  clearLink.textContent = 'Limpar';
+  actions.appendChild(selAllLink);
+  actions.appendChild(clearLink);
+
+  const list = document.createElement('div');
+  list.className = 'amb-filter-list';
+
+  const pending = new Set(activeSel ? activeSel : allValues);
+
+  function renderList(filterText) {
+    list.innerHTML = '';
+    const ft = (filterText || '').toLowerCase();
+    const visible = allValues.filter(v => String(v).toLowerCase().includes(ft));
+    if (visible.length === 0) {
+      list.innerHTML = '<div class="amb-filter-empty">Nenhum valor encontrado</div>';
+      return;
+    }
+    visible.forEach(v => {
+      const optLabel = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = pending.has(v);
+      cb.addEventListener('change', () => {
+        if (cb.checked) pending.add(v); else pending.delete(v);
+      });
+      optLabel.appendChild(cb);
+      const span = document.createElement('span');
+      span.textContent = col.key === 'data' ? ambSolicDateLabel(v) : v;
+      optLabel.appendChild(span);
+      list.appendChild(optLabel);
+    });
+  }
+  renderList('');
+
+  search.addEventListener('input', () => renderList(search.value));
+  selAllLink.addEventListener('click', () => {
+    allValues.forEach(v => pending.add(v));
+    renderList(search.value);
+  });
+  clearLink.addEventListener('click', () => {
+    pending.clear();
+    renderList(search.value);
+  });
+
+  const applyBtn = document.createElement('button');
+  applyBtn.type = 'button';
+  applyBtn.className = 'amb-filter-apply';
+  applyBtn.textContent = 'Aplicar';
+  applyBtn.addEventListener('click', () => {
+    if (pending.size === allValues.length) {
+      delete ambSolicFilters[col.key];
+    } else {
+      ambSolicFilters[col.key] = new Set(pending);
+    }
+    wrap.classList.remove('open');
+    renderAmbSolicFilterBar();
+    applyAmbSolicFilters();
+  });
+
+  panel.appendChild(search);
+  panel.appendChild(actions);
+  panel.appendChild(list);
+  panel.appendChild(applyBtn);
+
+  wrap.appendChild(btn);
+  wrap.appendChild(panel);
+  return wrap;
+}
+
+function resetAmbSolicFiltersAndRender() {
+  ambSolicFilters = {};
+  resetSort('headRowAmbSolic');
+  renderAmbSolicFilterBar();
+  applyAmbSolicFilters();
+}
+
+async function ambSolicDeleteRow(id) {
+  if (!confirm('Remover esta solicitação?')) return;
+  ambSolicRows = ambSolicRows.filter(r => r.id !== id);
+  resetAmbSolicFiltersAndRender();
+  await ambSolicDeleteRecord(id);
+}
+
+document.getElementById('ambSolicAddBtn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('ambSolicStatusMsg');
+  statusEl.textContent = '';
+  const data = document.getElementById('solicData').value;
+  const otr = document.getElementById('solicOtr').value;
+  const motivo = document.getElementById('solicMotivo').value;
+  if (!data || !otr || !motivo) {
+    statusEl.textContent = 'Preencha ao menos Data, Motivo e OTR antes de adicionar.';
+    return;
+  }
+  const btn = document.getElementById('ambSolicAddBtn');
+  btn.disabled = true;
+  const record = {
+    id: 'r' + Date.now() + Math.random().toString(36).slice(2, 8),
+    data,
+    solicitante: document.getElementById('solicSolicitante').value.trim(),
+    mlp: document.getElementById('solicMlp').value,
+    facility: document.getElementById('solicFacility').value,
+    idRotaPrincipal: document.getElementById('solicIdRotaPrincipal').value.trim(),
+    idRotaAmb: document.getElementById('solicIdRotaAmb').value.trim(),
+    sprTransferido: parseInt(document.getElementById('solicSpr').value, 10) || 0,
+    motivo,
+    otr,
+    createdAt: new Date().toISOString()
+  };
+  ambSolicRows.push(record);
+  resetAmbSolicFiltersAndRender();
+  const ok = await ambSolicSaveRecord(record);
+  if (!ok) statusEl.textContent = 'Solicitação adicionada localmente, mas houve erro ao salvar na nuvem — tente sincronizar de novo.';
+  document.getElementById('solicSolicitante').value = '';
+  document.getElementById('solicIdRotaPrincipal').value = '';
+  document.getElementById('solicIdRotaAmb').value = '';
+  document.getElementById('solicSpr').value = '';
+  btn.disabled = false;
+});
+
+document.getElementById('ambSolicExportBtn').addEventListener('click', () => {
+  const rows = getAmbSolicFilteredRows();
+  if (rows.length === 0) return;
+  const headers = ['DATA', 'SOLICITANTE', 'MLP', 'FACILITY', 'ID ROTA PRINCIPAL', 'ID ROTA AMB', 'SPR TRANSFERIDO', 'MOTIVO SOLICITAÇÃO', 'OTR'];
+  const aoa = [headers];
+  rows.forEach(r => {
+    aoa.push([ambSolicDateLabel(r.data), r.solicitante || '', r.mlp || '', r.facility || '', r.idRotaPrincipal || '', r.idRotaAmb || '', r.sprTransferido || 0, r.motivo || '', r.otr || '']);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{ wch: 12 }, { wch: 20 }, { wch: 12 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 42 }, { wch: 14 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Solicitações');
+  XLSX.writeFile(wb, 'solicitacoes_ambulancia.xlsx');
+});
+
+async function initAmbSolic() {
+  ambSolicRows = await ambSolicLoadAll();
+  resetAmbSolicFiltersAndRender();
+}
+initAmbSolic();
 
 // ===== Upload único de CSV — atualiza todas as guias =====
 document.getElementById('globalCsvInput').addEventListener('change', handleGlobalCsvFile);
@@ -3379,9 +3928,15 @@ makeSortable('headRowAmbulancia',
 );
 
 makeSortable('headRowAmbHist',
-  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp],
+  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => ambDataSortKey(r.data)],
   () => getAmbHistFilteredRows(),
   renderAmbHistTable
+);
+
+makeSortable('headRowAmbSolic',
+  [r => r.data, r => r.solicitante, r => r.mlp, r => r.facility, r => r.idRotaPrincipal, r => r.idRotaAmb, r => r.sprTransferido, r => r.motivo, r => r.otr],
+  () => getAmbSolicFilteredRows(),
+  renderAmbSolicTable
 );
 
 makeSortable('headRowLm',
