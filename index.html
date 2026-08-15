@@ -188,7 +188,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
-  #downloadBtn, #downloadLmBtn {
+  #downloadBtn, #downloadLmBtn, #downloadAmbHistBtn {
     background: #FFF159;
     border: none;
     color: #3A3300;
@@ -198,7 +198,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     border-radius: 6px;
     cursor: pointer;
   }
-  #downloadBtn:disabled, #downloadLmBtn:disabled {
+  #downloadBtn:disabled, #downloadLmBtn:disabled, #downloadAmbHistBtn:disabled {
     background: #e2e2da;
     color: #999;
     cursor: not-allowed;
@@ -639,6 +639,37 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     padding: 5px 10px;
   }
   .amb-filter-clearall:hover { background: #fdf0f0; }
+  .amb-hist-datepick {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f1f2f8;
+    border: 1px solid #dfe1ee;
+    border-radius: 8px;
+    padding: 6px 12px;
+  }
+  .amb-hist-datepick label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #2d3277;
+  }
+  .amb-hist-datepick input[type="date"] {
+    border: 1px solid #dfe1ee;
+    border-radius: 5px;
+    padding: 5px 8px;
+    font-size: 12.5px;
+    color: #333;
+    background: #fff;
+  }
+  .amb-hist-select {
+    border: 1px solid #dfe1ee;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    color: #333;
+    background: #fff;
+    min-width: 190px;
+  }
 </style>
 </head>
 <body>
@@ -657,6 +688,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <button class="sidebar-item" id="tabBtn3" onclick="switchTab(3)">DS_ORHC</button>
   <button class="sidebar-item" id="tabBtn4" onclick="switchTab(4)">Ambulância</button>
   <button class="sidebar-item" id="tabBtn5" onclick="switchTab(5)">Estratificar Rotas LM</button>
+  <button class="sidebar-item" id="tabBtn6" onclick="switchTab(6)">Histórico Ambulância</button>
 </nav>
 
 <div class="content" id="mainContent">
@@ -922,23 +954,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:18%"><col style="width:22%">
+      <col style="width:16%"><col style="width:10%"><col style="width:17%"><col style="width:15%"><col style="width:18%"><col style="width:14%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="4">Ambulância</th>
+      <th colspan="5">Ambulância</th>
       <th class="total-cell" id="totalAmbulancia">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowAmbulancia">
-      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th>
+      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>DATA</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:18%"><col style="width:22%">
+        <col style="width:16%"><col style="width:10%"><col style="width:17%"><col style="width:15%"><col style="width:18%"><col style="width:14%">
       </colgroup>
       <tbody id="bodyAmbulancia">
-        <tr><td colspan="5" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
+        <tr><td colspan="6" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
       </tbody>
     </table>
   </div>
@@ -1008,6 +1040,66 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <button id="copyLmReportBtn" class="btn-secondary" disabled>Copiar report</button>
   </div>
   <div class="report-line" id="lmReportBox">Cole o conteúdo acima e gere a tabela para ver o report automático.</div>
+</div>
+
+</div>
+
+<div id="tab-panel-6" class="tab-panel">
+
+<div class="toolbar">
+  <div class="amb-hist-datepick">
+    <label for="ambHistDate">Data:</label>
+    <input type="date" id="ambHistDate">
+  </div>
+  <button type="button" class="file-btn sync-btn" id="ambHistTodayBtn">Hoje</button>
+  <select id="ambHistDateSelect" class="amb-hist-select">
+    <option value="">Datas com histórico...</option>
+  </select>
+  <button id="printAmbHistBtn" class="btn-print">PRINT</button>
+  <button id="downloadAmbHistBtn" disabled>Baixar CSV</button>
+  <span id="ambHistStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+</div>
+
+<div id="captureAreaAmbHist">
+<div class="ambulancia-cards-columns">
+  <div class="ambulancia-cards-col">
+    <div class="cards-col-label">SPA1</div>
+    <div class="dsorhc-cards-row" id="ambHistCardsOther"></div>
+  </div>
+  <div class="ambulancia-cards-col">
+    <div class="cards-col-label">SPA2</div>
+    <div class="dsorhc-cards-row" id="ambHistCardsEpa"></div>
+  </div>
+</div>
+
+<div class="ambulancia-filterbar" id="ambHistFilterBar">
+  <span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>
+</div>
+
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:18%"><col style="width:22%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="4">Histórico Ambulância</th>
+      <th class="total-cell" id="totalAmbHist">Total: 0</th>
+    </tr>
+    <tr class="head-row" id="headRowAmbHist">
+      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:18%"><col style="width:12%"><col style="width:20%"><col style="width:18%"><col style="width:22%">
+      </colgroup>
+      <tbody id="bodyAmbHist">
+        <tr><td colspan="5" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 </div>
 
 </div>
@@ -1552,11 +1644,18 @@ function switchTab(n) {
   document.getElementById('tab-panel-3').classList.toggle('active', n === 3);
   document.getElementById('tab-panel-4').classList.toggle('active', n === 4);
   document.getElementById('tab-panel-5').classList.toggle('active', n === 5);
+  document.getElementById('tab-panel-6').classList.toggle('active', n === 6);
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
   document.getElementById('tabBtn3').classList.toggle('active', n === 3);
   document.getElementById('tabBtn4').classList.toggle('active', n === 4);
   document.getElementById('tabBtn5').classList.toggle('active', n === 5);
+  document.getElementById('tabBtn6').classList.toggle('active', n === 6);
+  if (n === 6 && !ambHistInitialized) {
+    ambHistInitialized = true;
+    ambHistPopulateDateSelect();
+    ambHistLoadDate(ambHistDateKey());
+  }
 }
 
 function toggleSidebar() {
@@ -1857,6 +1956,10 @@ function dsPct(v) {
   return v.toFixed(2).replace('.', ',') + '%';
 }
 
+function dsInt(v) {
+  return v.toLocaleString('pt-BR');
+}
+
 function dsFarolOrhc(pct) {
   if (pct === null) return { text: '-', cls: 'farol-none' };
   const t = dsPct(pct);
@@ -1965,8 +2068,8 @@ function renderDsOrhcTable(groups, allRows) {
   groups.forEach(g => {
     const m = g.metrics;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${g.origem}</td><td>${g.facility}</td><td>${m.rotas}</td>` +
-      `<td>${m.totalPacotes}</td><td>${m.spr}</td><td>${m.entregues}</td><td>${m.pendentes}</td><td>${m.insucessos}</td>` +
+    tr.innerHTML = `<td>${g.origem}</td><td>${g.facility}</td><td>${dsInt(m.rotas)}</td>` +
+      `<td>${dsInt(m.totalPacotes)}</td><td>${dsInt(m.spr)}</td><td>${dsInt(m.entregues)}</td><td>${dsInt(m.pendentes)}</td><td>${dsInt(m.insucessos)}</td>` +
       `<td>${m.steamOutPct === null ? '-' : dsPct(m.steamOutPct)}</td>` +
       `<td class="${g.orhcFarol.cls}">${g.orhcFarol.text}</td>` +
       `<td class="${g.dsRealFarol.cls}">${g.dsRealFarol.text}</td>` +
@@ -1992,8 +2095,8 @@ function renderDsOrhcTable(groups, allRows) {
 
   const trTotal = document.createElement('tr');
   trTotal.className = 'dsorhc-total-row';
-  trTotal.innerHTML = `<td colspan="2">TOTAL</td><td>${totalRotas}</td>` +
-    `<td>${totalPacotes}</td><td>${totalSpr}</td><td>${totalEntregues}</td><td>${totalPendentes}</td><td>${totalInsucessos}</td>` +
+  trTotal.innerHTML = `<td colspan="2">TOTAL</td><td>${dsInt(totalRotas)}</td>` +
+    `<td>${dsInt(totalPacotes)}</td><td>${dsInt(totalSpr)}</td><td>${dsInt(totalEntregues)}</td><td>${dsInt(totalPendentes)}</td><td>${dsInt(totalInsucessos)}</td>` +
     `<td>${steamOutTotalPct === null ? '-' : dsPct(steamOutTotalPct)}</td>` +
     `<td class="${orhcTotalFarol.cls}">${orhcTotalFarol.text}</td>` +
     `<td class="${dsRealTotalFarol.cls}">${dsRealTotalFarol.text}</td>` +
@@ -2120,7 +2223,7 @@ function copyDsOrhcReport() {
 }
 
 // ===== Ambulância =====
-const AMBULANCIA_HEADERS_NEEDED = ['id', 'cluster', 'substatus', 'facilityId', 'carrier', 'vehicle.license', 'shipmentData.spr'];
+const AMBULANCIA_HEADERS_NEEDED = ['id', 'cluster', 'substatus', 'status', 'initDate', 'facilityId', 'serviceCenterId', 'carrier', 'vehicle.license', 'vehicleDescriptionForFilter', 'shipmentData.spr', 'destinationFacility.destinationFacilityId'];
 
 let ambulanciaRows = [];
 let ambulanciaTotalRoutes = 0;
@@ -2132,7 +2235,8 @@ const AMBULANCIA_FILTER_COLUMNS = [
   { key: 'spr', label: 'SPR' },
   { key: 'placa', label: 'Placa' },
   { key: 'facility', label: 'Facility' },
-  { key: 'mlp', label: 'MLP' }
+  { key: 'mlp', label: 'MLP' },
+  { key: 'data', label: 'Data' }
 ];
 
 document.addEventListener('click', () => {
@@ -2200,12 +2304,21 @@ function processAmbulanciaCsv(header, dataLines) {
     const cluster = (cols[idx['cluster']] || '').trim();
     if (cluster !== '') continue;
 
+    const initDateFmt = ambHistFormatInitDate((cols[idx['initDate']] || '').trim());
+
     rows.push({
       id_rota: (cols[idx['id']] || '').trim(),
       spr: (cols[idx['shipmentData.spr']] || '').trim(),
       placa: (cols[idx['vehicle.license']] || '').trim(),
       facility: (cols[idx['facilityId']] || '').trim(),
-      mlp: (cols[idx['carrier']] || '').trim()
+      mlp: (cols[idx['carrier']] || '').trim(),
+      cluster: cluster,
+      status: (cols[idx['status']] || '').trim(),
+      initDate: initDateFmt,
+      data: initDateFmt ? initDateFmt.split(' ')[0] : '',
+      serviceCenterId: (cols[idx['serviceCenterId']] || '').trim(),
+      vehicleDescriptionForFilter: (cols[idx['vehicleDescriptionForFilter']] || '').trim(),
+      destinationFacilityId: (cols[idx['destinationFacility.destinationFacilityId']] || '').trim()
     });
   }
 
@@ -2215,6 +2328,7 @@ function processAmbulanciaCsv(header, dataLines) {
   document.getElementById('copyAmbulanciaReportBtn').disabled = false;
 
   saveToCloud('ambulancia', { rows: rows, totalRoutes: totalRoutes });
+  saveAmbulanciaHistorySnapshot(rows, totalRoutes);
 }
 
 function ambVal(row, key) {
@@ -2379,11 +2493,11 @@ function renderAmbulanciaTable(rows) {
   const body = document.getElementById('bodyAmbulancia');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="5" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td>`;
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.data}</td>`;
       body.appendChild(tr);
     });
   }
@@ -2502,6 +2616,362 @@ function copyAmbulanciaReport() {
     btn.textContent = 'Copiado!';
     setTimeout(() => { btn.textContent = original; }, 1500);
   }).catch(() => {});
+}
+
+// ===== Histórico Ambulância =====
+let ambHistRows = [];
+let ambHistTotalRoutes = 0;
+let ambHistFilters = {};
+let ambHistSelectedDate = '';
+let ambHistInitialized = false;
+
+const AMB_HIST_FILTER_COLUMNS = [
+  { key: 'id_rota', label: 'ID Rota' },
+  { key: 'spr', label: 'SPR' },
+  { key: 'placa', label: 'Placa' },
+  { key: 'facility', label: 'Facility' },
+  { key: 'mlp', label: 'MLP' }
+];
+
+function ambHistDateKey(d) {
+  const dt = d || new Date();
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, '0');
+  const dd = String(dt.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function ambHistDateLabel(dateKey) {
+  const parts = dateKey.split('-');
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateKey;
+}
+
+function ambHistGetAllLocal() {
+  try { return JSON.parse(localStorage.getItem('ambulanciaHistory') || '{}'); } catch (err) { return {}; }
+}
+
+function saveAmbulanciaHistorySnapshot(rows, totalRoutes) {
+  const key = ambHistDateKey();
+  const payload = { rows: rows, totalRoutes: totalRoutes, savedAt: new Date().toISOString() };
+  const all = ambHistGetAllLocal();
+  all[key] = payload;
+  try { localStorage.setItem('ambulanciaHistory', JSON.stringify(all)); } catch (err) {}
+  saveToCloud('ambulanciaHistory/' + key, payload);
+  if (ambHistInitialized) ambHistPopulateDateSelect();
+}
+
+document.getElementById('ambHistDate').max = ambHistDateKey();
+document.getElementById('ambHistDate').addEventListener('change', (e) => {
+  if (e.target.value) ambHistLoadDate(e.target.value);
+});
+document.getElementById('ambHistTodayBtn').addEventListener('click', () => ambHistLoadDate(ambHistDateKey()));
+document.getElementById('ambHistDateSelect').addEventListener('change', (e) => {
+  if (e.target.value) ambHistLoadDate(e.target.value);
+});
+document.getElementById('printAmbHistBtn').addEventListener('click', generateHdImageAmbHist);
+document.getElementById('downloadAmbHistBtn').addEventListener('click', downloadAmbHistCsv);
+
+function ambHistPopulateDateSelect() {
+  const sel = document.getElementById('ambHistDateSelect');
+  const all = ambHistGetAllLocal();
+  const dates = Object.keys(all).sort().reverse();
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Datas com histórico...</option>';
+  dates.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = ambHistDateLabel(d);
+    sel.appendChild(opt);
+  });
+  if (dates.includes(current)) sel.value = current;
+}
+
+async function ambHistLoadDate(dateKey) {
+  const statusEl = document.getElementById('ambHistStatusMsg');
+  statusEl.textContent = 'Carregando...';
+  ambHistSelectedDate = dateKey;
+  document.getElementById('ambHistDate').value = dateKey;
+
+  const all = ambHistGetAllLocal();
+  let payload = all[dateKey];
+  if (!payload) payload = await loadFromCloud('ambulanciaHistory/' + dateKey);
+
+  if (!payload || !Array.isArray(payload.rows) || payload.rows.length === 0) {
+    ambHistRows = [];
+    ambHistTotalRoutes = 0;
+    statusEl.textContent = 'Nenhum histórico encontrado para ' + ambHistDateLabel(dateKey) + '.';
+  } else {
+    ambHistRows = payload.rows;
+    ambHistTotalRoutes = payload.totalRoutes || ambHistRows.length;
+    statusEl.textContent = '';
+  }
+
+  resetAmbHistFiltersAndRender();
+  document.getElementById('downloadAmbHistBtn').disabled = ambHistRows.length === 0;
+  ambHistPopulateDateSelect();
+  document.getElementById('ambHistDateSelect').value = dateKey;
+}
+
+function getAmbHistFilteredRows() {
+  return ambHistRows.filter(r => AMB_HIST_FILTER_COLUMNS.every(col => {
+    const sel = ambHistFilters[col.key];
+    if (!sel) return true;
+    return sel.has(ambVal(r, col.key));
+  }));
+}
+
+function applyAmbHistFilters() {
+  const filtered = getAmbHistFilteredRows();
+  renderAmbHistTable(filtered);
+  renderAmbHistCardGroups(filtered, ambHistTotalRoutes);
+}
+
+function resetAmbHistFiltersAndRender() {
+  ambHistFilters = {};
+  resetSort('headRowAmbHist');
+  renderAmbHistFilterBar();
+  applyAmbHistFilters();
+}
+
+function renderAmbHistFilterBar() {
+  const bar = document.getElementById('ambHistFilterBar');
+  bar.innerHTML = '';
+  if (ambHistRows.length === 0) {
+    bar.innerHTML = '<span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>';
+    return;
+  }
+  const label = document.createElement('span');
+  label.className = 'filterbar-label';
+  label.textContent = 'Filtros';
+  bar.appendChild(label);
+
+  AMB_HIST_FILTER_COLUMNS.forEach(col => bar.appendChild(buildAmbHistFilterWidget(col)));
+
+  const clearBtn = document.createElement('button');
+  clearBtn.type = 'button';
+  clearBtn.className = 'amb-filter-clearall';
+  clearBtn.textContent = 'Limpar filtros';
+  clearBtn.addEventListener('click', () => {
+    ambHistFilters = {};
+    renderAmbHistFilterBar();
+    applyAmbHistFilters();
+  });
+  bar.appendChild(clearBtn);
+}
+
+function buildAmbHistFilterWidget(col) {
+  const wrap = document.createElement('div');
+  wrap.className = 'amb-filter';
+
+  const allValues = [...new Set(ambHistRows.map(r => ambVal(r, col.key)))]
+    .sort((a, b) => String(a).localeCompare(String(b), 'pt-BR', { numeric: true, sensitivity: 'base' }));
+
+  const activeSel = ambHistFilters[col.key];
+  if (activeSel) wrap.classList.add('active');
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'amb-filter-btn';
+  btn.innerHTML = `<span>${col.label}${activeSel ? ' (' + activeSel.size + ')' : ''}</span><span class="amb-filter-arrow">▾</span>`;
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const wasOpen = wrap.classList.contains('open');
+    document.querySelectorAll('.amb-filter.open').forEach(el => el.classList.remove('open'));
+    if (!wasOpen) wrap.classList.add('open');
+  });
+
+  const panel = document.createElement('div');
+  panel.className = 'amb-filter-panel';
+  panel.addEventListener('click', e => e.stopPropagation());
+
+  const search = document.createElement('input');
+  search.type = 'text';
+  search.className = 'amb-filter-search';
+  search.placeholder = 'Buscar...';
+
+  const actions = document.createElement('div');
+  actions.className = 'amb-filter-actions';
+  const selAllLink = document.createElement('a');
+  selAllLink.textContent = 'Selecionar tudo';
+  const clearLink = document.createElement('a');
+  clearLink.textContent = 'Limpar';
+  actions.appendChild(selAllLink);
+  actions.appendChild(clearLink);
+
+  const list = document.createElement('div');
+  list.className = 'amb-filter-list';
+
+  const pending = new Set(activeSel ? activeSel : allValues);
+
+  function renderList(filterText) {
+    list.innerHTML = '';
+    const ft = (filterText || '').toLowerCase();
+    const visible = allValues.filter(v => String(v).toLowerCase().includes(ft));
+    if (visible.length === 0) {
+      list.innerHTML = '<div class="amb-filter-empty">Nenhum valor encontrado</div>';
+      return;
+    }
+    visible.forEach(v => {
+      const optLabel = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = pending.has(v);
+      cb.addEventListener('change', () => {
+        if (cb.checked) pending.add(v); else pending.delete(v);
+      });
+      optLabel.appendChild(cb);
+      const span = document.createElement('span');
+      span.textContent = v;
+      optLabel.appendChild(span);
+      list.appendChild(optLabel);
+    });
+  }
+  renderList('');
+
+  search.addEventListener('input', () => renderList(search.value));
+  selAllLink.addEventListener('click', () => {
+    allValues.forEach(v => pending.add(v));
+    renderList(search.value);
+  });
+  clearLink.addEventListener('click', () => {
+    pending.clear();
+    renderList(search.value);
+  });
+
+  const applyBtn = document.createElement('button');
+  applyBtn.type = 'button';
+  applyBtn.className = 'amb-filter-apply';
+  applyBtn.textContent = 'Aplicar';
+  applyBtn.addEventListener('click', () => {
+    if (pending.size === allValues.length) {
+      delete ambHistFilters[col.key];
+    } else {
+      ambHistFilters[col.key] = new Set(pending);
+    }
+    wrap.classList.remove('open');
+    renderAmbHistFilterBar();
+    applyAmbHistFilters();
+  });
+
+  panel.appendChild(search);
+  panel.appendChild(actions);
+  panel.appendChild(list);
+  panel.appendChild(applyBtn);
+
+  wrap.appendChild(btn);
+  wrap.appendChild(panel);
+  return wrap;
+}
+
+function renderAmbHistTable(rows) {
+  const body = document.getElementById('bodyAmbHist');
+  body.innerHTML = '';
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="5" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
+  } else {
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td>`;
+      body.appendChild(tr);
+    });
+  }
+  document.getElementById('totalAmbHist').textContent = 'Total: ' + rows.length;
+}
+
+function renderAmbHistCardGroups(rows, totalRoutes) {
+  const otherRows = rows.filter(r => !AMBULANCIA_EPA_FACILITIES.includes(r.facility));
+  const epaRows = rows.filter(r => AMBULANCIA_EPA_FACILITIES.includes(r.facility));
+  renderAmbulanciaCards(buildAmbulanciaCards(otherRows, totalRoutes), 'ambHistCardsOther');
+  renderAmbulanciaCards(buildAmbulanciaCards(epaRows, totalRoutes), 'ambHistCardsEpa');
+}
+
+async function generateHdImageAmbHist() {
+  if (typeof html2canvas === 'undefined') {
+    document.getElementById('ambHistStatusMsg').textContent = 'Não foi possível carregar a biblioteca de imagem.';
+    return;
+  }
+  if (ambHistRows.length === 0) {
+    document.getElementById('ambHistStatusMsg').textContent = 'Selecione uma data com histórico antes de criar a imagem.';
+    return;
+  }
+  const btn = document.getElementById('printAmbHistBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    const target = document.getElementById('captureAreaAmbHist');
+    const canvas = await html2canvas(target, {
+      scale: 3,
+      backgroundColor: '#fafaf7',
+      useCORS: true
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `ambulancia_historico_${ambHistSelectedDate || ambHistDateKey()}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    document.getElementById('ambHistStatusMsg').textContent = 'Erro ao gerar imagem: ' + err.message;
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
+
+function csvEscapeField(v) {
+  const s = (v === undefined || v === null) ? '' : String(v);
+  return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function ambHistFormatInitDate(raw) {
+  if (!raw) return '';
+  let d;
+  if (/^\d+$/.test(raw)) {
+    const num = Number(raw);
+    d = new Date(num > 1e12 ? num : num * 1000);
+  } else {
+    d = new Date(raw);
+  }
+  if (isNaN(d.getTime())) return raw;
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+}
+
+function ambDataSortKey(dataBr) {
+  const p = (dataBr || '').split('/');
+  return p.length === 3 ? `${p[2]}${p[1]}${p[0]}` : (dataBr || '');
+}
+
+function downloadAmbHistCsv() {
+  if (ambHistRows.length === 0) return;
+  const rows = getAmbHistFilteredRows();
+  const headers = ['id', 'cluster', 'initDate', 'facilityId', 'serviceCenterId', 'status', 'vehicleDescriptionForFilter', 'destinationFacility.destinationFacilityId'];
+  const lines = [headers.join(';')];
+  rows.forEach(r => {
+    lines.push([
+      r.id_rota,
+      r.cluster,
+      r.initDate,
+      r.facility,
+      r.serviceCenterId,
+      r.status,
+      r.vehicleDescriptionForFilter,
+      r.destinationFacilityId
+    ].map(csvEscapeField).join(';'));
+  });
+  const csvContent = String.fromCharCode(0xFEFF) + lines.join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `ambulancia_historico_${ambHistSelectedDate || ambHistDateKey()}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 // ===== Upload único de CSV — atualiza todas as guias =====
@@ -2903,9 +3373,15 @@ makeSortable('headRowDsOrhc',
 );
 
 makeSortable('headRowAmbulancia',
-  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp],
+  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => ambDataSortKey(r.data)],
   () => getAmbulanciaFilteredRows(),
   renderAmbulanciaTable
+);
+
+makeSortable('headRowAmbHist',
+  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp],
+  () => getAmbHistFilteredRows(),
+  renderAmbHistTable
 );
 
 makeSortable('headRowLm',
