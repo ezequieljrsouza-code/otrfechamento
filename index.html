@@ -525,6 +525,120 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   .farol-red { color: #dc2626; }
   .farol-none { color: #999; }
   tr.dsorhc-total-row td { font-weight: 700; background: #FFF159 !important; }
+  .ambulancia-filterbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    background: #fff;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 0 0 18px;
+  }
+  .ambulancia-filterbar .filterbar-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin-right: 2px;
+  }
+  .ambulancia-filterbar .filterbar-hint {
+    font-size: 12px;
+    color: #999;
+  }
+  .amb-filter { position: relative; }
+  .amb-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+  }
+  .amb-filter-btn:hover { border-color: #3483FA; }
+  .amb-filter.active .amb-filter-btn {
+    border-color: #3483FA;
+    background: #EBF3FF;
+    color: #3483FA;
+    font-weight: 700;
+  }
+  .amb-filter-btn .amb-filter-arrow { font-size: 9px; opacity: .7; }
+  .amb-filter-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 50;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    padding: 8px;
+    width: 210px;
+  }
+  .amb-filter.open .amb-filter-panel { display: block; }
+  .amb-filter-search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 7px;
+    font-size: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .amb-filter-actions {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .amb-filter-actions a { color: #3483FA; cursor: pointer; text-decoration: none; }
+  .amb-filter-actions a:hover { text-decoration: underline; }
+  .amb-filter-list {
+    max-height: 180px;
+    overflow-y: auto;
+    border-top: 1px solid #eee;
+    padding-top: 4px;
+  }
+  .amb-filter-list label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 3px 2px;
+    cursor: pointer;
+  }
+  .amb-filter-list label:hover { background: #FFFBE0; }
+  .amb-filter-list input { margin: 0; }
+  .amb-filter-empty { font-size: 11.5px; color: #999; padding: 4px 2px; }
+  .amb-filter-apply {
+    width: 100%;
+    margin-top: 6px;
+    background: #3483FA;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 0;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .amb-filter-apply:hover { background: #2968c8; }
+  .amb-filter-clearall {
+    font-size: 12px;
+    color: #a32d2d;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #f0c9c9;
+    border-radius: 5px;
+    padding: 5px 10px;
+  }
+  .amb-filter-clearall:hover { background: #fdf0f0; }
 </style>
 </head>
 <body>
@@ -799,6 +913,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <div class="cards-col-label">SPA2</div>
     <div class="dsorhc-cards-row" id="ambulanciaCardsEpa"></div>
   </div>
+</div>
+
+<div class="ambulancia-filterbar" id="ambulanciaFilterBar">
+  <span class="filterbar-hint">Suba o CSV para habilitar os filtros.</span>
 </div>
 
 <div class="single-panel">
@@ -1905,37 +2023,27 @@ function renderDsOrhcCards(cards) {
 function buildDsOrhcReportFinal(groups) {
   const dsRed = groups.filter(g => g.dsRealFarol.cls === 'farol-red')
     .sort((a, b) => (a.metrics.dsRealPct ?? 0) - (b.metrics.dsRealPct ?? 0));
-  const dsGreen = groups.filter(g => g.dsRealFarol.cls === 'farol-green');
   const orhcRed = groups.filter(g => g.orhcFarol.cls === 'farol-red');
-  const orhcGreen = groups.filter(g => g.orhcFarol.cls === 'farol-green');
 
   const lines = [];
   lines.push('📋 REPORT FINAL — DELIVERY SUCCESS (DS)');
   lines.push('');
-  lines.push('Ofensores DS (Realizado)');
+  lines.push('Ofensores DS (Realizado) 🔴');
   if (dsRed.length === 0) {
     lines.push('Nenhum ofensor encontrado.');
   } else {
-    dsRed.forEach(g => lines.push('🔴 ' + g.reportLabel + ' — DS: ' + dsPct(g.metrics.dsRealPct) + ' | Insucessos: ' + g.metrics.insucessos));
+    dsRed.forEach(g => lines.push('> ' + g.reportLabel + ' ' + dsPct(g.metrics.dsRealPct) + ' | ' + g.metrics.insucessos));
   }
-  lines.push('');
-  lines.push('');
-  lines.push(dsGreen.length === 0 ? 'Nenhum indicador no verde ainda.' : '');
   lines.push('');
   lines.push('');
   lines.push('📋 REPORT FINAL — ORHC');
   lines.push('');
-  lines.push('Ofensores ORHC');
+  lines.push('Ofensores ORHC 🔴');
   if (orhcRed.length === 0) {
     lines.push('Nenhum ofensor encontrado.');
   } else {
-    orhcRed.forEach(g => lines.push('🔴 ' + g.reportLabel + ' — ORHC: ' + dsPct(g.metrics.orhcPct)));
+    orhcRed.forEach(g => lines.push('> ' + g.reportLabel + ' ' + dsPct(g.metrics.orhcPct)));
   }
-  lines.push('');
-  lines.push('');
-  lines.push(orhcGreen.length === 0
-    ? 'Nenhum indicador no verde ainda.'
-    : '' + orhcGreen.map(g => g.reportLabel).join(', '));
 
   return lines.join('\n');
 }
@@ -2015,7 +2123,21 @@ function copyDsOrhcReport() {
 const AMBULANCIA_HEADERS_NEEDED = ['id', 'cluster', 'substatus', 'facilityId', 'carrier', 'vehicle.license', 'shipmentData.spr'];
 
 let ambulanciaRows = [];
+let ambulanciaTotalRoutes = 0;
 let ambulanciaReportText = '';
+let ambulanciaFilters = {};
+
+const AMBULANCIA_FILTER_COLUMNS = [
+  { key: 'id_rota', label: 'ID Rota' },
+  { key: 'spr', label: 'SPR' },
+  { key: 'placa', label: 'Placa' },
+  { key: 'facility', label: 'Facility' },
+  { key: 'mlp', label: 'MLP' }
+];
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.amb-filter.open').forEach(el => el.classList.remove('open'));
+});
 
 document.getElementById('copyAmbulanciaReportBtn').addEventListener('click', copyAmbulanciaReport);
 document.getElementById('printAmbulanciaBtn').addEventListener('click', generateHdImageAmbulancia);
@@ -2088,14 +2210,169 @@ function processAmbulanciaCsv(header, dataLines) {
   }
 
   ambulanciaRows = rows;
-  resetSort('headRowAmbulancia');
-  renderAmbulanciaTable(rows);
-  renderAmbulanciaCardGroups(rows, totalRoutes);
-  ambulanciaReportText = buildAmbulanciaReport(rows, totalRoutes);
-  document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
+  ambulanciaTotalRoutes = totalRoutes;
+  resetAmbulanciaFiltersAndRender();
   document.getElementById('copyAmbulanciaReportBtn').disabled = false;
 
   saveToCloud('ambulancia', { rows: rows, totalRoutes: totalRoutes });
+}
+
+function ambVal(row, key) {
+  const v = row[key];
+  return (v === undefined || v === null || v === '') ? '(vazio)' : v;
+}
+
+function getAmbulanciaFilteredRows() {
+  return ambulanciaRows.filter(r => AMBULANCIA_FILTER_COLUMNS.every(col => {
+    const sel = ambulanciaFilters[col.key];
+    if (!sel) return true;
+    return sel.has(ambVal(r, col.key));
+  }));
+}
+
+function applyAmbulanciaFilters() {
+  const filtered = getAmbulanciaFilteredRows();
+  renderAmbulanciaTable(filtered);
+  renderAmbulanciaCardGroups(filtered, ambulanciaTotalRoutes);
+  ambulanciaReportText = buildAmbulanciaReport(filtered, ambulanciaTotalRoutes);
+  document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
+}
+
+function resetAmbulanciaFiltersAndRender() {
+  ambulanciaFilters = {};
+  resetSort('headRowAmbulancia');
+  renderAmbulanciaFilterBar();
+  applyAmbulanciaFilters();
+}
+
+function renderAmbulanciaFilterBar() {
+  const bar = document.getElementById('ambulanciaFilterBar');
+  bar.innerHTML = '';
+  if (ambulanciaRows.length === 0) {
+    bar.innerHTML = '<span class="filterbar-hint">Suba o CSV para habilitar os filtros.</span>';
+    return;
+  }
+  const label = document.createElement('span');
+  label.className = 'filterbar-label';
+  label.textContent = 'Filtros';
+  bar.appendChild(label);
+
+  AMBULANCIA_FILTER_COLUMNS.forEach(col => bar.appendChild(buildAmbulanciaFilterWidget(col)));
+
+  const clearBtn = document.createElement('button');
+  clearBtn.type = 'button';
+  clearBtn.className = 'amb-filter-clearall';
+  clearBtn.textContent = 'Limpar filtros';
+  clearBtn.addEventListener('click', () => {
+    ambulanciaFilters = {};
+    renderAmbulanciaFilterBar();
+    applyAmbulanciaFilters();
+  });
+  bar.appendChild(clearBtn);
+}
+
+function buildAmbulanciaFilterWidget(col) {
+  const wrap = document.createElement('div');
+  wrap.className = 'amb-filter';
+
+  const allValues = [...new Set(ambulanciaRows.map(r => ambVal(r, col.key)))]
+    .sort((a, b) => String(a).localeCompare(String(b), 'pt-BR', { numeric: true, sensitivity: 'base' }));
+
+  const activeSel = ambulanciaFilters[col.key];
+  if (activeSel) wrap.classList.add('active');
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'amb-filter-btn';
+  btn.innerHTML = `<span>${col.label}${activeSel ? ' (' + activeSel.size + ')' : ''}</span><span class="amb-filter-arrow">▾</span>`;
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const wasOpen = wrap.classList.contains('open');
+    document.querySelectorAll('.amb-filter.open').forEach(el => el.classList.remove('open'));
+    if (!wasOpen) wrap.classList.add('open');
+  });
+
+  const panel = document.createElement('div');
+  panel.className = 'amb-filter-panel';
+  panel.addEventListener('click', e => e.stopPropagation());
+
+  const search = document.createElement('input');
+  search.type = 'text';
+  search.className = 'amb-filter-search';
+  search.placeholder = 'Buscar...';
+
+  const actions = document.createElement('div');
+  actions.className = 'amb-filter-actions';
+  const selAllLink = document.createElement('a');
+  selAllLink.textContent = 'Selecionar tudo';
+  const clearLink = document.createElement('a');
+  clearLink.textContent = 'Limpar';
+  actions.appendChild(selAllLink);
+  actions.appendChild(clearLink);
+
+  const list = document.createElement('div');
+  list.className = 'amb-filter-list';
+
+  const pending = new Set(activeSel ? activeSel : allValues);
+
+  function renderList(filterText) {
+    list.innerHTML = '';
+    const ft = (filterText || '').toLowerCase();
+    const visible = allValues.filter(v => String(v).toLowerCase().includes(ft));
+    if (visible.length === 0) {
+      list.innerHTML = '<div class="amb-filter-empty">Nenhum valor encontrado</div>';
+      return;
+    }
+    visible.forEach(v => {
+      const optLabel = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = pending.has(v);
+      cb.addEventListener('change', () => {
+        if (cb.checked) pending.add(v); else pending.delete(v);
+      });
+      optLabel.appendChild(cb);
+      const span = document.createElement('span');
+      span.textContent = v;
+      optLabel.appendChild(span);
+      list.appendChild(optLabel);
+    });
+  }
+  renderList('');
+
+  search.addEventListener('input', () => renderList(search.value));
+  selAllLink.addEventListener('click', () => {
+    allValues.forEach(v => pending.add(v));
+    renderList(search.value);
+  });
+  clearLink.addEventListener('click', () => {
+    pending.clear();
+    renderList(search.value);
+  });
+
+  const applyBtn = document.createElement('button');
+  applyBtn.type = 'button';
+  applyBtn.className = 'amb-filter-apply';
+  applyBtn.textContent = 'Aplicar';
+  applyBtn.addEventListener('click', () => {
+    if (pending.size === allValues.length) {
+      delete ambulanciaFilters[col.key];
+    } else {
+      ambulanciaFilters[col.key] = new Set(pending);
+    }
+    wrap.classList.remove('open');
+    renderAmbulanciaFilterBar();
+    applyAmbulanciaFilters();
+  });
+
+  panel.appendChild(search);
+  panel.appendChild(actions);
+  panel.appendChild(list);
+  panel.appendChild(applyBtn);
+
+  wrap.appendChild(btn);
+  wrap.appendChild(panel);
+  return wrap;
 }
 
 function renderAmbulanciaTable(rows) {
@@ -2179,10 +2456,9 @@ function renderAmbulanciaCardGroups(rows, totalRoutes) {
   renderAmbulanciaCards(buildAmbulanciaCards(epaRows, totalRoutes), 'ambulanciaCardsEpa');
 }
 
-function buildAmbulanciaReport(rows, totalRoutes) {
+function buildAmbulanciaReportSection(label, rows, totalRoutes) {
   const total = rows.length;
-  const percentual = totalRoutes > 0 ? (total / totalRoutes * 100) : 0;
-  const percentualStr = dsPct(percentual);
+  const geralPct = totalRoutes > 0 ? (total / totalRoutes * 100) : 0;
 
   const contador = {};
   rows.forEach(r => {
@@ -2192,13 +2468,28 @@ function buildAmbulanciaReport(rows, totalRoutes) {
   const ofensores = Object.entries(contador).sort((a, b) => b[1] - a[1]);
 
   const lines = [];
-  lines.push('O indicador Ambulâncias finalizou o dia com: ' + percentualStr);
-  lines.push('Total de ambulâncias consideradas: ' + total);
+  lines.push(label);
+  lines.push('% do total de rotas: ' + dsPct(geralPct));
+  lines.push('Total de ambulâncias: ' + total);
   lines.push('Ofensores (MLP) em ordem decrescente:');
   ofensores.forEach(([mlp, count]) => {
-    const pct = total > 0 ? ((count / total) * 100).toFixed(2) : '0.00';
-    lines.push('- ' + mlp + ': ' + count + ' ambulâncias (' + pct + '%)');
+    const pct = total > 0 ? (count / total * 100) : 0;
+    lines.push('- ' + mlp + ': ' + count + ' ambulâncias (' + dsPct(pct) + ')');
   });
+
+  return lines.join('\n');
+}
+
+function buildAmbulanciaReport(rows, totalRoutes) {
+  const otherRows = rows.filter(r => !AMBULANCIA_EPA_FACILITIES.includes(r.facility));
+  const epaRows = rows.filter(r => AMBULANCIA_EPA_FACILITIES.includes(r.facility));
+
+  const lines = [];
+  lines.push('Total de ambulâncias consideradas: ' + rows.length);
+  lines.push('');
+  lines.push(buildAmbulanciaReportSection('SPA1', otherRows, totalRoutes));
+  lines.push('');
+  lines.push(buildAmbulanciaReportSection('SPA2', epaRows, totalRoutes));
 
   return lines.join('\n');
 }
@@ -2289,7 +2580,7 @@ async function syncFromExecutable() {
       setSyncStatus('idle');
       return;
     }
-    document.getElementById('globalCsvFileName').textContent = 'Sincronizado';
+    document.getElementById('globalCsvFileName').textContent = 'Sincronizado do executável';
     processGlobalCsvText(payload.csv, `Sincronização automática — ${payload.totalRotas || '?'} rotas`);
     setSyncStatus('idle');
   } catch (err) {
@@ -2524,12 +2815,8 @@ async function initFromCloud() {
   const ambulanciaSaved = await loadFromCloud('ambulancia');
   if (ambulanciaSaved && Array.isArray(ambulanciaSaved.rows) && ambulanciaSaved.rows.length > 0) {
     ambulanciaRows = ambulanciaSaved.rows;
-    const ambulanciaTotalRoutes = ambulanciaSaved.totalRoutes || ambulanciaRows.length;
-    resetSort('headRowAmbulancia');
-    renderAmbulanciaTable(ambulanciaRows);
-    renderAmbulanciaCardGroups(ambulanciaRows, ambulanciaTotalRoutes);
-    ambulanciaReportText = buildAmbulanciaReport(ambulanciaRows, ambulanciaTotalRoutes);
-    document.getElementById('ambulanciaReportBox').textContent = ambulanciaReportText;
+    ambulanciaTotalRoutes = ambulanciaSaved.totalRoutes || ambulanciaRows.length;
+    resetAmbulanciaFiltersAndRender();
     document.getElementById('copyAmbulanciaReportBtn').disabled = false;
   }
 
@@ -2617,7 +2904,7 @@ makeSortable('headRowDsOrhc',
 
 makeSortable('headRowAmbulancia',
   [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp],
-  () => ambulanciaRows,
+  () => getAmbulanciaFilteredRows(),
   renderAmbulanciaTable
 );
 
