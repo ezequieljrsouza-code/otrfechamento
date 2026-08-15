@@ -520,6 +520,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     margin: 0 0 6px;
   }
   .ambulancia-cards-col .dsorhc-cards-row { margin: 0; }
+  .ambulancia-cards-col .cards-col-sublabel {
+    font-size: 11px;
+    font-weight: 700;
+    color: #7c8494;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin: 14px 0 6px;
+  }
   .farol-green { color: #16a34a; }
   .farol-yellow { color: #ca8a04; }
   .farol-red { color: #dc2626; }
@@ -900,6 +908,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </div>
 
 <div id="captureAreaMeex">
+<div class="dsorhc-cards-row" id="meexCards"></div>
 <div class="single-panel">
   <table>
     <colgroup>
@@ -1004,10 +1013,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="ambulancia-cards-col">
     <div class="cards-col-label">SPA1</div>
     <div class="dsorhc-cards-row" id="ambulanciaCardsOther"></div>
+    <div class="cards-col-sublabel">Por prefixo</div>
+    <div class="dsorhc-cards-row" id="ambulanciaCardsOtherPrefix"></div>
   </div>
   <div class="ambulancia-cards-col">
     <div class="cards-col-label">SPA2</div>
     <div class="dsorhc-cards-row" id="ambulanciaCardsEpa"></div>
+    <div class="cards-col-sublabel">Por prefixo</div>
+    <div class="dsorhc-cards-row" id="ambulanciaCardsEpaPrefix"></div>
   </div>
 </div>
 
@@ -1129,10 +1142,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="ambulancia-cards-col">
     <div class="cards-col-label">SPA1</div>
     <div class="dsorhc-cards-row" id="ambHistCardsOther"></div>
+    <div class="cards-col-sublabel">Por prefixo</div>
+    <div class="dsorhc-cards-row" id="ambHistCardsOtherPrefix"></div>
   </div>
   <div class="ambulancia-cards-col">
     <div class="cards-col-label">SPA2</div>
     <div class="dsorhc-cards-row" id="ambHistCardsEpa"></div>
+    <div class="cards-col-sublabel">Por prefixo</div>
+    <div class="dsorhc-cards-row" id="ambHistCardsEpaPrefix"></div>
   </div>
 </div>
 
@@ -1932,6 +1949,7 @@ function generateMeexTable() {
     resetSort('headRowMeex');
     renderMeexRows([]);
     renderMeexReport([]);
+    renderMeexCardGroup([]);
     document.getElementById('copyMeexReportBtn').disabled = true;
     return;
   }
@@ -1944,6 +1962,7 @@ function generateMeexTable() {
   resetSort('headRowMeex');
   renderMeexRows(rows);
   renderMeexReport(rows);
+  renderMeexCardGroup(rows);
   document.getElementById('copyMeexReportBtn').disabled = false;
 
   saveToCloud('rotasMeexNex', rows).then(ok => {
@@ -1951,6 +1970,45 @@ function generateMeexTable() {
       statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
     }
   });
+}
+
+function buildMeexCards(rows) {
+  const total = rows.length;
+  const counts = {};
+  const order = [];
+  rows.forEach(r => {
+    const key = r.id_facility || '-';
+    if (!counts[key]) { counts[key] = 0; order.push(key); }
+    counts[key]++;
+  });
+  order.sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+
+  const cards = [{
+    summary: true,
+    icon: '📊',
+    label: 'Geral',
+    facility: null,
+    count: total,
+    metricLabel: 'Total de rotas',
+    pct: null
+  }];
+  order.forEach(key => {
+    cards.push({
+      summary: false,
+      icon: '🏭',
+      label: key,
+      facility: null,
+      count: counts[key],
+      metricLabel: '% das rotas',
+      pct: total > 0 ? (counts[key] / total * 100) : null
+    });
+  });
+
+  return cards;
+}
+
+function renderMeexCardGroup(rows) {
+  renderAmbulanciaCards(buildMeexCards(rows), 'meexCards', 'Rotas');
 }
 
 function renderMeexRows(rows) {
@@ -2053,6 +2111,7 @@ function processMeexCsv(header, dataLines) {
       resetSort('headRowMeex');
       renderMeexRows(rows);
       renderMeexReport(rows);
+      renderMeexCardGroup(rows);
       document.getElementById('copyMeexReportBtn').disabled = false;
 
       saveToCloud('rotasMeexNex', rows).then(ok => {
@@ -2670,7 +2729,8 @@ function renderAmbulanciaTable(rows) {
   document.getElementById('totalAmbulancia').textContent = 'Total: ' + rows.length;
 }
 
-const AMBULANCIA_EPA_FACILITIES = ['EPA1', 'EPA2', 'EPA3', 'EPA4', 'EPA5', 'EPA6', 'EPA7', 'EPA8', 'EPA9', 'ETO4', 'SPA1'];
+const AMBULANCIA_EPA_FACILITIES = ['EPA1', 'EPA2', 'EPA3', 'EPA4', 'EPA5', 'EPA6', 'EPA7', 'EPA8', 'EPA9', 'ETO4'];
+const AMB_SOLIC_FACILITY_OPCOES = AMBULANCIA_EPA_FACILITIES.concat(['SPA1']);
 
 function buildAmbulanciaCards(rows, totalRoutes) {
   const total = rows.length;
@@ -2711,7 +2771,30 @@ function buildAmbulanciaCards(rows, totalRoutes) {
   return cards;
 }
 
-function renderAmbulanciaCards(cards, containerId) {
+function buildAmbulanciaPrefixCards(rows, totalRoutes) {
+  const total = rows.length;
+  const counts = {};
+  const order = [];
+  rows.forEach(r => {
+    const prefixo = r.facility || '-';
+    if (!counts[prefixo]) { counts[prefixo] = 0; order.push(prefixo); }
+    counts[prefixo]++;
+  });
+  order.sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+
+  return order.map(prefixo => ({
+    summary: false,
+    icon: '🏭',
+    label: prefixo,
+    facility: null,
+    count: counts[prefixo],
+    metricLabel: '% das ambulâncias',
+    pct: total > 0 ? (counts[prefixo] / total * 100) : null
+  }));
+}
+
+function renderAmbulanciaCards(cards, containerId, countLabel) {
+  countLabel = countLabel || 'Ambulâncias';
   const wrap = document.getElementById(containerId);
   wrap.innerHTML = '';
   cards.forEach(c => {
@@ -2720,7 +2803,7 @@ function renderAmbulanciaCards(cards, containerId) {
     div.innerHTML = `
       <div class="dsorhc-card-head">
         <span class="dsorhc-card-name">${c.icon} ${c.label}</span>
-        <span class="dsorhc-card-rotas">Ambulâncias: ${c.count}</span>
+        <span class="dsorhc-card-rotas">${countLabel}: ${c.count}</span>
       </div>
       ${c.facility ? `<div class="dsorhc-card-facility">🏭 ${c.facility}</div>` : ''}
       <div class="dsorhc-metric-row"><span class="dsorhc-metric-label">${c.metricLabel}</span><span class="dsorhc-metric-val">${c.pct === null ? '-' : dsPct(c.pct)}</span></div>
@@ -2734,6 +2817,8 @@ function renderAmbulanciaCardGroups(rows, totalRoutes) {
   const epaRows = rows.filter(r => AMBULANCIA_EPA_FACILITIES.includes(r.facility));
   renderAmbulanciaCards(buildAmbulanciaCards(otherRows, totalRoutes), 'ambulanciaCardsOther');
   renderAmbulanciaCards(buildAmbulanciaCards(epaRows, totalRoutes), 'ambulanciaCardsEpa');
+  renderAmbulanciaCards(buildAmbulanciaPrefixCards(otherRows, totalRoutes), 'ambulanciaCardsOtherPrefix');
+  renderAmbulanciaCards(buildAmbulanciaPrefixCards(epaRows, totalRoutes), 'ambulanciaCardsEpaPrefix');
 }
 
 function buildAmbulanciaReportSection(label, rows, totalRoutes) {
@@ -3050,6 +3135,8 @@ function renderAmbHistCardGroups(rows, totalRoutes) {
   const epaRows = rows.filter(r => AMBULANCIA_EPA_FACILITIES.includes(r.facility));
   renderAmbulanciaCards(buildAmbulanciaCards(otherRows, totalRoutes), 'ambHistCardsOther');
   renderAmbulanciaCards(buildAmbulanciaCards(epaRows, totalRoutes), 'ambHistCardsEpa');
+  renderAmbulanciaCards(buildAmbulanciaPrefixCards(otherRows, totalRoutes), 'ambHistCardsOtherPrefix');
+  renderAmbulanciaCards(buildAmbulanciaPrefixCards(epaRows, totalRoutes), 'ambHistCardsEpaPrefix');
 }
 
 async function generateHdImageAmbHist() {
@@ -3181,7 +3268,7 @@ function ambSolicPopulateSelects() {
   });
 
   const facSel = document.getElementById('solicFacility');
-  AMBULANCIA_EPA_FACILITIES.forEach(v => {
+  AMB_SOLIC_FACILITY_OPCOES.forEach(v => {
     const opt = document.createElement('option');
     opt.value = v; opt.textContent = v;
     facSel.appendChild(opt);
@@ -3838,6 +3925,7 @@ async function initFromCloud() {
     currentMeexRows = meexRows;
     renderMeexRows(meexRows);
     renderMeexReport(meexRows);
+    renderMeexCardGroup(meexRows);
     document.getElementById('copyMeexReportBtn').disabled = false;
   }
 
