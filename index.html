@@ -904,26 +904,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:12%"><col style="width:10%"><col style="width:22%">
-      <col style="width:13%"><col style="width:13%"><col style="width:10%">
-      <col style="width:10%"><col style="width:10%">
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
+      <col style="width:12%"><col style="width:12%"><col style="width:9%">
+      <col style="width:9%"><col style="width:10%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="8">Gestão de Rotas ME Extras</th>
+      <th colspan="9">Gestão de Rotas ME Extras</th>
     </tr>
     <tr class="head-row" id="headRowMeex">
-      <th>Rota_ID</th><th>Data_Rota</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:12%"><col style="width:10%"><col style="width:22%">
-        <col style="width:13%"><col style="width:13%"><col style="width:10%">
-        <col style="width:10%"><col style="width:10%">
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
+        <col style="width:12%"><col style="width:12%"><col style="width:9%">
+        <col style="width:9%"><col style="width:10%">
       </colgroup>
       <tbody id="bodyMeexNex">
-        <tr><td colspan="8" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
+        <tr><td colspan="9" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
       </tbody>
     </table>
   </div>
@@ -1914,6 +1914,7 @@ function parseMeexText(text) {
     rows.push({
       rota_id: ids[i],
       data_rota: dataAtual,
+      id_driver: '-',
       motorista: nexNameMatches[i].name,
       facility: 'Envios Extra',
       id_facility: nexNameMatches[i].nex,
@@ -2010,13 +2011,13 @@ function renderMeexRows(rows) {
   const body = document.getElementById('bodyMeexNex');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="8" class="empty-hint">Nenhuma rota encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="9" class="empty-hint">Nenhuma rota encontrada</td></tr>';
     return;
   }
   rows.forEach(r => {
     const tr = document.createElement('tr');
     const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
-    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.motorista}</td><td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
+    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td><td>${r.motorista}</td><td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
     body.appendChild(tr);
   });
 }
@@ -2046,17 +2047,9 @@ function copyMeexReport() {
 
 // ===== Rotas MEEXs NEX — upload de CSV (alternativa ao colar texto) =====
 const MEEX_CSV_HEADERS_NEEDED = [
-  'id', 'deliveryType', 'facilityId', 'driver.driverName', 'initDate',
+  'id', 'deliveryType', 'facilityId', 'driver.driverId', 'driver.driverName', 'initDate',
   'counters.delivered', 'counters.notDelivered', 'counters.pending'
 ];
-
-function unixToBR(unixSeconds) {
-  const d = new Date(unixSeconds * 1000);
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return dd + '/' + mm + '/' + yyyy;
-}
 
 function processMeexCsv(header, dataLines) {
       const statusEl = document.getElementById('meexStatusMsg');
@@ -2079,15 +2072,17 @@ function processMeexCsv(header, dataLines) {
         const facilityId = (cols[idx['facilityId']] || '').trim();
         if (!facilityId || excluirNEX.includes(facilityId)) continue;
 
+        const driverId = (cols[idx['driver.driverId']] || '').trim();
         const driverName = (cols[idx['driver.driverName']] || '').trim();
-        const initDate = parseFloat(cols[idx['initDate']]);
+        const initDateRaw = (cols[idx['initDate']] || '').trim();
         const entregues = parseFloat(cols[idx['counters.delivered']]) || 0;
         const insucessos = parseFloat(cols[idx['counters.notDelivered']]) || 0;
         const pendentes = parseFloat(cols[idx['counters.pending']]) || 0;
 
         rows.push({
           rota_id: (cols[idx['id']] || '').trim(),
-          data_rota: !isNaN(initDate) && initDate > 0 ? unixToBR(initDate) : todayBR(),
+          data_rota: initDateRaw ? initDateRaw.split(' ')[0] : todayBR(),
+          id_driver: driverId || '-',
           motorista: driverName ? titleCase(driverName) : '-',
           facility: 'Envios Extra',
           id_facility: facilityId,
@@ -2557,6 +2552,12 @@ function processAmbulanciaCsv(header, dataLines) {
   saveAmbulanciaHistorySnapshot(rows, totalRoutes);
 }
 
+function normalizeAmbulanciaRow(r) {
+  if (r.perfil === undefined) r.perfil = r.vehicleDescriptionForFilter || '-';
+  if (r.motorista === undefined) r.motorista = '-';
+  return r;
+}
+
 function ambVal(row, key) {
   const v = row[key];
   return (v === undefined || v === null || v === '') ? '(vazio)' : v;
@@ -2723,7 +2724,7 @@ function renderAmbulanciaTable(rows) {
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.motorista || '-'}</td><td>${r.perfil || '-'}</td><td>${r.data}</td>`;
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.motorista || '-'}</td><td>${r.perfil || r.vehicleDescriptionForFilter || '-'}</td><td>${r.data}</td>`;
       body.appendChild(tr);
     });
   }
@@ -2939,7 +2940,7 @@ async function ambHistLoadDate(dateKey) {
     ambHistTotalRoutes = 0;
     statusEl.textContent = 'Nenhum histórico encontrado para ' + ambHistDateLabel(dateKey) + '.';
   } else {
-    ambHistRows = payload.rows;
+    ambHistRows = payload.rows.map(normalizeAmbulanciaRow);
     ambHistTotalRoutes = payload.totalRoutes || ambHistRows.length;
     statusEl.textContent = '';
   }
@@ -3109,7 +3110,7 @@ function renderAmbHistTable(rows) {
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.motorista || '-'}</td><td>${r.perfil || '-'}</td><td>${r.data || ''}</td>`;
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.motorista || '-'}</td><td>${r.perfil || r.vehicleDescriptionForFilter || '-'}</td><td>${r.data || ''}</td>`;
       body.appendChild(tr);
     });
   }
@@ -3902,7 +3903,7 @@ async function initFromCloud() {
 
   const ambulanciaSaved = await loadFromCloud('ambulancia');
   if (ambulanciaSaved && Array.isArray(ambulanciaSaved.rows) && ambulanciaSaved.rows.length > 0) {
-    ambulanciaRows = ambulanciaSaved.rows;
+    ambulanciaRows = ambulanciaSaved.rows.map(normalizeAmbulanciaRow);
     ambulanciaTotalRoutes = ambulanciaSaved.totalRoutes || ambulanciaRows.length;
     resetAmbulanciaFiltersAndRender();
     document.getElementById('copyAmbulanciaReportBtn').disabled = false;
@@ -3976,7 +3977,7 @@ makeSortable('headRowMe',
 );
 
 makeSortable('headRowMeex',
-  [r => r.rota_id, r => r.data_rota, r => r.motorista, r => r.facility, r => r.id_facility, r => r.entregues, r => r.insucessos, r => r.pendentes],
+  [r => r.rota_id, r => r.data_rota, r => r.id_driver, r => r.motorista, r => r.facility, r => r.id_facility, r => r.entregues, r => r.insucessos, r => r.pendentes],
   () => currentMeexRows,
   renderMeexRows
 );
