@@ -131,6 +131,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     transition: transform .18s ease;
   }
   .sidebar.collapsed { transform: translateX(-220px); }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 14px 6px;
+    font-size: 10.5px;
+    color: #7a7a7a;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,.08);
+    letter-spacing: .2px;
+  }
   .content {
     margin-left: 220px;
     margin-top: 58px;
@@ -461,6 +470,57 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .single-panel table { table-layout: fixed; }
   td.pend-alert { color: #a32d2d; font-weight: 700; }
+  /* Balão de contato: mostra o telefone do motorista ao passar o mouse sobre
+     o nome, em vez de uma coluna própria — some sozinho em qualquer captura
+     (PRINT/html2canvas) já que só existe durante o :hover. */
+  td.motorista-tooltip {
+    position: relative;
+    cursor: pointer;
+    text-decoration: underline dotted #9aa0b8;
+    text-underline-offset: 3px;
+    overflow: visible;
+  }
+  td.motorista-tooltip:hover { background: #fff6cc; }
+  td.motorista-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 12px;
+    bottom: calc(100% + 8px);
+    background: #293358;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(0,0,0,.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity .12s ease, transform .12s ease;
+    z-index: 400;
+    pointer-events: none;
+  }
+  td.motorista-tooltip::before {
+    content: '';
+    position: absolute;
+    left: 22px;
+    bottom: 100%;
+    border: 5px solid transparent;
+    border-top-color: #293358;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity .12s ease, transform .12s ease;
+    z-index: 400;
+    pointer-events: none;
+  }
+  td.motorista-tooltip:hover::after,
+  td.motorista-tooltip:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
   .dsorhc-cards-row {
     margin: 0 0 18px;
     display: flex;
@@ -742,6 +802,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <button class="sidebar-item" id="tabBtn5" onclick="switchTab(5)">Estratificar Rotas LM</button>
   <button class="sidebar-item" id="tabBtn6" onclick="switchTab(6)">Histórico Ambulância</button>
   <button class="sidebar-item" id="tabBtn7" onclick="switchTab(7)">Solicitações Ambulância</button>
+  <button class="sidebar-item" id="tabBtn8" onclick="switchTab(8)">Rotas SPA1 Extra</button>
+  <button class="sidebar-item" id="tabBtn9" onclick="switchTab(9)">Rotas XPT Extra</button>
+  <div class="sidebar-footer">Desenvolvedor: OTR Ezequiel Miranda</div>
 </nav>
 
 <div class="content" id="mainContent">
@@ -896,6 +959,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <button id="genMeexBtn">Gerar tabela</button>
     <button id="printMeexBtn" class="btn-print">PRINT</button>
     <span id="meexStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+  </div>
+  <div class="paste-actions">
+    <label class="file-btn" for="meexContatosInput">Subir CSV Contatos</label>
+    <input type="file" id="meexContatosInput" accept=".csv" />
+    <span id="meexContatosFileName" style="font-size:12.5px;color:#555;"></span>
+    <span id="meexContatosStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
   </div>
 </div>
 
@@ -1264,6 +1333,122 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </tbody>
     </table>
   </div>
+</div>
+
+</div>
+
+<div id="tab-panel-8" class="tab-panel">
+
+<div class="paste-area">
+  <textarea id="spa1PasteInput" placeholder="Cole aqui o conteúdo copiado das rotas Extra do SPA1..."></textarea>
+  <div class="paste-actions">
+    <button id="genSpa1Btn">Gerar tabela</button>
+    <button id="printSpa1Btn" class="btn-print">PRINT</button>
+    <span id="spa1StatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+  </div>
+  <div class="paste-actions">
+    <label class="file-btn" for="spa1ContatosInput">Subir CSV Contatos</label>
+    <input type="file" id="spa1ContatosInput" accept=".csv" />
+    <span id="spa1ContatosFileName" style="font-size:12.5px;color:#555;"></span>
+    <span id="spa1ContatosStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+  </div>
+</div>
+
+<div id="captureAreaSpa1">
+<div class="dsorhc-cards-row" id="spa1Cards"></div>
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
+      <col style="width:12%"><col style="width:12%"><col style="width:9%">
+      <col style="width:9%"><col style="width:10%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="9">Gestão de Rotas SPA1 Extra</th>
+    </tr>
+    <tr class="head-row" id="headRowSpa1">
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
+        <col style="width:12%"><col style="width:12%"><col style="width:9%">
+        <col style="width:9%"><col style="width:10%">
+      </colgroup>
+      <tbody id="bodySpa1">
+        <tr><td colspan="9" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<div class="report-box">
+  <div class="report-head">
+    <h3>Report automático</h3>
+    <button id="copySpa1ReportBtn" disabled>Copiar report</button>
+  </div>
+  <div class="report-line" id="spa1ReportBox">Gere a tabela acima para ver o report automático.</div>
+</div>
+
+</div>
+
+<div id="tab-panel-9" class="tab-panel">
+
+<div class="paste-area">
+  <textarea id="xptPasteInput" placeholder="Cole aqui o conteúdo copiado das rotas Extra do XPT..."></textarea>
+  <div class="paste-actions">
+    <button id="genXptBtn">Gerar tabela</button>
+    <button id="printXptBtn" class="btn-print">PRINT</button>
+    <span id="xptStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+  </div>
+  <div class="paste-actions">
+    <label class="file-btn" for="xptContatosInput">Subir CSV Contatos</label>
+    <input type="file" id="xptContatosInput" accept=".csv" />
+    <span id="xptContatosFileName" style="font-size:12.5px;color:#555;"></span>
+    <span id="xptContatosStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+  </div>
+</div>
+
+<div id="captureAreaXpt">
+<div class="dsorhc-cards-row" id="xptCards"></div>
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
+      <col style="width:12%"><col style="width:12%"><col style="width:9%">
+      <col style="width:9%"><col style="width:10%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="9">Gestão de Rotas XPT Extra</th>
+    </tr>
+    <tr class="head-row" id="headRowXpt">
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
+        <col style="width:12%"><col style="width:12%"><col style="width:9%">
+        <col style="width:9%"><col style="width:10%">
+      </colgroup>
+      <tbody id="bodyXpt">
+        <tr><td colspan="9" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<div class="report-box">
+  <div class="report-head">
+    <h3>Report automático</h3>
+    <button id="copyXptReportBtn" disabled>Copiar report</button>
+  </div>
+  <div class="report-line" id="xptReportBox">Gere a tabela acima para ver o report automático.</div>
 </div>
 
 </div>
@@ -1821,6 +2006,8 @@ function switchTab(n) {
   document.getElementById('tab-panel-5').classList.toggle('active', n === 5);
   document.getElementById('tab-panel-6').classList.toggle('active', n === 6);
   document.getElementById('tab-panel-7').classList.toggle('active', n === 7);
+  document.getElementById('tab-panel-8').classList.toggle('active', n === 8);
+  document.getElementById('tab-panel-9').classList.toggle('active', n === 9);
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
   document.getElementById('tabBtn3').classList.toggle('active', n === 3);
@@ -1828,6 +2015,8 @@ function switchTab(n) {
   document.getElementById('tabBtn5').classList.toggle('active', n === 5);
   document.getElementById('tabBtn6').classList.toggle('active', n === 6);
   document.getElementById('tabBtn7').classList.toggle('active', n === 7);
+  document.getElementById('tabBtn8').classList.toggle('active', n === 8);
+  document.getElementById('tabBtn9').classList.toggle('active', n === 9);
   if (n === 6 && !ambHistInitialized) {
     ambHistInitialized = true;
     ambHistPopulateDateSelect();
@@ -1843,6 +2032,104 @@ function toggleSidebar() {
 // ===== Rotas MEEXs NEX (paste parser) =====
 let meexReportText = '';
 let currentMeexRows = [];
+
+// Mapa ID_Driver -> telefone, vindo do CSV de contatos (exportado pelo
+// "Extrator de Motoristas"). Só ID e telefone ficam guardados aqui e na
+// nuvem — o nome do CSV de contatos é ignorado (a tabela já tem o nome
+// vindo do CSV de rotas). Compartilhado entre as abas "Rotas MEEXs NEX" e
+// "Rotas SPA1 Extra" — subir o CSV em qualquer uma das duas atualiza as duas.
+const MOTORISTAS_CONTATOS_FIREBASE_PATH = 'motoristasContatos';
+let motoristasContatos = {};
+
+function aplicarContatosEmRows(rows) {
+  return rows.map(r => ({ ...r, contato: motoristasContatos[String(r.id_driver)] || '-' }));
+}
+
+// O telefone não tem mais coluna própria — aparece como balão ao passar o
+// mouse sobre o nome do motorista (via atributo data-tooltip + CSS). Isso
+// evita o problema de esconder/redistribuir uma coluna inteira no PRINT
+// (html2canvas): como o balão só existe no :hover, ele simplesmente não
+// aparece na imagem capturada, sem precisar de nenhum truque extra.
+function motoristaCellHtml(r) {
+  const tel = (r.contato && r.contato !== '-') ? r.contato : '';
+  if (!tel) return `<td>${r.motorista}</td>`;
+  return `<td class="motorista-tooltip" data-tooltip="${tel}" onclick="copiarContatoMotorista(this)">${r.motorista}</td>`;
+}
+
+function copiarContatoMotorista(el) {
+  const tel = el.dataset.tooltip;
+  if (!tel || tel === 'Copiado!' || tel === 'Erro ao copiar') return;
+  navigator.clipboard.writeText(tel).then(() => {
+    el.dataset.tooltip = 'Copiado!';
+    setTimeout(() => { el.dataset.tooltip = tel; }, 1200);
+  }).catch(() => {
+    el.dataset.tooltip = 'Erro ao copiar';
+    setTimeout(() => { el.dataset.tooltip = tel; }, 1200);
+  });
+}
+
+function processContatosCsv(header, dataLines) {
+  const idxId = header.indexOf('id_driver');
+  const idxTel = header.indexOf('telefone');
+  if (idxId === -1 || idxTel === -1) {
+    throw new Error('Coluna esperada nao encontrada (id_driver / telefone)');
+  }
+  const novoMapa = {};
+  for (let i = 0; i < dataLines.length; i++) {
+    const cols = parseCsvLine(dataLines[i], ';');
+    if (cols.length < header.length) continue;
+    const id = (cols[idxId] || '').trim();
+    const tel = (cols[idxTel] || '').trim();
+    if (!id) continue;
+    novoMapa[id] = tel;
+  }
+  motoristasContatos = novoMapa;
+  currentMeexRows = aplicarContatosEmRows(currentMeexRows);
+  renderMeexRows(currentMeexRows);
+  currentSpa1Rows = aplicarContatosEmRows(currentSpa1Rows);
+  renderSpa1Rows(currentSpa1Rows);
+  currentXptRows = aplicarContatosEmRows(currentXptRows);
+  renderXptRows(currentXptRows);
+  saveToCloud(MOTORISTAS_CONTATOS_FIREBASE_PATH, novoMapa);
+  return Object.keys(novoMapa).length;
+}
+
+function wireContatosUpload(inputId, fileNameId, statusId) {
+  document.getElementById(inputId).addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById(statusId);
+    document.getElementById(fileNameId).textContent = file.name;
+    statusEl.textContent = '';
+
+    const reader = new FileReader();
+    reader.onerror = () => {
+      statusEl.textContent = 'Erro ao ler o arquivo: ' + (reader.error ? reader.error.message : 'motivo desconhecido');
+    };
+    reader.onload = (evt) => {
+      try {
+        let text = evt.target.result.replace(/^﻿/, '');
+        const lines = text.split(/\r\n|\n/).filter(l => l.length > 0);
+        if (lines.length < 2) {
+          statusEl.textContent = 'Erro: arquivo vazio ou sem dados.';
+          return;
+        }
+        const header = parseCsvLine(lines[0], ';');
+        const total = processContatosCsv(header, lines.slice(1));
+        statusEl.style.color = '#2d7a2d';
+        statusEl.textContent = `${total} contato(s) carregado(s) e aplicado(s).`;
+      } catch (err) {
+        statusEl.style.color = '#a32d2d';
+        statusEl.textContent = 'Erro ao processar CSV: ' + err.message;
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+wireContatosUpload('meexContatosInput', 'meexContatosFileName', 'meexContatosStatusMsg');
+wireContatosUpload('spa1ContatosInput', 'spa1ContatosFileName', 'spa1ContatosStatusMsg');
+wireContatosUpload('xptContatosInput', 'xptContatosFileName', 'xptContatosStatusMsg');
 
 document.getElementById('genMeexBtn').addEventListener('click', generateMeexTable);
 document.getElementById('copyMeexReportBtn').addEventListener('click', copyMeexReport);
@@ -1954,9 +2241,9 @@ function generateMeexTable() {
     statusEl.textContent = 'Aviso: algumas rotas podem não ter sido reconhecidas corretamente (verifique a formatação colada).';
   }
 
-  currentMeexRows = rows;
+  currentMeexRows = aplicarContatosEmRows(rows);
   resetSort('headRowMeex');
-  renderMeexRows(rows);
+  renderMeexRows(currentMeexRows);
   renderMeexReport(rows);
   renderMeexCardGroup(rows);
   document.getElementById('copyMeexReportBtn').disabled = false;
@@ -2017,7 +2304,7 @@ function renderMeexRows(rows) {
   rows.forEach(r => {
     const tr = document.createElement('tr');
     const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
-    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td><td>${r.motorista}</td><td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
+    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
     body.appendChild(tr);
   });
 }
@@ -2097,14 +2384,464 @@ function processMeexCsv(header, dataLines) {
         return;
       }
 
-      currentMeexRows = rows;
+      currentMeexRows = aplicarContatosEmRows(rows);
       resetSort('headRowMeex');
-      renderMeexRows(rows);
+      renderMeexRows(currentMeexRows);
       renderMeexReport(rows);
       renderMeexCardGroup(rows);
       document.getElementById('copyMeexReportBtn').disabled = false;
 
       saveToCloud('rotasMeexNex', rows).then(ok => {
+        if (!ok) {
+          statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
+        }
+      });
+}
+
+// ===== Rotas SPA1 Extra (mesma lógica da aba Rotas MEEXs NEX, mas para
+// deliveryType "me_extra" com facilityId === "SPA1" em vez de excluir SPA1
+// e as facilities XPT) =====
+let spa1ReportText = '';
+let currentSpa1Rows = [];
+
+document.getElementById('genSpa1Btn').addEventListener('click', generateSpa1Table);
+document.getElementById('copySpa1ReportBtn').addEventListener('click', copySpa1Report);
+document.getElementById('printSpa1Btn').addEventListener('click', generateHdImageSpa1);
+
+async function generateHdImageSpa1() {
+  if (typeof html2canvas === 'undefined') {
+    document.getElementById('spa1StatusMsg').textContent = 'Não foi possível carregar a biblioteca de imagem.';
+    return;
+  }
+  if (currentSpa1Rows.length === 0) {
+    document.getElementById('spa1StatusMsg').textContent = 'Gere a tabela antes de criar a imagem.';
+    return;
+  }
+  const btn = document.getElementById('printSpa1Btn');
+  const original = btn.textContent;
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    const target = document.getElementById('captureAreaSpa1');
+    const canvas = await html2canvas(target, {
+      scale: 3,
+      backgroundColor: '#fafaf7',
+      useCORS: true
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    const dd = String(new Date().getDate()).padStart(2, '0');
+    const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+    const yyyy = new Date().getFullYear();
+    link.download = `rotas_spa1_extra_${dd}-${mm}-${yyyy}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    document.getElementById('spa1StatusMsg').textContent = 'Erro ao gerar imagem: ' + err.message;
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
+
+function generateSpa1Table() {
+  const text = document.getElementById('spa1PasteInput').value;
+  const statusEl = document.getElementById('spa1StatusMsg');
+  statusEl.textContent = '';
+
+  if (!text || !text.trim()) {
+    statusEl.textContent = 'Cole o conteúdo antes de gerar a tabela.';
+    return;
+  }
+
+  const { rows, mismatch } = parseMeexText(text);
+
+  if (rows.length === 0) {
+    statusEl.textContent = 'Não foi possível identificar rotas no texto colado.';
+    currentSpa1Rows = [];
+    resetSort('headRowSpa1');
+    renderSpa1Rows([]);
+    renderSpa1Report([]);
+    renderSpa1CardGroup([]);
+    document.getElementById('copySpa1ReportBtn').disabled = true;
+    return;
+  }
+
+  if (mismatch) {
+    statusEl.textContent = 'Aviso: algumas rotas podem não ter sido reconhecidas corretamente (verifique a formatação colada).';
+  }
+
+  currentSpa1Rows = aplicarContatosEmRows(rows);
+  resetSort('headRowSpa1');
+  renderSpa1Rows(currentSpa1Rows);
+  renderSpa1Report(rows);
+  renderSpa1CardGroup(rows);
+  document.getElementById('copySpa1ReportBtn').disabled = false;
+
+  saveToCloud('rotasSpa1Extra', rows).then(ok => {
+    if (!ok) {
+      statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
+    }
+  });
+}
+
+function buildSpa1Cards(rows) {
+  const total = rows.length;
+  const counts = {};
+  const order = [];
+  rows.forEach(r => {
+    const key = r.id_facility || '-';
+    if (!counts[key]) { counts[key] = 0; order.push(key); }
+    counts[key]++;
+  });
+  order.sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+
+  const cards = [{
+    summary: true,
+    icon: '📊',
+    label: 'Geral',
+    facility: null,
+    count: total,
+    metricLabel: 'Total de rotas',
+    pct: null
+  }];
+  order.forEach(key => {
+    cards.push({
+      summary: false,
+      icon: '🏪',
+      label: key,
+      facility: null,
+      count: counts[key],
+      metricLabel: '% das rotas',
+      pct: total > 0 ? (counts[key] / total * 100) : null
+    });
+  });
+
+  return cards;
+}
+
+function renderSpa1CardGroup(rows) {
+  renderAmbulanciaCards(buildSpa1Cards(rows), 'spa1Cards', 'Rotas');
+}
+
+function renderSpa1Rows(rows) {
+  const body = document.getElementById('bodySpa1');
+  body.innerHTML = '';
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="9" class="empty-hint">Nenhuma rota encontrada</td></tr>';
+    return;
+  }
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
+    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
+    body.appendChild(tr);
+  });
+}
+
+function renderSpa1Report(rows) {
+  if (rows.length === 0) {
+    spa1ReportText = '';
+    document.getElementById('spa1ReportBox').textContent = 'Gere a tabela acima para ver o report automático.';
+    return;
+  }
+  const dataAtual = todayBR();
+  spa1ReportText = `Rotas Abertas: ${rows.length} rotas Extra do SPA1 do dia ${dataAtual}.`;
+  document.getElementById('spa1ReportBox').textContent = spa1ReportText;
+}
+
+function copySpa1Report() {
+  if (!spa1ReportText) return;
+  navigator.clipboard.writeText(spa1ReportText).then(() => {
+    const btn = document.getElementById('copySpa1ReportBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }).catch(() => {
+    document.getElementById('spa1StatusMsg').textContent = 'Não foi possível copiar automaticamente. Selecione o texto manualmente.';
+  });
+}
+
+// ===== Rotas SPA1 Extra — upload de CSV (alternativa ao colar texto) =====
+function processSpa1Csv(header, dataLines) {
+      const statusEl = document.getElementById('spa1StatusMsg');
+      const idx = {};
+      MEEX_CSV_HEADERS_NEEDED.forEach(h => {
+        const pos = header.indexOf(h);
+        if (pos === -1) throw new Error('Coluna esperada nao encontrada: ' + h);
+        idx[h] = pos;
+      });
+
+      const rows = [];
+      for (let i = 0; i < dataLines.length; i++) {
+        const cols = parseCsvLine(dataLines[i], ';');
+        if (cols.length < header.length) continue;
+
+        const deliveryType = (cols[idx['deliveryType']] || '').trim();
+        if (deliveryType !== 'me_extra') continue;
+
+        const facilityId = (cols[idx['facilityId']] || '').trim();
+        if (facilityId !== 'SPA1') continue;
+
+        const driverId = (cols[idx['driver.driverId']] || '').trim();
+        const driverName = (cols[idx['driver.driverName']] || '').trim();
+        const initDateRaw = (cols[idx['initDate']] || '').trim();
+        const entregues = parseFloat(cols[idx['counters.delivered']]) || 0;
+        const insucessos = parseFloat(cols[idx['counters.notDelivered']]) || 0;
+        const pendentes = parseFloat(cols[idx['counters.pending']]) || 0;
+
+        rows.push({
+          rota_id: (cols[idx['id']] || '').trim(),
+          data_rota: initDateRaw ? initDateRaw.split(' ')[0] : todayBR(),
+          id_driver: driverId || '-',
+          motorista: driverName ? titleCase(driverName) : '-',
+          facility: 'Envios Extra',
+          id_facility: facilityId,
+          entregues: entregues,
+          insucessos: insucessos,
+          pendentes: pendentes
+        });
+      }
+
+      if (rows.length === 0) {
+        statusEl.textContent = 'Nenhuma rota SPA1 (Envios Extra) encontrada no CSV.';
+        return;
+      }
+
+      currentSpa1Rows = aplicarContatosEmRows(rows);
+      resetSort('headRowSpa1');
+      renderSpa1Rows(currentSpa1Rows);
+      renderSpa1Report(rows);
+      renderSpa1CardGroup(rows);
+      document.getElementById('copySpa1ReportBtn').disabled = false;
+
+      saveToCloud('rotasSpa1Extra', rows).then(ok => {
+        if (!ok) {
+          statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
+        }
+      });
+}
+
+// ===== Rotas XPT Extra (mesma lógica das abas Rotas MEEXs NEX / Rotas SPA1
+// Extra, mas para deliveryType "me_extra" com facilityId dentro das
+// facilities XPT — DS_XPT_FACILITIES, declarada logo abaixo) =====
+let xptReportText = '';
+let currentXptRows = [];
+
+document.getElementById('genXptBtn').addEventListener('click', generateXptTable);
+document.getElementById('copyXptReportBtn').addEventListener('click', copyXptReport);
+document.getElementById('printXptBtn').addEventListener('click', generateHdImageXpt);
+
+async function generateHdImageXpt() {
+  if (typeof html2canvas === 'undefined') {
+    document.getElementById('xptStatusMsg').textContent = 'Não foi possível carregar a biblioteca de imagem.';
+    return;
+  }
+  if (currentXptRows.length === 0) {
+    document.getElementById('xptStatusMsg').textContent = 'Gere a tabela antes de criar a imagem.';
+    return;
+  }
+  const btn = document.getElementById('printXptBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+
+  try {
+    const target = document.getElementById('captureAreaXpt');
+    const canvas = await html2canvas(target, {
+      scale: 3,
+      backgroundColor: '#fafaf7',
+      useCORS: true
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    const dd = String(new Date().getDate()).padStart(2, '0');
+    const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+    const yyyy = new Date().getFullYear();
+    link.download = `rotas_xpt_extra_${dd}-${mm}-${yyyy}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    document.getElementById('xptStatusMsg').textContent = 'Erro ao gerar imagem: ' + err.message;
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
+
+function generateXptTable() {
+  const text = document.getElementById('xptPasteInput').value;
+  const statusEl = document.getElementById('xptStatusMsg');
+  statusEl.textContent = '';
+
+  if (!text || !text.trim()) {
+    statusEl.textContent = 'Cole o conteúdo antes de gerar a tabela.';
+    return;
+  }
+
+  const { rows, mismatch } = parseMeexText(text);
+
+  if (rows.length === 0) {
+    statusEl.textContent = 'Não foi possível identificar rotas no texto colado.';
+    currentXptRows = [];
+    resetSort('headRowXpt');
+    renderXptRows([]);
+    renderXptReport([]);
+    renderXptCardGroup([]);
+    document.getElementById('copyXptReportBtn').disabled = true;
+    return;
+  }
+
+  if (mismatch) {
+    statusEl.textContent = 'Aviso: algumas rotas podem não ter sido reconhecidas corretamente (verifique a formatação colada).';
+  }
+
+  currentXptRows = aplicarContatosEmRows(rows);
+  resetSort('headRowXpt');
+  renderXptRows(currentXptRows);
+  renderXptReport(rows);
+  renderXptCardGroup(rows);
+  document.getElementById('copyXptReportBtn').disabled = false;
+
+  saveToCloud('rotasXptExtra', rows).then(ok => {
+    if (!ok) {
+      statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
+    }
+  });
+}
+
+function buildXptCards(rows) {
+  const total = rows.length;
+  const counts = {};
+  const order = [];
+  rows.forEach(r => {
+    const key = r.id_facility || '-';
+    if (!counts[key]) { counts[key] = 0; order.push(key); }
+    counts[key]++;
+  });
+  order.sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+
+  const cards = [{
+    summary: true,
+    icon: '📊',
+    label: 'Geral',
+    facility: null,
+    count: total,
+    metricLabel: 'Total de rotas',
+    pct: null
+  }];
+  order.forEach(key => {
+    cards.push({
+      summary: false,
+      icon: '🏪',
+      label: key,
+      facility: null,
+      count: counts[key],
+      metricLabel: '% das rotas',
+      pct: total > 0 ? (counts[key] / total * 100) : null
+    });
+  });
+
+  return cards;
+}
+
+function renderXptCardGroup(rows) {
+  renderAmbulanciaCards(buildXptCards(rows), 'xptCards', 'Rotas');
+}
+
+function renderXptRows(rows) {
+  const body = document.getElementById('bodyXpt');
+  body.innerHTML = '';
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="9" class="empty-hint">Nenhuma rota encontrada</td></tr>';
+    return;
+  }
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
+    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
+    body.appendChild(tr);
+  });
+}
+
+function renderXptReport(rows) {
+  if (rows.length === 0) {
+    xptReportText = '';
+    document.getElementById('xptReportBox').textContent = 'Gere a tabela acima para ver o report automático.';
+    return;
+  }
+  const dataAtual = todayBR();
+  xptReportText = `Rotas Abertas: ${rows.length} rotas Extra do XPT do dia ${dataAtual}.`;
+  document.getElementById('xptReportBox').textContent = xptReportText;
+}
+
+function copyXptReport() {
+  if (!xptReportText) return;
+  navigator.clipboard.writeText(xptReportText).then(() => {
+    const btn = document.getElementById('copyXptReportBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }).catch(() => {
+    document.getElementById('xptStatusMsg').textContent = 'Não foi possível copiar automaticamente. Selecione o texto manualmente.';
+  });
+}
+
+// ===== Rotas XPT Extra — upload de CSV (alternativa ao colar texto) =====
+function processXptCsv(header, dataLines) {
+      const statusEl = document.getElementById('xptStatusMsg');
+      const idx = {};
+      MEEX_CSV_HEADERS_NEEDED.forEach(h => {
+        const pos = header.indexOf(h);
+        if (pos === -1) throw new Error('Coluna esperada nao encontrada: ' + h);
+        idx[h] = pos;
+      });
+
+      const rows = [];
+      for (let i = 0; i < dataLines.length; i++) {
+        const cols = parseCsvLine(dataLines[i], ';');
+        if (cols.length < header.length) continue;
+
+        const deliveryType = (cols[idx['deliveryType']] || '').trim();
+        if (deliveryType !== 'me_extra') continue;
+
+        const facilityId = (cols[idx['facilityId']] || '').trim();
+        if (!DS_XPT_FACILITIES.includes(facilityId)) continue;
+
+        const driverId = (cols[idx['driver.driverId']] || '').trim();
+        const driverName = (cols[idx['driver.driverName']] || '').trim();
+        const initDateRaw = (cols[idx['initDate']] || '').trim();
+        const entregues = parseFloat(cols[idx['counters.delivered']]) || 0;
+        const insucessos = parseFloat(cols[idx['counters.notDelivered']]) || 0;
+        const pendentes = parseFloat(cols[idx['counters.pending']]) || 0;
+
+        rows.push({
+          rota_id: (cols[idx['id']] || '').trim(),
+          data_rota: initDateRaw ? initDateRaw.split(' ')[0] : todayBR(),
+          id_driver: driverId || '-',
+          motorista: driverName ? titleCase(driverName) : '-',
+          facility: 'Envios Extra',
+          id_facility: facilityId,
+          entregues: entregues,
+          insucessos: insucessos,
+          pendentes: pendentes
+        });
+      }
+
+      if (rows.length === 0) {
+        statusEl.textContent = 'Nenhuma rota XPT (Envios Extra) encontrada no CSV.';
+        return;
+      }
+
+      currentXptRows = aplicarContatosEmRows(rows);
+      resetSort('headRowXpt');
+      renderXptRows(currentXptRows);
+      renderXptReport(rows);
+      renderXptCardGroup(rows);
+      document.getElementById('copyXptReportBtn').disabled = false;
+
+      saveToCloud('rotasXptExtra', rows).then(ok => {
         if (!ok) {
           statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
         }
@@ -3635,6 +4372,8 @@ function processGlobalCsvText(text, nomeExibicao) {
     const errors = [];
     try { processRota12hCsv(header, dataLines); } catch (err) { errors.push('Rota > 12h: ' + err.message); }
     try { processMeexCsv(header, dataLines); } catch (err) { errors.push('Rotas MEEXs NEX: ' + err.message); }
+    try { processSpa1Csv(header, dataLines); } catch (err) { errors.push('Rotas SPA1 Extra: ' + err.message); }
+    try { processXptCsv(header, dataLines); } catch (err) { errors.push('Rotas XPT Extra: ' + err.message); }
     try { processDsOrhcCsv(header, dataLines); } catch (err) { errors.push('DS_ORHC: ' + err.message); }
     try { processAmbulanciaCsv(header, dataLines); } catch (err) { errors.push('Ambulância: ' + err.message); }
 
@@ -3885,13 +4624,36 @@ async function initFromCloud() {
     document.getElementById('copyReportBtn').disabled = false;
   }
 
+  const motoristasContatosSaved = await loadFromCloud(MOTORISTAS_CONTATOS_FIREBASE_PATH);
+  if (motoristasContatosSaved && typeof motoristasContatosSaved === 'object') {
+    motoristasContatos = motoristasContatosSaved;
+  }
+
   const meexRows = await loadFromCloud('rotasMeexNex');
   if (meexRows && Array.isArray(meexRows) && meexRows.length > 0) {
-    currentMeexRows = meexRows;
-    renderMeexRows(meexRows);
-    renderMeexReport(meexRows);
-    renderMeexCardGroup(meexRows);
+    currentMeexRows = aplicarContatosEmRows(meexRows);
+    renderMeexRows(currentMeexRows);
+    renderMeexReport(currentMeexRows);
+    renderMeexCardGroup(currentMeexRows);
     document.getElementById('copyMeexReportBtn').disabled = false;
+  }
+
+  const spa1Rows = await loadFromCloud('rotasSpa1Extra');
+  if (spa1Rows && Array.isArray(spa1Rows) && spa1Rows.length > 0) {
+    currentSpa1Rows = aplicarContatosEmRows(spa1Rows);
+    renderSpa1Rows(currentSpa1Rows);
+    renderSpa1Report(currentSpa1Rows);
+    renderSpa1CardGroup(currentSpa1Rows);
+    document.getElementById('copySpa1ReportBtn').disabled = false;
+  }
+
+  const xptRows = await loadFromCloud('rotasXptExtra');
+  if (xptRows && Array.isArray(xptRows) && xptRows.length > 0) {
+    currentXptRows = aplicarContatosEmRows(xptRows);
+    renderXptRows(currentXptRows);
+    renderXptReport(currentXptRows);
+    renderXptCardGroup(currentXptRows);
+    document.getElementById('copyXptReportBtn').disabled = false;
   }
 
   const dsOrhcSaved = await loadFromCloud('dsOrhc');
@@ -3980,6 +4742,18 @@ makeSortable('headRowMeex',
   [r => r.rota_id, r => r.data_rota, r => r.id_driver, r => r.motorista, r => r.facility, r => r.id_facility, r => r.entregues, r => r.insucessos, r => r.pendentes],
   () => currentMeexRows,
   renderMeexRows
+);
+
+makeSortable('headRowSpa1',
+  [r => r.rota_id, r => r.data_rota, r => r.id_driver, r => r.motorista, r => r.facility, r => r.id_facility, r => r.entregues, r => r.insucessos, r => r.pendentes],
+  () => currentSpa1Rows,
+  renderSpa1Rows
+);
+
+makeSortable('headRowXpt',
+  [r => r.rota_id, r => r.data_rota, r => r.id_driver, r => r.motorista, r => r.facility, r => r.id_facility, r => r.entregues, r => r.insucessos, r => r.pendentes],
+  () => currentXptRows,
+  renderXptRows
 );
 
 makeSortable('headRowDsOrhc',
