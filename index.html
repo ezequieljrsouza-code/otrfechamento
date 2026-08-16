@@ -1019,23 +1019,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:16%"><col style="width:10%"><col style="width:17%"><col style="width:15%"><col style="width:18%"><col style="width:14%">
+      <col style="width:12%"><col style="width:7%"><col style="width:12%"><col style="width:10%"><col style="width:12%"><col style="width:17%"><col style="width:18%"><col style="width:12%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="5">Ambulância</th>
+      <th colspan="7">Ambulância</th>
       <th class="total-cell" id="totalAmbulancia">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowAmbulancia">
-      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>DATA</th>
+      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>MOTORISTA</th><th>PERFIL VEÍCULO</th><th>DATA</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:16%"><col style="width:10%"><col style="width:17%"><col style="width:15%"><col style="width:18%"><col style="width:14%">
+        <col style="width:12%"><col style="width:7%"><col style="width:12%"><col style="width:10%"><col style="width:12%"><col style="width:17%"><col style="width:18%"><col style="width:12%">
       </colgroup>
       <tbody id="bodyAmbulancia">
-        <tr><td colspan="6" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
+        <tr><td colspan="8" class="empty-hint">Suba o CSV para preencher esta tabela</td></tr>
       </tbody>
     </table>
   </div>
@@ -1144,23 +1144,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:16%"><col style="width:10%"><col style="width:17%"><col style="width:15%"><col style="width:18%"><col style="width:14%">
+      <col style="width:12%"><col style="width:7%"><col style="width:12%"><col style="width:10%"><col style="width:12%"><col style="width:17%"><col style="width:18%"><col style="width:12%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="5">Histórico Ambulância</th>
+      <th colspan="7">Histórico Ambulância</th>
       <th class="total-cell" id="totalAmbHist">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowAmbHist">
-      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>DATA</th>
+      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>MOTORISTA</th><th>PERFIL VEÍCULO</th><th>DATA</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:16%"><col style="width:10%"><col style="width:17%"><col style="width:15%"><col style="width:18%"><col style="width:14%">
+        <col style="width:12%"><col style="width:7%"><col style="width:12%"><col style="width:10%"><col style="width:12%"><col style="width:17%"><col style="width:18%"><col style="width:12%">
       </colgroup>
       <tbody id="bodyAmbHist">
-        <tr><td colspan="6" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
+        <tr><td colspan="8" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
       </tbody>
     </table>
   </div>
@@ -2442,7 +2442,7 @@ function copyDsOrhcReport() {
 }
 
 // ===== Ambulância =====
-const AMBULANCIA_HEADERS_NEEDED = ['id', 'cluster', 'substatus', 'status', 'initDate', 'facilityId', 'serviceCenterId', 'carrier', 'vehicle.license', 'vehicleDescriptionForFilter', 'shipmentData.spr', 'destinationFacility.destinationFacilityId'];
+const AMBULANCIA_HEADERS_NEEDED = ['id', 'cluster', 'substatus', 'status', 'initDate', 'facilityId', 'serviceCenterId', 'carrier', 'vehicle.license', 'vehicleDescriptionForFilter', 'shipmentData.spr', 'destinationFacility.destinationFacilityId', 'driver.driverName'];
 
 let ambulanciaRows = [];
 let ambulanciaTotalRoutes = 0;
@@ -2455,6 +2455,8 @@ const AMBULANCIA_FILTER_COLUMNS = [
   { key: 'placa', label: 'Placa' },
   { key: 'facility', label: 'Facility' },
   { key: 'mlp', label: 'MLP' },
+  { key: 'motorista', label: 'Motorista' },
+  { key: 'perfil', label: 'Perfil Veículo' },
   { key: 'data', label: 'Data' },
   { key: 'status', label: 'Status' }
 ];
@@ -2525,6 +2527,8 @@ function processAmbulanciaCsv(header, dataLines) {
     if (cluster !== '') continue;
 
     const initDateFmt = ambHistFormatInitDate((cols[idx['initDate']] || '').trim());
+    const driverName = (cols[idx['driver.driverName']] || '').trim();
+    const vehiclePerfil = (cols[idx['vehicleDescriptionForFilter']] || '').trim();
 
     rows.push({
       id_rota: (cols[idx['id']] || '').trim(),
@@ -2537,7 +2541,9 @@ function processAmbulanciaCsv(header, dataLines) {
       initDate: initDateFmt,
       data: initDateFmt ? initDateFmt.split(' ')[0] : '',
       serviceCenterId: (cols[idx['serviceCenterId']] || '').trim(),
-      vehicleDescriptionForFilter: (cols[idx['vehicleDescriptionForFilter']] || '').trim(),
+      motorista: driverName ? titleCase(driverName) : '-',
+      perfil: vehiclePerfil || '-',
+      vehicleDescriptionForFilter: vehiclePerfil,
       destinationFacilityId: (cols[idx['destinationFacility.destinationFacilityId']] || '').trim()
     });
   }
@@ -2713,11 +2719,11 @@ function renderAmbulanciaTable(rows) {
   const body = document.getElementById('bodyAmbulancia');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="6" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="8" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.data}</td>`;
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.motorista || '-'}</td><td>${r.perfil || '-'}</td><td>${r.data}</td>`;
       body.appendChild(tr);
     });
   }
@@ -2853,6 +2859,8 @@ const AMB_HIST_FILTER_COLUMNS = [
   { key: 'placa', label: 'Placa' },
   { key: 'facility', label: 'Facility' },
   { key: 'mlp', label: 'MLP' },
+  { key: 'motorista', label: 'Motorista' },
+  { key: 'perfil', label: 'Perfil Veículo' },
   { key: 'status', label: 'Status' }
 ];
 
@@ -3090,11 +3098,11 @@ function renderAmbHistTable(rows) {
   const body = document.getElementById('bodyAmbHist');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="6" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="8" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.data || ''}</td>`;
+      tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.motorista || '-'}</td><td>${r.perfil || '-'}</td><td>${r.data || ''}</td>`;
       body.appendChild(tr);
     });
   }
@@ -3173,7 +3181,7 @@ function ambDataSortKey(dataBr) {
 function downloadAmbHistCsv() {
   if (ambHistRows.length === 0) return;
   const rows = getAmbHistFilteredRows();
-  const headers = ['id', 'cluster', 'initDate', 'facilityId', 'serviceCenterId', 'status', 'vehicleDescriptionForFilter', 'destinationFacility.destinationFacilityId'];
+  const headers = ['id', 'cluster', 'initDate', 'facilityId', 'serviceCenterId', 'status', 'driver.driverName', 'vehicleDescriptionForFilter', 'destinationFacility.destinationFacilityId'];
   const lines = [headers.join(';')];
   rows.forEach(r => {
     lines.push([
@@ -3183,6 +3191,7 @@ function downloadAmbHistCsv() {
       r.facility,
       r.serviceCenterId,
       r.status,
+      r.motorista,
       r.vehicleDescriptionForFilter,
       r.destinationFacilityId
     ].map(csvEscapeField).join(';'));
@@ -3975,13 +3984,13 @@ makeSortable('headRowDsOrhc',
 );
 
 makeSortable('headRowAmbulancia',
-  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => ambDataSortKey(r.data)],
+  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => r.motorista, r => r.perfil, r => ambDataSortKey(r.data)],
   () => getAmbulanciaFilteredRows(),
   renderAmbulanciaTable
 );
 
 makeSortable('headRowAmbHist',
-  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => ambDataSortKey(r.data)],
+  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => r.motorista, r => r.perfil, r => ambDataSortKey(r.data)],
   () => getAmbHistFilteredRows(),
   renderAmbHistTable
 );
