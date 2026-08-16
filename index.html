@@ -2924,8 +2924,15 @@ async function ambHistLoadDate(dateKey) {
   document.getElementById('ambHistDate').value = dateKey;
 
   const all = ambHistGetAllLocal();
-  let payload = all[dateKey];
-  if (!payload) payload = await loadFromCloud('ambulanciaHistory/' + dateKey);
+  const localPayload = all[dateKey];
+  const cloudPayload = await loadFromCloud('ambulanciaHistory/' + dateKey);
+
+  let payload = localPayload;
+  if (cloudPayload && (!localPayload || new Date(cloudPayload.savedAt || 0) > new Date(localPayload.savedAt || 0))) {
+    payload = cloudPayload;
+    all[dateKey] = cloudPayload;
+    try { localStorage.setItem('ambulanciaHistory', JSON.stringify(all)); } catch (err) {}
+  }
 
   if (!payload || !Array.isArray(payload.rows) || payload.rows.length === 0) {
     ambHistRows = [];
