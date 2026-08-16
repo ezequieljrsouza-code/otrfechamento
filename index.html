@@ -722,17 +722,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .solic-add-btn:hover { background: #3e4b9a; }
   .solic-add-btn:disabled { opacity: .6; cursor: default; }
-  .solic-row-del {
-    border: none;
-    background: transparent;
-    color: #97937e;
-    cursor: pointer;
-    font-size: 15px;
-    padding: 2px 5px;
-    border-radius: 5px;
-    line-height: 1;
-  }
-  .solic-row-del:hover { background: #fbe4e0; color: #b23127; }
 </style>
 </head>
 <body>
@@ -1255,23 +1244,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:8%"><col style="width:10%"><col style="width:8%"><col style="width:7%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:6%"><col style="width:14%"><col style="width:9%"><col style="width:5%">
+      <col style="width:8%"><col style="width:10%"><col style="width:8%"><col style="width:7%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:6%"><col style="width:14%"><col style="width:13%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="10">Solicitações de Ambulância</th>
+      <th colspan="9">Solicitações de Ambulância</th>
       <th class="total-cell" id="totalAmbSolic">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowAmbSolic">
-      <th>DATA</th><th>SOLICITANTE</th><th>MLP</th><th>FACILITY</th><th>PERFIL</th><th>ID ROTA PRINCIPAL</th><th>ID ROTA AMB</th><th>SPR</th><th>MOTIVO</th><th>OTR</th><th></th>
+      <th>DATA</th><th>SOLICITANTE</th><th>MLP</th><th>FACILITY</th><th>PERFIL</th><th>ID ROTA PRINCIPAL</th><th>ID ROTA AMB</th><th>SPR</th><th>MOTIVO</th><th>OTR</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:8%"><col style="width:10%"><col style="width:8%"><col style="width:7%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:6%"><col style="width:14%"><col style="width:9%"><col style="width:5%">
+        <col style="width:8%"><col style="width:10%"><col style="width:8%"><col style="width:7%"><col style="width:9%"><col style="width:10%"><col style="width:10%"><col style="width:6%"><col style="width:14%"><col style="width:13%">
       </colgroup>
       <tbody id="bodyAmbSolic">
-        <tr><td colspan="11" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>
+        <tr><td colspan="10" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>
       </tbody>
     </table>
   </div>
@@ -3302,16 +3291,6 @@ async function ambSolicSaveRecord(record) {
   }
 }
 
-async function ambSolicDeleteRecord(id) {
-  try {
-    const res = await fetch(`${FIREBASE_URL}/${AMB_SOLIC_FIREBASE_PATH}/${id}.json`, { method: 'DELETE' });
-    return res.ok;
-  } catch (err) {
-    console.error('Erro ao excluir solicitação:', err);
-    return false;
-  }
-}
-
 async function ambSolicLoadAll() {
   try {
     const res = await fetch(`${FIREBASE_URL}/${AMB_SOLIC_FIREBASE_PATH}.json`);
@@ -3378,21 +3357,17 @@ function renderAmbSolicTable(rows) {
   const body = document.getElementById('bodyAmbSolic');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="11" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>';
+    body.innerHTML = '<tr><td colspan="10" class="empty-hint">Nenhuma solicitação registrada ainda</td></tr>';
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${ambSolicDateLabel(r.data)}</td><td>${escapeAmbSolicHtml(r.solicitante)}</td><td>${r.mlp || ''}</td><td>${r.facility || ''}</td><td>${r.perfil || ''}</td>` +
         `<td>${escapeAmbSolicHtml(r.idRotaPrincipal)}</td><td>${escapeAmbSolicHtml(r.idRotaAmb)}</td><td>${r.sprTransferido || 0}</td>` +
-        `<td>${escapeAmbSolicHtml(r.motivo)}</td><td>${r.otr || ''}</td>` +
-        `<td><button type="button" class="solic-row-del" data-id="${r.id}" title="Excluir">×</button></td>`;
+        `<td>${escapeAmbSolicHtml(r.motivo)}</td><td>${r.otr || ''}</td>`;
       body.appendChild(tr);
     });
   }
   document.getElementById('totalAmbSolic').textContent = 'Total: ' + rows.length;
-  body.querySelectorAll('.solic-row-del').forEach(btn => {
-    btn.addEventListener('click', () => ambSolicDeleteRow(btn.getAttribute('data-id')));
-  });
 }
 
 function escapeAmbSolicHtml(s) {
@@ -3540,13 +3515,6 @@ function resetAmbSolicFiltersAndRender() {
   resetSort('headRowAmbSolic');
   renderAmbSolicFilterBar();
   applyAmbSolicFilters();
-}
-
-async function ambSolicDeleteRow(id) {
-  if (!confirm('Remover esta solicitação?')) return;
-  ambSolicRows = ambSolicRows.filter(r => r.id !== id);
-  resetAmbSolicFiltersAndRender();
-  await ambSolicDeleteRecord(id);
 }
 
 document.getElementById('ambSolicAddBtn').addEventListener('click', async () => {
