@@ -470,6 +470,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .single-panel table { table-layout: fixed; }
   td.pend-alert { color: #a32d2d; font-weight: 700; }
+  /* Marcação manual "Pendente de devolução": leve vermelho na linha inteira,
+     sinalizando que o driver não devolveu os insucessos/pendentes do dia.
+     !important porque o zebra-striping (tbody tr:nth-child td, acima) tem a
+     mesma especificidade e vence por ordem no CSS se não for forçado. */
+  tbody tr.row-pendente-devolucao td { background: #fbe1e1 !important; }
+  tbody tr.row-pendente-devolucao td.pend-alert { background: #f7cccc !important; }
+  td.pend-devol-cell input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
   /* Balão de contato: mostra o telefone do motorista ao passar o mouse sobre
      o nome, em vez de uma coluna própria — some sozinho em qualquer captura
      (PRINT/html2canvas) já que só existe durante o :hover. */
@@ -804,6 +811,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <button class="sidebar-item" id="tabBtn7" onclick="switchTab(7)">Solicitações Ambulância</button>
   <button class="sidebar-item" id="tabBtn8" onclick="switchTab(8)">Rotas SPA1 Extra</button>
   <button class="sidebar-item" id="tabBtn9" onclick="switchTab(9)">Rotas XPT Extra</button>
+  <button class="sidebar-item" id="tabBtn10" onclick="switchTab(10)">Histórico SPA1 Extra</button>
+  <button class="sidebar-item" id="tabBtn11" onclick="switchTab(11)">Histórico XPT Extra</button>
   <div class="sidebar-footer">Desenvolvedor: OTR Ezequiel Miranda</div>
 </nav>
 
@@ -1359,26 +1368,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
-      <col style="width:12%"><col style="width:12%"><col style="width:9%">
-      <col style="width:9%"><col style="width:10%">
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+      <col style="width:11%"><col style="width:11%"><col style="width:8%">
+      <col style="width:8%"><col style="width:9%"><col style="width:8%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="9">Gestão de Rotas SPA1 Extra</th>
+      <th colspan="10">Gestão de Rotas SPA1 Extra</th>
     </tr>
     <tr class="head-row" id="headRowSpa1">
-      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th><th>Pendente Devolução</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
-        <col style="width:12%"><col style="width:12%"><col style="width:9%">
-        <col style="width:9%"><col style="width:10%">
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+        <col style="width:11%"><col style="width:11%"><col style="width:8%">
+        <col style="width:8%"><col style="width:9%"><col style="width:8%">
       </colgroup>
       <tbody id="bodySpa1">
-        <tr><td colspan="9" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
+        <tr><td colspan="10" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
       </tbody>
     </table>
   </div>
@@ -1417,26 +1426,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
-      <col style="width:12%"><col style="width:12%"><col style="width:9%">
-      <col style="width:9%"><col style="width:10%">
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+      <col style="width:11%"><col style="width:11%"><col style="width:8%">
+      <col style="width:8%"><col style="width:9%"><col style="width:8%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="9">Gestão de Rotas XPT Extra</th>
+      <th colspan="10">Gestão de Rotas XPT Extra</th>
     </tr>
     <tr class="head-row" id="headRowXpt">
-      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th><th>Pendente Devolução</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
-        <col style="width:12%"><col style="width:12%"><col style="width:9%">
-        <col style="width:9%"><col style="width:10%">
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+        <col style="width:11%"><col style="width:11%"><col style="width:8%">
+        <col style="width:8%"><col style="width:9%"><col style="width:8%">
       </colgroup>
       <tbody id="bodyXpt">
-        <tr><td colspan="9" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
+        <tr><td colspan="10" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
       </tbody>
     </table>
   </div>
@@ -1449,6 +1458,116 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <button id="copyXptReportBtn" disabled>Copiar report</button>
   </div>
   <div class="report-line" id="xptReportBox">Gere a tabela acima para ver o report automático.</div>
+</div>
+
+</div>
+
+<div id="tab-panel-10" class="tab-panel">
+
+<div class="toolbar">
+  <div class="amb-hist-datepick">
+    <label for="spa1HistDate">Data:</label>
+    <input type="date" id="spa1HistDate">
+  </div>
+  <button type="button" class="file-btn sync-btn" id="spa1HistTodayBtn">Hoje</button>
+  <select id="spa1HistDateSelect" class="amb-hist-select">
+    <option value="">Datas com histórico...</option>
+  </select>
+  <button id="printSpa1HistBtn" class="btn-print">PRINT</button>
+  <button id="downloadSpa1HistBtn" disabled>Baixar CSV</button>
+  <span id="spa1HistStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+</div>
+
+<div id="captureAreaSpa1Hist">
+<div class="dsorhc-cards-row" id="spa1HistCards"></div>
+
+<div class="ambulancia-filterbar" id="spa1HistFilterBar">
+  <span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>
+</div>
+
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+      <col style="width:11%"><col style="width:11%"><col style="width:8%">
+      <col style="width:8%"><col style="width:9%"><col style="width:8%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="9">Histórico Rotas SPA1 Extra</th>
+      <th class="total-cell" id="totalSpa1Hist">Total: 0</th>
+    </tr>
+    <tr class="head-row" id="headRowSpa1Hist">
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th><th>Pendente Devolução</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+        <col style="width:11%"><col style="width:11%"><col style="width:8%">
+        <col style="width:8%"><col style="width:9%"><col style="width:8%">
+      </colgroup>
+      <tbody id="bodySpa1Hist">
+        <tr><td colspan="10" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+</div>
+
+<div id="tab-panel-11" class="tab-panel">
+
+<div class="toolbar">
+  <div class="amb-hist-datepick">
+    <label for="xptHistDate">Data:</label>
+    <input type="date" id="xptHistDate">
+  </div>
+  <button type="button" class="file-btn sync-btn" id="xptHistTodayBtn">Hoje</button>
+  <select id="xptHistDateSelect" class="amb-hist-select">
+    <option value="">Datas com histórico...</option>
+  </select>
+  <button id="printXptHistBtn" class="btn-print">PRINT</button>
+  <button id="downloadXptHistBtn" disabled>Baixar CSV</button>
+  <span id="xptHistStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+</div>
+
+<div id="captureAreaXptHist">
+<div class="dsorhc-cards-row" id="xptHistCards"></div>
+
+<div class="ambulancia-filterbar" id="xptHistFilterBar">
+  <span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>
+</div>
+
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+      <col style="width:11%"><col style="width:11%"><col style="width:8%">
+      <col style="width:8%"><col style="width:9%"><col style="width:8%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="9">Histórico Rotas XPT Extra</th>
+      <th class="total-cell" id="totalXptHist">Total: 0</th>
+    </tr>
+    <tr class="head-row" id="headRowXptHist">
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th><th>Pendente Devolução</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+        <col style="width:11%"><col style="width:11%"><col style="width:8%">
+        <col style="width:8%"><col style="width:9%"><col style="width:8%">
+      </colgroup>
+      <tbody id="bodyXptHist">
+        <tr><td colspan="10" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 </div>
 
 </div>
@@ -2008,6 +2127,8 @@ function switchTab(n) {
   document.getElementById('tab-panel-7').classList.toggle('active', n === 7);
   document.getElementById('tab-panel-8').classList.toggle('active', n === 8);
   document.getElementById('tab-panel-9').classList.toggle('active', n === 9);
+  document.getElementById('tab-panel-10').classList.toggle('active', n === 10);
+  document.getElementById('tab-panel-11').classList.toggle('active', n === 11);
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
   document.getElementById('tabBtn3').classList.toggle('active', n === 3);
@@ -2017,11 +2138,15 @@ function switchTab(n) {
   document.getElementById('tabBtn7').classList.toggle('active', n === 7);
   document.getElementById('tabBtn8').classList.toggle('active', n === 8);
   document.getElementById('tabBtn9').classList.toggle('active', n === 9);
+  document.getElementById('tabBtn10').classList.toggle('active', n === 10);
+  document.getElementById('tabBtn11').classList.toggle('active', n === 11);
   if (n === 6 && !ambHistInitialized) {
     ambHistInitialized = true;
     ambHistPopulateDateSelect();
     ambHistLoadDate(ambHistDateKey());
   }
+  if (n === 10) spa1HistFeature.init();
+  if (n === 11) xptHistFeature.init();
 }
 
 function toggleSidebar() {
@@ -2445,6 +2570,14 @@ async function generateHdImageSpa1() {
   }
 }
 
+// Marcação manual "Pendente de devolução" (SPA1 e XPT): ao gerar/subir uma
+// nova tabela no mesmo dia, mantém marcado quem já estava sinalizado antes,
+// casando pelo rota_id, para não perder a marcação ao atualizar os dados.
+function preservePendenteFlags(newRows, previousRows) {
+  const marcados = new Set(previousRows.filter(r => r.pendenteDevolucao).map(r => r.rota_id));
+  return newRows.map(r => ({ ...r, pendenteDevolucao: marcados.has(r.rota_id) }));
+}
+
 function generateSpa1Table() {
   const text = document.getElementById('spa1PasteInput').value;
   const statusEl = document.getElementById('spa1StatusMsg');
@@ -2472,18 +2605,20 @@ function generateSpa1Table() {
     statusEl.textContent = 'Aviso: algumas rotas podem não ter sido reconhecidas corretamente (verifique a formatação colada).';
   }
 
-  currentSpa1Rows = aplicarContatosEmRows(rows);
+  const rowsComFlags = preservePendenteFlags(rows, currentSpa1Rows);
+  currentSpa1Rows = aplicarContatosEmRows(rowsComFlags);
   resetSort('headRowSpa1');
   renderSpa1Rows(currentSpa1Rows);
-  renderSpa1Report(rows);
-  renderSpa1CardGroup(rows);
+  renderSpa1Report(rowsComFlags);
+  renderSpa1CardGroup(rowsComFlags);
   document.getElementById('copySpa1ReportBtn').disabled = false;
 
-  saveToCloud('rotasSpa1Extra', rows).then(ok => {
+  saveToCloud('rotasSpa1Extra', rowsComFlags).then(ok => {
     if (!ok) {
       statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
     }
   });
+  spa1HistFeature.saveSnapshot(currentSpa1Rows);
 }
 
 function buildSpa1Cards(rows) {
@@ -2529,15 +2664,26 @@ function renderSpa1Rows(rows) {
   const body = document.getElementById('bodySpa1');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="9" class="empty-hint">Nenhuma rota encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="10" class="empty-hint">Nenhuma rota encontrada</td></tr>';
     return;
   }
   rows.forEach(r => {
     const tr = document.createElement('tr');
+    if (r.pendenteDevolucao) tr.className = 'row-pendente-devolucao';
     const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
-    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
+    const pendDevolCell = `<td class="pend-devol-cell"><input type="checkbox" ${r.pendenteDevolucao ? 'checked' : ''} onchange="toggleSpa1Pendente('${r.rota_id}', this.checked)"></td>`;
+    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}${pendDevolCell}`;
     body.appendChild(tr);
   });
+}
+
+function toggleSpa1Pendente(rotaId, checked) {
+  const row = currentSpa1Rows.find(r => r.rota_id === rotaId);
+  if (!row) return;
+  row.pendenteDevolucao = checked;
+  renderSpa1Rows(currentSpa1Rows);
+  saveToCloud('rotasSpa1Extra', currentSpa1Rows);
+  spa1HistFeature.saveSnapshot(currentSpa1Rows);
 }
 
 function renderSpa1Report(rows) {
@@ -2609,18 +2755,20 @@ function processSpa1Csv(header, dataLines) {
         return;
       }
 
-      currentSpa1Rows = aplicarContatosEmRows(rows);
+      const rowsComFlags = preservePendenteFlags(rows, currentSpa1Rows);
+      currentSpa1Rows = aplicarContatosEmRows(rowsComFlags);
       resetSort('headRowSpa1');
       renderSpa1Rows(currentSpa1Rows);
-      renderSpa1Report(rows);
-      renderSpa1CardGroup(rows);
+      renderSpa1Report(rowsComFlags);
+      renderSpa1CardGroup(rowsComFlags);
       document.getElementById('copySpa1ReportBtn').disabled = false;
 
-      saveToCloud('rotasSpa1Extra', rows).then(ok => {
+      saveToCloud('rotasSpa1Extra', rowsComFlags).then(ok => {
         if (!ok) {
           statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
         }
       });
+      spa1HistFeature.saveSnapshot(currentSpa1Rows);
 }
 
 // ===== Rotas XPT Extra (mesma lógica das abas Rotas MEEXs NEX / Rotas SPA1
@@ -2697,18 +2845,20 @@ function generateXptTable() {
     statusEl.textContent = 'Aviso: algumas rotas podem não ter sido reconhecidas corretamente (verifique a formatação colada).';
   }
 
-  currentXptRows = aplicarContatosEmRows(rows);
+  const rowsComFlags = preservePendenteFlags(rows, currentXptRows);
+  currentXptRows = aplicarContatosEmRows(rowsComFlags);
   resetSort('headRowXpt');
   renderXptRows(currentXptRows);
-  renderXptReport(rows);
-  renderXptCardGroup(rows);
+  renderXptReport(rowsComFlags);
+  renderXptCardGroup(rowsComFlags);
   document.getElementById('copyXptReportBtn').disabled = false;
 
-  saveToCloud('rotasXptExtra', rows).then(ok => {
+  saveToCloud('rotasXptExtra', rowsComFlags).then(ok => {
     if (!ok) {
       statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
     }
   });
+  xptHistFeature.saveSnapshot(currentXptRows);
 }
 
 function buildXptCards(rows) {
@@ -2754,15 +2904,26 @@ function renderXptRows(rows) {
   const body = document.getElementById('bodyXpt');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="9" class="empty-hint">Nenhuma rota encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="10" class="empty-hint">Nenhuma rota encontrada</td></tr>';
     return;
   }
   rows.forEach(r => {
     const tr = document.createElement('tr');
+    if (r.pendenteDevolucao) tr.className = 'row-pendente-devolucao';
     const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
-    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
+    const pendDevolCell = `<td class="pend-devol-cell"><input type="checkbox" ${r.pendenteDevolucao ? 'checked' : ''} onchange="toggleXptPendente('${r.rota_id}', this.checked)"></td>`;
+    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}${pendDevolCell}`;
     body.appendChild(tr);
   });
+}
+
+function toggleXptPendente(rotaId, checked) {
+  const row = currentXptRows.find(r => r.rota_id === rotaId);
+  if (!row) return;
+  row.pendenteDevolucao = checked;
+  renderXptRows(currentXptRows);
+  saveToCloud('rotasXptExtra', currentXptRows);
+  xptHistFeature.saveSnapshot(currentXptRows);
 }
 
 function renderXptReport(rows) {
@@ -2834,19 +2995,371 @@ function processXptCsv(header, dataLines) {
         return;
       }
 
-      currentXptRows = aplicarContatosEmRows(rows);
+      const rowsComFlags = preservePendenteFlags(rows, currentXptRows);
+      currentXptRows = aplicarContatosEmRows(rowsComFlags);
       resetSort('headRowXpt');
       renderXptRows(currentXptRows);
-      renderXptReport(rows);
-      renderXptCardGroup(rows);
+      renderXptReport(rowsComFlags);
+      renderXptCardGroup(rowsComFlags);
       document.getElementById('copyXptReportBtn').disabled = false;
 
-      saveToCloud('rotasXptExtra', rows).then(ok => {
+      saveToCloud('rotasXptExtra', rowsComFlags).then(ok => {
         if (!ok) {
           statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
         }
       });
+      xptHistFeature.saveSnapshot(currentXptRows);
 }
+
+// ===== Histórico de Rotas Extra (SPA1 / XPT) — mesma lógica de "Histórico
+// Ambulância" (snapshot diário salvo local + Firebase, seleção por data,
+// filtros, PRINT e CSV), reaproveitada via fábrica genérica para as duas
+// abas em vez de duplicar tudo duas vezes. =====
+const ROUTE_HIST_FILTER_COLUMNS = [
+  { key: 'data_rota', label: 'Data' },
+  { key: 'id_facility', label: 'Facility' },
+  { key: 'motorista', label: 'Motorista' },
+  { key: 'pendenteLabel', label: 'Pendente Devolução' }
+];
+
+function normalizeRouteHistRow(r) {
+  r.pendenteLabel = r.pendenteDevolucao ? 'Sim' : 'Não';
+  return r;
+}
+
+function routeHistDateKey(d) {
+  const dt = d || new Date();
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, '0');
+  const dd = String(dt.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function routeHistDateLabel(dateKey) {
+  const parts = dateKey.split('-');
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateKey;
+}
+
+function createRouteHistoryFeature(cfg) {
+  const state = { rows: [], filters: {}, selectedDate: '', initialized: false };
+
+  function getAllLocal() {
+    try { return JSON.parse(localStorage.getItem(cfg.localStorageKey) || '{}'); } catch (err) { return {}; }
+  }
+
+  function saveSnapshot(rows) {
+    const key = routeHistDateKey();
+    const payload = { rows: rows, savedAt: new Date().toISOString() };
+    const all = getAllLocal();
+    all[key] = payload;
+    try { localStorage.setItem(cfg.localStorageKey, JSON.stringify(all)); } catch (err) {}
+    saveToCloud(cfg.cloudPath + '/' + key, payload);
+    if (state.initialized) populateDateSelect();
+  }
+
+  function populateDateSelect() {
+    const sel = document.getElementById(cfg.dateSelectId);
+    const all = getAllLocal();
+    const dates = Object.keys(all).sort().reverse();
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Datas com histórico...</option>';
+    dates.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = routeHistDateLabel(d);
+      sel.appendChild(opt);
+    });
+    if (dates.includes(current)) sel.value = current;
+  }
+
+  async function loadDate(dateKey) {
+    const statusEl = document.getElementById(cfg.statusId);
+    statusEl.textContent = 'Carregando...';
+    state.selectedDate = dateKey;
+    document.getElementById(cfg.dateInputId).value = dateKey;
+
+    const all = getAllLocal();
+    const localPayload = all[dateKey];
+    const cloudPayload = await loadFromCloud(cfg.cloudPath + '/' + dateKey);
+
+    let payload = localPayload;
+    if (cloudPayload && (!localPayload || new Date(cloudPayload.savedAt || 0) > new Date(localPayload.savedAt || 0))) {
+      payload = cloudPayload;
+      all[dateKey] = cloudPayload;
+      try { localStorage.setItem(cfg.localStorageKey, JSON.stringify(all)); } catch (err) {}
+    }
+
+    if (!payload || !Array.isArray(payload.rows) || payload.rows.length === 0) {
+      state.rows = [];
+      statusEl.textContent = 'Nenhum histórico encontrado para ' + routeHistDateLabel(dateKey) + '.';
+    } else {
+      state.rows = payload.rows.map(normalizeRouteHistRow);
+      statusEl.textContent = '';
+    }
+
+    resetFiltersAndRender();
+    document.getElementById(cfg.downloadBtnId).disabled = state.rows.length === 0;
+    populateDateSelect();
+    document.getElementById(cfg.dateSelectId).value = dateKey;
+  }
+
+  function getFilteredRows() {
+    return state.rows.filter(r => ROUTE_HIST_FILTER_COLUMNS.every(col => {
+      const sel = state.filters[col.key];
+      if (!sel) return true;
+      return sel.has(ambVal(r, col.key));
+    }));
+  }
+
+  function applyFilters() {
+    const filtered = getFilteredRows();
+    renderTable(filtered);
+    renderAmbulanciaCards(cfg.buildCards(filtered), cfg.cardsContainerId, 'Rotas');
+  }
+
+  function resetFiltersAndRender() {
+    state.filters = {};
+    resetSort(cfg.headRowId);
+    renderFilterBar();
+    applyFilters();
+  }
+
+  function renderFilterBar() {
+    const bar = document.getElementById(cfg.filterBarId);
+    bar.innerHTML = '';
+    if (state.rows.length === 0) {
+      bar.innerHTML = '<span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>';
+      return;
+    }
+    const label = document.createElement('span');
+    label.className = 'filterbar-label';
+    label.textContent = 'Filtros';
+    bar.appendChild(label);
+
+    ROUTE_HIST_FILTER_COLUMNS.forEach(col => bar.appendChild(buildFilterWidget(col)));
+
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'amb-filter-clearall';
+    clearBtn.textContent = 'Limpar filtros';
+    clearBtn.addEventListener('click', () => {
+      state.filters = {};
+      renderFilterBar();
+      applyFilters();
+    });
+    bar.appendChild(clearBtn);
+  }
+
+  function buildFilterWidget(col) {
+    const wrap = document.createElement('div');
+    wrap.className = 'amb-filter';
+
+    const allValues = [...new Set(state.rows.map(r => ambVal(r, col.key)))]
+      .sort((a, b) => String(a).localeCompare(String(b), 'pt-BR', { numeric: true, sensitivity: 'base' }));
+
+    const activeSel = state.filters[col.key];
+    if (activeSel) wrap.classList.add('active');
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'amb-filter-btn';
+    btn.innerHTML = `<span>${col.label}${activeSel ? ' (' + activeSel.size + ')' : ''}</span><span class="amb-filter-arrow">▾</span>`;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const wasOpen = wrap.classList.contains('open');
+      document.querySelectorAll('.amb-filter.open').forEach(el => el.classList.remove('open'));
+      if (!wasOpen) wrap.classList.add('open');
+    });
+
+    const panel = document.createElement('div');
+    panel.className = 'amb-filter-panel';
+    panel.addEventListener('click', e => e.stopPropagation());
+
+    const search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'amb-filter-search';
+    search.placeholder = 'Buscar...';
+
+    const actions = document.createElement('div');
+    actions.className = 'amb-filter-actions';
+    const selAllLink = document.createElement('a');
+    selAllLink.textContent = 'Selecionar tudo';
+    const clearLink = document.createElement('a');
+    clearLink.textContent = 'Limpar';
+    actions.appendChild(selAllLink);
+    actions.appendChild(clearLink);
+
+    const list = document.createElement('div');
+    list.className = 'amb-filter-list';
+
+    const pending = new Set(activeSel ? activeSel : allValues);
+
+    function renderList(filterText) {
+      list.innerHTML = '';
+      const ft = (filterText || '').toLowerCase();
+      const visible = allValues.filter(v => String(v).toLowerCase().includes(ft));
+      if (visible.length === 0) {
+        list.innerHTML = '<div class="amb-filter-empty">Nenhum valor encontrado</div>';
+        return;
+      }
+      visible.forEach(v => {
+        const optLabel = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = pending.has(v);
+        cb.addEventListener('change', () => {
+          if (cb.checked) pending.add(v); else pending.delete(v);
+        });
+        optLabel.appendChild(cb);
+        const span = document.createElement('span');
+        span.textContent = v;
+        optLabel.appendChild(span);
+        list.appendChild(optLabel);
+      });
+    }
+    renderList('');
+
+    search.addEventListener('input', () => renderList(search.value));
+    selAllLink.addEventListener('click', () => {
+      allValues.forEach(v => pending.add(v));
+      renderList(search.value);
+    });
+    clearLink.addEventListener('click', () => {
+      pending.clear();
+      renderList(search.value);
+    });
+
+    const applyBtn = document.createElement('button');
+    applyBtn.type = 'button';
+    applyBtn.className = 'amb-filter-apply';
+    applyBtn.textContent = 'Aplicar';
+    applyBtn.addEventListener('click', () => {
+      if (pending.size === allValues.length) {
+        delete state.filters[col.key];
+      } else {
+        state.filters[col.key] = new Set(pending);
+      }
+      wrap.classList.remove('open');
+      renderFilterBar();
+      applyFilters();
+    });
+
+    panel.appendChild(search);
+    panel.appendChild(actions);
+    panel.appendChild(list);
+    panel.appendChild(applyBtn);
+
+    wrap.appendChild(btn);
+    wrap.appendChild(panel);
+    return wrap;
+  }
+
+  function renderTable(rows) {
+    const body = document.getElementById(cfg.tableBodyId);
+    body.innerHTML = '';
+    if (rows.length === 0) {
+      body.innerHTML = `<tr><td colspan="${cfg.emptyColspan}" class="empty-hint">Nenhuma rota encontrada</td></tr>`;
+    } else {
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        if (r.pendenteDevolucao) tr.className = 'row-pendente-devolucao';
+        const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
+        tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}<td>${r.pendenteDevolucao ? 'Sim' : '-'}</td>`;
+        body.appendChild(tr);
+      });
+    }
+    document.getElementById(cfg.totalCellId).textContent = 'Total: ' + rows.length;
+  }
+
+  async function generateHdImage() {
+    if (typeof html2canvas === 'undefined') {
+      document.getElementById(cfg.statusId).textContent = 'Não foi possível carregar a biblioteca de imagem.';
+      return;
+    }
+    if (state.rows.length === 0) {
+      document.getElementById(cfg.statusId).textContent = 'Selecione uma data com histórico antes de criar a imagem.';
+      return;
+    }
+    const btn = document.getElementById(cfg.printBtnId);
+    const original = btn.textContent;
+    btn.textContent = 'Gerando...';
+    btn.disabled = true;
+    try {
+      const target = document.getElementById(cfg.captureAreaId);
+      const canvas = await html2canvas(target, { scale: 3, backgroundColor: '#fafaf7', useCORS: true });
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `${cfg.fileNamePrefix}_${state.selectedDate || routeHistDateKey()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      document.getElementById(cfg.statusId).textContent = 'Erro ao gerar imagem: ' + err.message;
+    } finally {
+      btn.textContent = original;
+      btn.disabled = false;
+    }
+  }
+
+  function downloadCsv() {
+    if (state.rows.length === 0) return;
+    const rows = getFilteredRows();
+    const headers = ['Rota_ID', 'Data_Rota', 'ID_Driver', 'Motorista', 'Facility', 'ID_Facility', 'Entregues', 'Insucessos', 'Pendentes', 'Pendente Devolução'];
+    const lines = [headers.join(';')];
+    rows.forEach(r => {
+      lines.push([r.rota_id, r.data_rota, r.id_driver, r.motorista, r.facility, r.id_facility, r.entregues, r.insucessos, r.pendentes, r.pendenteDevolucao ? 'Sim' : 'Não']
+        .map(csvEscapeField).join(';'));
+    });
+    const csvContent = String.fromCharCode(0xFEFF) + lines.join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${cfg.fileNamePrefix}_${state.selectedDate || routeHistDateKey()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById(cfg.dateInputId).max = routeHistDateKey();
+  document.getElementById(cfg.dateInputId).addEventListener('change', (e) => {
+    if (e.target.value) loadDate(e.target.value);
+  });
+  document.getElementById(cfg.todayBtnId).addEventListener('click', () => loadDate(routeHistDateKey()));
+  document.getElementById(cfg.dateSelectId).addEventListener('change', (e) => {
+    if (e.target.value) loadDate(e.target.value);
+  });
+  document.getElementById(cfg.printBtnId).addEventListener('click', generateHdImage);
+  document.getElementById(cfg.downloadBtnId).addEventListener('click', downloadCsv);
+
+  return {
+    saveSnapshot,
+    init() {
+      if (state.initialized) return;
+      state.initialized = true;
+      populateDateSelect();
+      loadDate(routeHistDateKey());
+    }
+  };
+}
+
+const spa1HistFeature = createRouteHistoryFeature({
+  localStorageKey: 'rotasSpa1ExtraHistory',
+  cloudPath: 'rotasSpa1ExtraHistory',
+  dateInputId: 'spa1HistDate', todayBtnId: 'spa1HistTodayBtn', dateSelectId: 'spa1HistDateSelect',
+  printBtnId: 'printSpa1HistBtn', downloadBtnId: 'downloadSpa1HistBtn', statusId: 'spa1HistStatusMsg',
+  cardsContainerId: 'spa1HistCards', filterBarId: 'spa1HistFilterBar', tableBodyId: 'bodySpa1Hist',
+  totalCellId: 'totalSpa1Hist', headRowId: 'headRowSpa1Hist', captureAreaId: 'captureAreaSpa1Hist',
+  emptyColspan: 10, buildCards: buildSpa1Cards, fileNamePrefix: 'spa1_historico'
+});
+
+const xptHistFeature = createRouteHistoryFeature({
+  localStorageKey: 'rotasXptExtraHistory',
+  cloudPath: 'rotasXptExtraHistory',
+  dateInputId: 'xptHistDate', todayBtnId: 'xptHistTodayBtn', dateSelectId: 'xptHistDateSelect',
+  printBtnId: 'printXptHistBtn', downloadBtnId: 'downloadXptHistBtn', statusId: 'xptHistStatusMsg',
+  cardsContainerId: 'xptHistCards', filterBarId: 'xptHistFilterBar', tableBodyId: 'bodyXptHist',
+  totalCellId: 'totalXptHist', headRowId: 'headRowXptHist', captureAreaId: 'captureAreaXptHist',
+  emptyColspan: 10, buildCards: buildXptCards, fileNamePrefix: 'xpt_historico'
+});
 
 // ===== DS_ORHC (Gestão de Aderências nos Indicadores: ORH | DS) =====
 const DS_XPT_FACILITIES = ['EPA1','EPA2','EPA3','EPA4','EPA5','EPA6','EPA7','EPA8','EPA9','EMN1','ETO4'];
