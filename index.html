@@ -802,8 +802,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <button class="sidebar-item" id="tabBtn5" onclick="switchTab(5)">Estratificar Rotas LM</button>
   <button class="sidebar-item" id="tabBtn6" onclick="switchTab(6)">Histórico Ambulância</button>
   <button class="sidebar-item" id="tabBtn7" onclick="switchTab(7)">Solicitações Ambulância</button>
-  <button class="sidebar-item" id="tabBtn8" onclick="switchTab(8)">Rotas MEEX SPA1</button>
-  <button class="sidebar-item" id="tabBtn9" onclick="switchTab(9)">Rotas MEEX XPT</button>
+  <button class="sidebar-item" id="tabBtn8" onclick="switchTab(8)">Rotas SPA1 Extra</button>
+  <button class="sidebar-item" id="tabBtn9" onclick="switchTab(9)">Rotas XPT Extra</button>
   <div class="sidebar-footer">Desenvolvedor: OTR Ezequiel Miranda</div>
 </nav>
 
@@ -3968,6 +3968,9 @@ const AMB_SOLIC_MLP_OPCOES = ['BRJ', 'DHL', 'JL CASTRO', 'RODACOOP', 'BRJTranspo
 const AMB_SOLIC_PERFIL_OPCOES = ['Utilitário Localiza 2025', 'Utilitário TKS 2025', 'Utilitarios', 'Utilitários SDD', 'Utilitários Spot Kangu', 'Van', 'Van TKS 2025', 'Van Vamos 2026', 'Vuc', 'VUC dedicado com ajudante', 'Vuc LM 2026', 'Vuc SDD', 'Vuc TKS 2025', 'Vuc Vamos 2025', 'Yellow Pool Large Van – Equipe única'];
 const AMB_SOLIC_OTR_OPCOES = ['Elielson', 'Ezequiel', 'Fabricio', 'Francisco', 'Natalia', 'Nayara', 'Renan'];
 const AMB_SOLIC_FIREBASE_PATH = 'solicitacoesAmbulancia';
+const AMB_SOLIC_CUSTOM_OPTIONS_PATH = 'solicitacoesAmbulanciaOpcoesCustom';
+const AMB_SOLIC_ADD_NEW_VALUE = '__add_new__';
+let ambSolicCustomOptions = { mlp: [], facility: [], perfil: [], otr: [], motivo: {} };
 
 const AMB_SOLIC_FILTER_COLUMNS = [
   { key: 'data', label: 'Data' },
@@ -3982,47 +3985,85 @@ const AMB_SOLIC_FILTER_COLUMNS = [
 let ambSolicRows = [];
 let ambSolicFilters = {};
 
-function ambSolicPopulateSelects() {
-  const mlpSel = document.getElementById('solicMlp');
-  AMB_SOLIC_MLP_OPCOES.forEach(v => {
-    const opt = document.createElement('option');
-    opt.value = v; opt.textContent = v;
-    mlpSel.appendChild(opt);
-  });
+function ambSolicMotivoHint(valor) {
+  if (motivosAutorizados[valor] !== undefined) return motivosAutorizados[valor];
+  if (ambSolicCustomOptions.motivo && ambSolicCustomOptions.motivo[valor] !== undefined) return ambSolicCustomOptions.motivo[valor];
+  return '';
+}
 
-  const facSel = document.getElementById('solicFacility');
-  AMB_SOLIC_FACILITY_OPCOES.forEach(v => {
+function ambSolicFillSelect(selectEl, values, kind) {
+  values.forEach(v => {
     const opt = document.createElement('option');
     opt.value = v; opt.textContent = v;
-    facSel.appendChild(opt);
+    if (kind === 'motivo') opt.title = ambSolicMotivoHint(v);
+    selectEl.appendChild(opt);
   });
+  const addOpt = document.createElement('option');
+  addOpt.value = AMB_SOLIC_ADD_NEW_VALUE;
+  addOpt.textContent = '+ Adicionar nova opção...';
+  selectEl.appendChild(addOpt);
+  selectEl.addEventListener('change', () => ambSolicHandleSelectChange(selectEl, kind));
+}
 
-  const perfilSel = document.getElementById('solicPerfil');
-  AMB_SOLIC_PERFIL_OPCOES.forEach(v => {
-    const opt = document.createElement('option');
-    opt.value = v; opt.textContent = v;
-    perfilSel.appendChild(opt);
-  });
+async function ambSolicHandleSelectChange(selectEl, kind) {
+  if (selectEl.value !== AMB_SOLIC_ADD_NEW_VALUE) {
+    if (kind === 'motivo') {
+      const explicacao = ambSolicMotivoHint(selectEl.value);
+      document.getElementById('solicMotivoHint').textContent = explicacao;
+      selectEl.title = explicacao;
+    }
+    return;
+  }
 
-  const motivoSel = document.getElementById('solicMotivo');
-  Object.keys(motivosAutorizados).forEach(v => {
-    const opt = document.createElement('option');
-    opt.value = v; opt.textContent = v;
-    opt.title = motivosAutorizados[v];
-    motivoSel.appendChild(opt);
-  });
-  motivoSel.addEventListener('change', () => {
-    const explicacao = motivosAutorizados[motivoSel.value] || '';
+  const novoValor = window.prompt('Digite a nova opção:');
+  selectEl.value = '';
+  if (!novoValor || !novoValor.trim()) return;
+  const valor = novoValor.trim();
+
+  const jaExiste = Array.from(selectEl.options).some(o => o.value.toLowerCase() === valor.toLowerCase());
+  if (jaExiste) {
+    selectEl.value = valor;
+    selectEl.dispatchEvent(new Event('change'));
+    return;
+  }
+
+  let explicacao = '';
+  if (kind === 'motivo') {
+    explicacao = window.prompt('Explicação/hint para esse motivo (opcional):', '') || '';
+    ambSolicCustomOptions.motivo[valor] = explicacao;
+  } else {
+    ambSolicCustomOptions[kind].push(valor);
+  }
+
+  const opt = document.createElement('option');
+  opt.value = valor; opt.textContent = valor;
+  if (explicacao) opt.title = explicacao;
+  selectEl.insertBefore(opt, selectEl.lastElementChild);
+  selectEl.value = valor;
+  if (kind === 'motivo') {
     document.getElementById('solicMotivoHint').textContent = explicacao;
-    motivoSel.title = explicacao;
-  });
+    selectEl.title = explicacao;
+  }
 
-  const otrSel = document.getElementById('solicOtr');
-  AMB_SOLIC_OTR_OPCOES.forEach(v => {
-    const opt = document.createElement('option');
-    opt.value = v; opt.textContent = v;
-    otrSel.appendChild(opt);
-  });
+  const ok = await saveToCloud(AMB_SOLIC_CUSTOM_OPTIONS_PATH, ambSolicCustomOptions);
+  if (!ok) alert('Não foi possível salvar a nova opção na nuvem. Ela ficará disponível só nesta sessão.');
+}
+
+async function ambSolicPopulateSelects() {
+  const custom = (await loadFromCloud(AMB_SOLIC_CUSTOM_OPTIONS_PATH)) || {};
+  ambSolicCustomOptions = {
+    mlp: custom.mlp || [],
+    facility: custom.facility || [],
+    perfil: custom.perfil || [],
+    otr: custom.otr || [],
+    motivo: custom.motivo || {}
+  };
+
+  ambSolicFillSelect(document.getElementById('solicMlp'), AMB_SOLIC_MLP_OPCOES.concat(ambSolicCustomOptions.mlp), 'mlp');
+  ambSolicFillSelect(document.getElementById('solicFacility'), AMB_SOLIC_FACILITY_OPCOES.concat(ambSolicCustomOptions.facility), 'facility');
+  ambSolicFillSelect(document.getElementById('solicPerfil'), AMB_SOLIC_PERFIL_OPCOES.concat(ambSolicCustomOptions.perfil), 'perfil');
+  ambSolicFillSelect(document.getElementById('solicMotivo'), Object.keys(motivosAutorizados).concat(Object.keys(ambSolicCustomOptions.motivo)), 'motivo');
+  ambSolicFillSelect(document.getElementById('solicOtr'), AMB_SOLIC_OTR_OPCOES.concat(ambSolicCustomOptions.otr), 'otr');
 
   const dataInput = document.getElementById('solicData');
   const hoje = new Date();
