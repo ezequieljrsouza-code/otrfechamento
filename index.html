@@ -423,6 +423,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
+  /* Toggle "Rotas do dia" / "Histórico" dentro da mesma aba (em vez de abas
+     separadas na sidebar para cada histórico). */
+  .subview-toggle { display: flex; gap: 6px; margin: 0 0 16px; }
+  .subview-btn {
+    background: #fff;
+    border: 1px solid #d8dae8;
+    color: #5a5f7a;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .subview-btn:hover { background: #FFFBE0; }
+  .subview-btn.active { background: #2d3277; border-color: #2d3277; color: #fff; }
+  .subview { display: none; }
+  .subview.active { display: block; }
   .page-title {
     max-width: 1300px;
     margin: 0 0 14px;
@@ -803,16 +820,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 <nav class="sidebar" id="sidebar">
   <button class="sidebar-item active" id="tabBtn1" onclick="switchTab(1)">Rota &gt; 12h</button>
-  <button class="sidebar-item" id="tabBtn2" onclick="switchTab(2)">Rotas MEEXs NEX</button>
   <button class="sidebar-item" id="tabBtn3" onclick="switchTab(3)">DS_ORHC</button>
   <button class="sidebar-item" id="tabBtn4" onclick="switchTab(4)">Ambulância</button>
   <button class="sidebar-item" id="tabBtn5" onclick="switchTab(5)">Estratificar Rotas LM</button>
   <button class="sidebar-item" id="tabBtn6" onclick="switchTab(6)">Histórico Ambulância</button>
   <button class="sidebar-item" id="tabBtn7" onclick="switchTab(7)">Solicitações Ambulância</button>
-  <button class="sidebar-item" id="tabBtn8" onclick="switchTab(8)">Rotas SPA1 Extra</button>
-  <button class="sidebar-item" id="tabBtn9" onclick="switchTab(9)">Rotas XPT Extra</button>
-  <button class="sidebar-item" id="tabBtn10" onclick="switchTab(10)">Histórico SPA1 Extra</button>
-  <button class="sidebar-item" id="tabBtn11" onclick="switchTab(11)">Histórico XPT Extra</button>
+  <button class="sidebar-item" id="tabBtn8" onclick="switchTab(8)">Rotas MEEX SPA1</button>
+  <button class="sidebar-item" id="tabBtn9" onclick="switchTab(9)">Rotas MEEX XPT</button>
+  <button class="sidebar-item" id="tabBtn2" onclick="switchTab(2)">Rotas MEEX NEX</button>
   <div class="sidebar-footer">Desenvolvedor: OTR Ezequiel Miranda</div>
 </nav>
 
@@ -962,6 +977,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 <div id="tab-panel-2" class="tab-panel">
 
+<div class="subview-toggle">
+  <button type="button" class="subview-btn active" id="meexViewHojeBtn" onclick="switchSubView('meex','hoje')">Rotas do dia</button>
+  <button type="button" class="subview-btn" id="meexViewHistBtn" onclick="switchSubView('meex','hist')">Histórico</button>
+</div>
+
+<div id="meexViewHoje" class="subview active">
+
 <div class="paste-area">
   <textarea id="meexPasteInput" placeholder="Cole aqui o conteúdo copiado das rotas NEX..."></textarea>
   <div class="paste-actions">
@@ -982,26 +1004,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
-      <col style="width:12%"><col style="width:12%"><col style="width:9%">
-      <col style="width:9%"><col style="width:10%">
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+      <col style="width:11%"><col style="width:11%"><col style="width:8%">
+      <col style="width:8%"><col style="width:9%"><col style="width:8%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="9">Gestão de Rotas ME Extras</th>
+      <th colspan="10">Gestão de Rotas ME Extras</th>
     </tr>
     <tr class="head-row" id="headRowMeex">
-      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th>
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th><th>Pendente Devolução</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:18%">
-        <col style="width:12%"><col style="width:12%"><col style="width:9%">
-        <col style="width:9%"><col style="width:10%">
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+        <col style="width:11%"><col style="width:11%"><col style="width:8%">
+        <col style="width:8%"><col style="width:9%"><col style="width:8%">
       </colgroup>
       <tbody id="bodyMeexNex">
-        <tr><td colspan="9" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
+        <tr><td colspan="10" class="empty-hint">Cole o conteúdo acima e clique em "Gerar tabela"</td></tr>
       </tbody>
     </table>
   </div>
@@ -1014,6 +1036,63 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <button id="copyMeexReportBtn" disabled>Copiar report</button>
   </div>
   <div class="report-line" id="meexReportBox">Gere a tabela acima para ver o report automático.</div>
+</div>
+
+</div>
+
+<div id="meexViewHist" class="subview">
+
+<div class="toolbar">
+  <div class="amb-hist-datepick">
+    <label for="meexHistDate">Data:</label>
+    <input type="date" id="meexHistDate">
+  </div>
+  <button type="button" class="file-btn sync-btn" id="meexHistTodayBtn">Hoje</button>
+  <select id="meexHistDateSelect" class="amb-hist-select">
+    <option value="">Datas com histórico...</option>
+  </select>
+  <button id="printMeexHistBtn" class="btn-print">PRINT</button>
+  <button id="downloadMeexHistBtn" disabled>Baixar CSV</button>
+  <span id="meexHistStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+</div>
+
+<div id="captureAreaMeexHist">
+<div class="dsorhc-cards-row" id="meexHistCards"></div>
+
+<div class="ambulancia-filterbar" id="meexHistFilterBar">
+  <span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>
+</div>
+
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+      <col style="width:11%"><col style="width:11%"><col style="width:8%">
+      <col style="width:8%"><col style="width:9%"><col style="width:8%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="9">Histórico Rotas MEEX NEX</th>
+      <th class="total-cell" id="totalMeexHist">Total: 0</th>
+    </tr>
+    <tr class="head-row" id="headRowMeexHist">
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th><th>Pendente Devolução</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+        <col style="width:11%"><col style="width:11%"><col style="width:8%">
+        <col style="width:8%"><col style="width:9%"><col style="width:8%">
+      </colgroup>
+      <tbody id="bodyMeexHist">
+        <tr><td colspan="10" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
 </div>
 
 </div>
@@ -1348,6 +1427,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 <div id="tab-panel-8" class="tab-panel">
 
+<div class="subview-toggle">
+  <button type="button" class="subview-btn active" id="spa1ViewHojeBtn" onclick="switchSubView('spa1','hoje')">Rotas do dia</button>
+  <button type="button" class="subview-btn" id="spa1ViewHistBtn" onclick="switchSubView('spa1','hist')">Histórico</button>
+</div>
+
+<div id="spa1ViewHoje" class="subview active">
+
 <div class="paste-area">
   <textarea id="spa1PasteInput" placeholder="Cole aqui o conteúdo copiado das rotas Extra do SPA1..."></textarea>
   <div class="paste-actions">
@@ -1404,7 +1490,71 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 </div>
 
+<div id="spa1ViewHist" class="subview">
+
+<div class="toolbar">
+  <div class="amb-hist-datepick">
+    <label for="spa1HistDate">Data:</label>
+    <input type="date" id="spa1HistDate">
+  </div>
+  <button type="button" class="file-btn sync-btn" id="spa1HistTodayBtn">Hoje</button>
+  <select id="spa1HistDateSelect" class="amb-hist-select">
+    <option value="">Datas com histórico...</option>
+  </select>
+  <button id="printSpa1HistBtn" class="btn-print">PRINT</button>
+  <button id="downloadSpa1HistBtn" disabled>Baixar CSV</button>
+  <span id="spa1HistStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
+</div>
+
+<div id="captureAreaSpa1Hist">
+<div class="dsorhc-cards-row" id="spa1HistCards"></div>
+
+<div class="ambulancia-filterbar" id="spa1HistFilterBar">
+  <span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>
+</div>
+
+<div class="single-panel">
+  <table>
+    <colgroup>
+      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+      <col style="width:11%"><col style="width:11%"><col style="width:8%">
+      <col style="width:8%"><col style="width:9%"><col style="width:8%">
+    </colgroup>
+    <tr class="title-row">
+      <th colspan="9">Histórico Rotas SPA1 Extra</th>
+      <th class="total-cell" id="totalSpa1Hist">Total: 0</th>
+    </tr>
+    <tr class="head-row" id="headRowSpa1Hist">
+      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th><th>Pendente Devolução</th>
+    </tr>
+  </table>
+  <div class="scroll-full">
+    <table>
+      <colgroup>
+        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
+        <col style="width:11%"><col style="width:11%"><col style="width:8%">
+        <col style="width:8%"><col style="width:9%"><col style="width:8%">
+      </colgroup>
+      <tbody id="bodySpa1Hist">
+        <tr><td colspan="10" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+</div>
+
+</div>
+
 <div id="tab-panel-9" class="tab-panel">
+
+<div class="subview-toggle">
+  <button type="button" class="subview-btn active" id="xptViewHojeBtn" onclick="switchSubView('xpt','hoje')">Rotas do dia</button>
+  <button type="button" class="subview-btn" id="xptViewHistBtn" onclick="switchSubView('xpt','hist')">Histórico</button>
+</div>
+
+<div id="xptViewHoje" class="subview active">
 
 <div class="paste-area">
   <textarea id="xptPasteInput" placeholder="Cole aqui o conteúdo copiado das rotas Extra do XPT..."></textarea>
@@ -1462,62 +1612,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 </div>
 
-<div id="tab-panel-10" class="tab-panel">
-
-<div class="toolbar">
-  <div class="amb-hist-datepick">
-    <label for="spa1HistDate">Data:</label>
-    <input type="date" id="spa1HistDate">
-  </div>
-  <button type="button" class="file-btn sync-btn" id="spa1HistTodayBtn">Hoje</button>
-  <select id="spa1HistDateSelect" class="amb-hist-select">
-    <option value="">Datas com histórico...</option>
-  </select>
-  <button id="printSpa1HistBtn" class="btn-print">PRINT</button>
-  <button id="downloadSpa1HistBtn" disabled>Baixar CSV</button>
-  <span id="spa1HistStatusMsg" style="font-size:12.5px;color:#a32d2d;"></span>
-</div>
-
-<div id="captureAreaSpa1Hist">
-<div class="dsorhc-cards-row" id="spa1HistCards"></div>
-
-<div class="ambulancia-filterbar" id="spa1HistFilterBar">
-  <span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>
-</div>
-
-<div class="single-panel">
-  <table>
-    <colgroup>
-      <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
-      <col style="width:11%"><col style="width:11%"><col style="width:8%">
-      <col style="width:8%"><col style="width:9%"><col style="width:8%">
-    </colgroup>
-    <tr class="title-row">
-      <th colspan="9">Histórico Rotas SPA1 Extra</th>
-      <th class="total-cell" id="totalSpa1Hist">Total: 0</th>
-    </tr>
-    <tr class="head-row" id="headRowSpa1Hist">
-      <th>Rota_ID</th><th>Data_Rota</th><th>ID_Driver</th><th>Motorista</th><th>Facility</th><th>ID_Facility</th><th>Entregues</th><th>Insucessos</th><th>Pendentes</th><th>Pendente Devolução</th>
-    </tr>
-  </table>
-  <div class="scroll-full">
-    <table>
-      <colgroup>
-        <col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:15%">
-        <col style="width:11%"><col style="width:11%"><col style="width:8%">
-        <col style="width:8%"><col style="width:9%"><col style="width:8%">
-      </colgroup>
-      <tbody id="bodySpa1Hist">
-        <tr><td colspan="10" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-</div>
-
-</div>
-
-<div id="tab-panel-11" class="tab-panel">
+<div id="xptViewHist" class="subview">
 
 <div class="toolbar">
   <div class="amb-hist-datepick">
@@ -1568,6 +1663,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </table>
   </div>
 </div>
+</div>
+
 </div>
 
 </div>
@@ -2127,8 +2224,6 @@ function switchTab(n) {
   document.getElementById('tab-panel-7').classList.toggle('active', n === 7);
   document.getElementById('tab-panel-8').classList.toggle('active', n === 8);
   document.getElementById('tab-panel-9').classList.toggle('active', n === 9);
-  document.getElementById('tab-panel-10').classList.toggle('active', n === 10);
-  document.getElementById('tab-panel-11').classList.toggle('active', n === 11);
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
   document.getElementById('tabBtn3').classList.toggle('active', n === 3);
@@ -2138,20 +2233,34 @@ function switchTab(n) {
   document.getElementById('tabBtn7').classList.toggle('active', n === 7);
   document.getElementById('tabBtn8').classList.toggle('active', n === 8);
   document.getElementById('tabBtn9').classList.toggle('active', n === 9);
-  document.getElementById('tabBtn10').classList.toggle('active', n === 10);
-  document.getElementById('tabBtn11').classList.toggle('active', n === 11);
   if (n === 6 && !ambHistInitialized) {
     ambHistInitialized = true;
     ambHistPopulateDateSelect();
     ambHistLoadDate(ambHistDateKey());
   }
-  if (n === 10) spa1HistFeature.init();
-  if (n === 11) xptHistFeature.init();
 }
 
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('collapsed');
   document.getElementById('mainContent').classList.toggle('full');
+}
+
+// Alterna, dentro da mesma aba, entre "Rotas do dia" (colar/subir CSV +
+// tabela do dia) e "Histórico" (SPA1/XPT/MEEX NEX) — evita ter uma aba extra
+// na sidebar só pra cada histórico. `prefix` casa com os ids View*Hoje/Hist,
+// View*HojeBtn/HistBtn e com o *HistFeature correspondente.
+const SUBVIEW_HIST_FEATURES = {
+  spa1: () => spa1HistFeature,
+  xpt: () => xptHistFeature,
+  meex: () => meexHistFeature
+};
+
+function switchSubView(prefix, view) {
+  document.getElementById(prefix + 'ViewHoje').classList.toggle('active', view === 'hoje');
+  document.getElementById(prefix + 'ViewHist').classList.toggle('active', view === 'hist');
+  document.getElementById(prefix + 'ViewHojeBtn').classList.toggle('active', view === 'hoje');
+  document.getElementById(prefix + 'ViewHistBtn').classList.toggle('active', view === 'hist');
+  if (view === 'hist') SUBVIEW_HIST_FEATURES[prefix]().init();
 }
 
 // ===== Rotas MEEXs NEX (paste parser) =====
@@ -2366,18 +2475,20 @@ function generateMeexTable() {
     statusEl.textContent = 'Aviso: algumas rotas podem não ter sido reconhecidas corretamente (verifique a formatação colada).';
   }
 
-  currentMeexRows = aplicarContatosEmRows(rows);
+  const rowsComFlags = preservePendenteFlags(rows, currentMeexRows);
+  currentMeexRows = aplicarContatosEmRows(rowsComFlags);
   resetSort('headRowMeex');
   renderMeexRows(currentMeexRows);
-  renderMeexReport(rows);
-  renderMeexCardGroup(rows);
+  renderMeexReport(rowsComFlags);
+  renderMeexCardGroup(rowsComFlags);
   document.getElementById('copyMeexReportBtn').disabled = false;
 
-  saveToCloud('rotasMeexNex', rows).then(ok => {
+  saveToCloud('rotasMeexNex', rowsComFlags).then(ok => {
     if (!ok) {
       statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
     }
   });
+  meexHistFeature.saveSnapshot(currentMeexRows);
 }
 
 function buildMeexCards(rows) {
@@ -2423,15 +2534,26 @@ function renderMeexRows(rows) {
   const body = document.getElementById('bodyMeexNex');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="9" class="empty-hint">Nenhuma rota encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="10" class="empty-hint">Nenhuma rota encontrada</td></tr>';
     return;
   }
   rows.forEach(r => {
     const tr = document.createElement('tr');
+    if (r.pendenteDevolucao) tr.className = 'row-pendente-devolucao';
     const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
-    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
+    const pendDevolCell = `<td class="pend-devol-cell"><input type="checkbox" ${r.pendenteDevolucao ? 'checked' : ''} onchange="toggleMeexPendente('${r.rota_id}', this.checked)"></td>`;
+    tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}${pendDevolCell}`;
     body.appendChild(tr);
   });
+}
+
+function toggleMeexPendente(rotaId, checked) {
+  const row = currentMeexRows.find(r => r.rota_id === rotaId);
+  if (!row) return;
+  row.pendenteDevolucao = checked;
+  renderMeexRows(currentMeexRows);
+  saveToCloud('rotasMeexNex', currentMeexRows);
+  meexHistFeature.saveSnapshot(currentMeexRows);
 }
 
 function renderMeexReport(rows) {
@@ -2509,18 +2631,20 @@ function processMeexCsv(header, dataLines) {
         return;
       }
 
-      currentMeexRows = aplicarContatosEmRows(rows);
+      const rowsComFlags = preservePendenteFlags(rows, currentMeexRows);
+      currentMeexRows = aplicarContatosEmRows(rowsComFlags);
       resetSort('headRowMeex');
       renderMeexRows(currentMeexRows);
-      renderMeexReport(rows);
-      renderMeexCardGroup(rows);
+      renderMeexReport(rowsComFlags);
+      renderMeexCardGroup(rowsComFlags);
       document.getElementById('copyMeexReportBtn').disabled = false;
 
-      saveToCloud('rotasMeexNex', rows).then(ok => {
+      saveToCloud('rotasMeexNex', rowsComFlags).then(ok => {
         if (!ok) {
           statusEl.textContent = 'Tabela gerada, mas não foi possível salvar na nuvem.';
         }
       });
+      meexHistFeature.saveSnapshot(currentMeexRows);
 }
 
 // ===== Rotas SPA1 Extra (mesma lógica da aba Rotas MEEXs NEX, mas para
@@ -3254,6 +3378,27 @@ function createRouteHistoryFeature(cfg) {
     return wrap;
   }
 
+  // Persiste o estado atual de state.rows na data que está sendo vista no
+  // histórico (não necessariamente hoje) — usado ao alternar manualmente o
+  // "Pendente Devolução" de um dia anterior, ex.: motorista devolveu depois.
+  function persistStateRows() {
+    const dateKey = state.selectedDate || routeHistDateKey();
+    const payload = { rows: state.rows, savedAt: new Date().toISOString() };
+    const all = getAllLocal();
+    all[dateKey] = payload;
+    try { localStorage.setItem(cfg.localStorageKey, JSON.stringify(all)); } catch (err) {}
+    saveToCloud(cfg.cloudPath + '/' + dateKey, payload);
+  }
+
+  function toggleHistPendente(rotaId, checked) {
+    const row = state.rows.find(r => r.rota_id === rotaId);
+    if (!row) return;
+    row.pendenteDevolucao = checked;
+    row.pendenteLabel = checked ? 'Sim' : 'Não';
+    applyFilters();
+    persistStateRows();
+  }
+
   function renderTable(rows) {
     const body = document.getElementById(cfg.tableBodyId);
     body.innerHTML = '';
@@ -3264,7 +3409,15 @@ function createRouteHistoryFeature(cfg) {
         const tr = document.createElement('tr');
         if (r.pendenteDevolucao) tr.className = 'row-pendente-devolucao';
         const pendCell = r.pendentes > 0 ? `<td class="pend-alert">${r.pendentes}</td>` : `<td>${r.pendentes}</td>`;
-        tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}<td>${r.pendenteDevolucao ? 'Sim' : '-'}</td>`;
+        tr.innerHTML = `<td>${r.rota_id}</td><td>${r.data_rota}</td><td>${r.id_driver || '-'}</td>${motoristaCellHtml(r)}<td>${r.facility}</td><td>${r.id_facility}</td><td>${r.entregues}</td><td>${r.insucessos}</td>${pendCell}`;
+        const pendDevolTd = document.createElement('td');
+        pendDevolTd.className = 'pend-devol-cell';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!r.pendenteDevolucao;
+        cb.addEventListener('change', () => toggleHistPendente(r.rota_id, cb.checked));
+        pendDevolTd.appendChild(cb);
+        tr.appendChild(pendDevolTd);
         body.appendChild(tr);
       });
     }
@@ -3359,6 +3512,16 @@ const xptHistFeature = createRouteHistoryFeature({
   cardsContainerId: 'xptHistCards', filterBarId: 'xptHistFilterBar', tableBodyId: 'bodyXptHist',
   totalCellId: 'totalXptHist', headRowId: 'headRowXptHist', captureAreaId: 'captureAreaXptHist',
   emptyColspan: 10, buildCards: buildXptCards, fileNamePrefix: 'xpt_historico'
+});
+
+const meexHistFeature = createRouteHistoryFeature({
+  localStorageKey: 'rotasMeexNexHistory',
+  cloudPath: 'rotasMeexNexHistory',
+  dateInputId: 'meexHistDate', todayBtnId: 'meexHistTodayBtn', dateSelectId: 'meexHistDateSelect',
+  printBtnId: 'printMeexHistBtn', downloadBtnId: 'downloadMeexHistBtn', statusId: 'meexHistStatusMsg',
+  cardsContainerId: 'meexHistCards', filterBarId: 'meexHistFilterBar', tableBodyId: 'bodyMeexHist',
+  totalCellId: 'totalMeexHist', headRowId: 'headRowMeexHist', captureAreaId: 'captureAreaMeexHist',
+  emptyColspan: 10, buildCards: buildMeexCards, fileNamePrefix: 'meex_nex_historico'
 });
 
 // ===== DS_ORHC (Gestão de Aderências nos Indicadores: ORH | DS) =====
