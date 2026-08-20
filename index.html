@@ -4436,16 +4436,36 @@ function ambHistGetAllLocal() {
   try { return JSON.parse(localStorage.getItem('ambulanciaHistory') || '{}'); } catch (err) { return {}; }
 }
 
-function saveAmbulanciaHistorySnapshot(rows, totalRoutes) {
+async function saveAmbulanciaHistorySnapshot(rows, totalRoutes) {
   const key = ambHistDateKey();
   const all = ambHistGetAllLocal();
-  const previous = all[key];
+  const localPrevious = all[key];
+  // Busca também a versão da nuvem antes de mesclar: se outra máquina salvou
+  // um MOTIVO mais recente do que o que está no cache local desta máquina
+  // (ex.: fez o upload da aba Ambulância sem antes reabrir o Histórico hoje),
+  // mesclar só com `localPrevious` reintroduziria o snapshot antigo e
+  // apagaria da nuvem o que a outra máquina acabou de gravar.
+  const cloudPrevious = await loadFromCloud('ambulanciaHistory/' + key);
+  const previous = (cloudPrevious && (!localPrevious || new Date(cloudPrevious.savedAt || 0) > new Date(localPrevious.savedAt || 0)))
+    ? cloudPrevious
+    : localPrevious;
+  let mergedRows = rows;
   if (previous && Array.isArray(previous.rows)) {
     const justByRota = {};
     previous.rows.forEach(r => { const v = r.MOTIVO || r.justificativa; if (v) justByRota[r.id_rota] = v; });
     rows.forEach(r => { if (justByRota[r.id_rota]) r.MOTIVO = justByRota[r.id_rota]; });
+
+    // Rotas do snapshot anterior que saíram da lista ao vivo neste novo
+    // upload (chegaram ao destino / ganharam cluster, então o parser de
+    // cima nem as inclui em `rows`) entram aqui pra não sumir do histórico
+    // do dia — e junto com elas, o MOTIVO que já tinha sido preenchido.
+    // Antes disso o snapshot do dia era sobrescrito a cada upload e essas
+    // rotas (com MOTIVO e tudo) desapareciam silenciosamente.
+    const seenIds = new Set(rows.map(r => r.id_rota));
+    const carriedOver = previous.rows.filter(r => !seenIds.has(r.id_rota));
+    mergedRows = rows.concat(carriedOver);
   }
-  const payload = { rows: rows, totalRoutes: totalRoutes, savedAt: new Date().toISOString() };
+  const payload = { rows: mergedRows, totalRoutes: totalRoutes, savedAt: new Date().toISOString() };
   all[key] = payload;
   try { localStorage.setItem('ambulanciaHistory', JSON.stringify(all)); } catch (err) {}
   saveToCloud('ambulanciaHistory/' + key, payload);
