@@ -415,6 +415,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   .chart-card .chart-wrap.chart-wrap-tall {
     height: 290px;
   }
+  .chart-card .chart-wrap.chart-wrap-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .chart-card .chart-wrap.chart-wrap-scroll .chart-inner {
+    position: relative;
+    width: 100%;
+  }
   .sidebar-item {
     display: flex;
     align-items: center;
@@ -1414,11 +1422,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="charts-grid">
     <div class="chart-card">
       <h4>Ambulâncias por Facility</h4>
-      <div class="chart-wrap chart-wrap-tall"><canvas id="chartAmbDashFacility"></canvas></div>
+      <div class="chart-wrap chart-wrap-tall chart-wrap-scroll"><div class="chart-inner" id="chartAmbDashFacilityInner"><canvas id="chartAmbDashFacility"></canvas></div></div>
     </div>
     <div class="chart-card">
       <h4>Ambulâncias por MLP</h4>
-      <div class="chart-wrap chart-wrap-tall"><canvas id="chartAmbDashMlp"></canvas></div>
+      <div class="chart-wrap chart-wrap-tall chart-wrap-scroll"><div class="chart-inner" id="chartAmbDashMlpInner"><canvas id="chartAmbDashMlp"></canvas></div></div>
     </div>
     <div class="chart-card">
       <h4>MOTIVO</h4>
@@ -5028,6 +5036,7 @@ function renderAmbDashboard() {
 
   const facilityEntries = Object.entries(facilityCounts).sort((a, b) => b[1] - a[1]);
   if (chartAmbDashFacility) chartAmbDashFacility.destroy();
+  document.getElementById('chartAmbDashFacilityInner').style.height = Math.max(290, facilityEntries.length * 20) + 'px';
   chartAmbDashFacility = new Chart(document.getElementById('chartAmbDashFacility'), {
     type: 'bar',
     data: {
@@ -5040,11 +5049,12 @@ function renderAmbDashboard() {
       maintainAspectRatio: false,
       layout: { padding: { right: 28 } },
       plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 10 } } } }
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 10 }, autoSkip: false } } }
     }
   });
 
   if (chartAmbDashMlp) chartAmbDashMlp.destroy();
+  document.getElementById('chartAmbDashMlpInner').style.height = Math.max(290, mlpEntries.length * 20) + 'px';
   chartAmbDashMlp = new Chart(document.getElementById('chartAmbDashMlp'), {
     type: 'bar',
     data: {
@@ -5057,7 +5067,7 @@ function renderAmbDashboard() {
       maintainAspectRatio: false,
       layout: { padding: { right: 28 } },
       plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 10 } } } }
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 10 }, autoSkip: false } } }
     }
   });
 
