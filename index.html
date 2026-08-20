@@ -4082,6 +4082,7 @@ function processAmbulanciaCsv(header, dataLines) {
 function normalizeAmbulanciaRow(r) {
   if (r.perfil === undefined) r.perfil = r.vehicleDescriptionForFilter || '-';
   if (r.motorista === undefined) r.motorista = '-';
+  if (!r.MOTIVO && r.justificativa) r.MOTIVO = r.justificativa;
   return r;
 }
 
@@ -4416,7 +4417,7 @@ function saveAmbulanciaHistorySnapshot(rows, totalRoutes) {
   const previous = all[key];
   if (previous && Array.isArray(previous.rows)) {
     const justByRota = {};
-    previous.rows.forEach(r => { if (r.MOTIVO) justByRota[r.id_rota] = r.MOTIVO; });
+    previous.rows.forEach(r => { const v = r.MOTIVO || r.justificativa; if (v) justByRota[r.id_rota] = v; });
     rows.forEach(r => { if (justByRota[r.id_rota]) r.MOTIVO = justByRota[r.id_rota]; });
   }
   const payload = { rows: rows, totalRoutes: totalRoutes, savedAt: new Date().toISOString() };
