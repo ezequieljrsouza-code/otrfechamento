@@ -1344,7 +1344,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <th class="total-cell" id="totalAmbHist">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowAmbHist">
-      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>MOTORISTA</th><th>PERFIL VEÍCULO</th><th>DATA</th><th>JUSTIFICATIVA</th>
+      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>MOTORISTA</th><th>PERFIL VEÍCULO</th><th>DATA</th><th>MOTIVO</th>
     </tr>
   </table>
   <div class="scroll-full">
@@ -1403,7 +1403,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="kpi-value" id="ambDashKpiRetorno">0</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Sem Justificativa</div>
+      <div class="kpi-label">Sem MOTIVO</div>
       <div class="kpi-value" id="ambDashKpiSemJust">0</div>
     </div>
     <div class="kpi-card">
@@ -1421,8 +1421,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="chart-wrap chart-wrap-tall"><canvas id="chartAmbDashMlp"></canvas></div>
     </div>
     <div class="chart-card">
-      <h4>Justificativa</h4>
-      <div class="chart-wrap"><canvas id="chartAmbDashJust"></canvas></div>
+      <h4>MOTIVO</h4>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="chartAmbDashJust"></canvas></div>
     </div>
     <div class="chart-card" style="grid-column: span 2;">
       <h4>Distribuição por Horário de Acionamento</h4>
@@ -4389,7 +4389,8 @@ const AMB_HIST_FILTER_COLUMNS = [
   { key: 'mlp', label: 'MLP' },
   { key: 'motorista', label: 'Motorista' },
   { key: 'perfil', label: 'Perfil Veículo' },
-  { key: 'status', label: 'Status' }
+  { key: 'status', label: 'Status' },
+  { key: 'MOTIVO', label: 'MOTIVO' }
 ];
 
 function ambHistDateKey(d) {
@@ -4415,8 +4416,8 @@ function saveAmbulanciaHistorySnapshot(rows, totalRoutes) {
   const previous = all[key];
   if (previous && Array.isArray(previous.rows)) {
     const justByRota = {};
-    previous.rows.forEach(r => { if (r.justificativa) justByRota[r.id_rota] = r.justificativa; });
-    rows.forEach(r => { if (justByRota[r.id_rota]) r.justificativa = justByRota[r.id_rota]; });
+    previous.rows.forEach(r => { if (r.MOTIVO) justByRota[r.id_rota] = r.MOTIVO; });
+    rows.forEach(r => { if (justByRota[r.id_rota]) r.MOTIVO = justByRota[r.id_rota]; });
   }
   const payload = { rows: rows, totalRoutes: totalRoutes, savedAt: new Date().toISOString() };
   all[key] = payload;
@@ -4782,10 +4783,10 @@ function renderAmbHistTable(rows) {
       const input = document.createElement('input');
       input.type = 'text';
       input.className = 'amb-just-input';
-      input.placeholder = 'Adicionar justificativa...';
-      input.value = r.justificativa || '';
+      input.placeholder = 'Adicionar MOTIVO...';
+      input.value = r.MOTIVO || '';
       let saveTimer = null;
-      const doSave = () => ambHistSaveJustificativa(r, input.value);
+      const doSave = () => ambHistSaveMOTIVO(r, input.value);
       input.addEventListener('input', () => {
         clearTimeout(saveTimer);
         saveTimer = setTimeout(doSave, 700);
@@ -4806,15 +4807,15 @@ function ambHistRowDateKey(row) {
   return row.__srcDate || ambHistSelectedDate;
 }
 
-async function ambHistSaveJustificativa(row, value) {
-  row.justificativa = value;
+async function ambHistSaveMOTIVO(row, value) {
+  row.MOTIVO = value;
   const dateKey = ambHistRowDateKey(row);
   if (!dateKey) return;
   const all = ambHistGetAllLocal();
   const payload = all[dateKey];
   if (!payload || !Array.isArray(payload.rows)) return;
   const idx = payload.rows.findIndex(x => x.id_rota === row.id_rota);
-  if (idx !== -1) payload.rows[idx].justificativa = value;
+  if (idx !== -1) payload.rows[idx].MOTIVO = value;
   payload.savedAt = new Date().toISOString();
   all[dateKey] = payload;
   try { localStorage.setItem('ambulanciaHistory', JSON.stringify(all)); } catch (err) {}
@@ -4895,7 +4896,7 @@ function ambDataSortKey(dataBr) {
 function downloadAmbHistCsv() {
   if (ambHistRows.length === 0) return;
   const rows = ambHistDedupeRows(getAmbHistFilteredRows());
-  const headers = ['id', 'cluster', 'initDate', 'facilityId', 'MLP', 'serviceCenterId', 'status', 'driver.driverName', 'vehicleDescriptionForFilter', 'destinationFacility.destinationFacilityId', 'Justificativa'];
+  const headers = ['id', 'cluster', 'initDate', 'facilityId', 'MLP', 'serviceCenterId', 'status', 'driver.driverName', 'vehicleDescriptionForFilter', 'destinationFacility.destinationFacilityId', 'MOTIVO'];
   const lines = [headers.join(';')];
   rows.forEach(r => {
     lines.push([
@@ -4909,7 +4910,7 @@ function downloadAmbHistCsv() {
       r.motorista,
       r.vehicleDescriptionForFilter,
       r.destinationFacilityId,
-      r.justificativa
+      r.MOTIVO
     ].map(csvEscapeField).join(';'));
   });
   const csvContent = String.fromCharCode(0xFEFF) + lines.join('\r\n');
@@ -4957,9 +4958,9 @@ function renderAmbDashboard() {
     const mlp = r.mlp || '(vazio)';
     mlpCounts[mlp] = (mlpCounts[mlp] || 0) + 1;
 
-    const just = (r.justificativa || '').trim();
+    const just = (r.MOTIVO || '').trim();
     if (!just) semJust++;
-    const justKey = just || 'Sem justificativa';
+    const justKey = just || 'Sem MOTIVO';
     justCounts[justKey] = (justCounts[justKey] || 0) + 1;
 
     const timePart = (r.initDate || '').split(' ')[1];
@@ -5971,7 +5972,7 @@ makeSortable('headRowAmbulancia',
 );
 
 makeSortable('headRowAmbHist',
-  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => r.motorista, r => r.perfil, r => ambDataSortKey(r.data), r => r.justificativa || ''],
+  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => r.motorista, r => r.perfil, r => ambDataSortKey(r.data), r => r.MOTIVO || ''],
   () => getAmbHistFilteredRows(),
   renderAmbHistTable
 );
