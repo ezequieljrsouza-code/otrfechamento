@@ -383,12 +383,24 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     gap: 12px;
     flex-wrap: wrap;
   }
+  .charts-row + .charts-row {
+    margin-top: 12px;
+  }
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
   .chart-card {
     flex: 1;
     min-width: 240px;
     background: #fff;
     border-radius: 8px;
     padding: 10px 12px;
+  }
+  @media (max-width: 760px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .charts-grid .chart-card { grid-column: span 1 !important; }
   }
   .chart-card h4 {
     margin: 0 0 4px;
@@ -399,6 +411,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   .chart-card .chart-wrap {
     position: relative;
     height: 175px;
+  }
+  .chart-card .chart-wrap.chart-wrap-tall {
+    height: 290px;
   }
   .sidebar-item {
     display: flex;
@@ -675,6 +690,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     border-radius: 4px;
     margin-bottom: 6px;
   }
+  .amb-just-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 7px;
+    font-size: 12px;
+    font-family: inherit;
+    border: 1px solid #dfe1ee;
+    border-radius: 4px;
+    background: #fffbe0;
+    color: #1c1c1c;
+  }
+  .amb-just-input:focus {
+    outline: none;
+    border-color: #3483FA;
+    background: #fff;
+  }
   .amb-filter-actions {
     display: flex;
     justify-content: space-between;
@@ -824,6 +855,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <button class="sidebar-item" id="tabBtn4" onclick="switchTab(4)">Ambulância</button>
   <button class="sidebar-item" id="tabBtn5" onclick="switchTab(5)">Estratificar Rotas LM</button>
   <button class="sidebar-item" id="tabBtn6" onclick="switchTab(6)">Histórico Ambulância</button>
+  <button class="sidebar-item" id="tabBtn10" onclick="switchTab(10)">Dashboard Ambulância</button>
   <button class="sidebar-item" id="tabBtn7" onclick="switchTab(7)">Solicitações Ambulância</button>
   <button class="sidebar-item" id="tabBtn8" onclick="switchTab(8)">Rotas MEEX SPA1</button>
   <button class="sidebar-item" id="tabBtn9" onclick="switchTab(9)">Rotas MEEX XPT</button>
@@ -1270,8 +1302,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 <div class="toolbar">
   <div class="amb-hist-datepick">
-    <label for="ambHistDate">Data:</label>
+    <label for="ambHistDate">De:</label>
     <input type="date" id="ambHistDate">
+  </div>
+  <div class="amb-hist-datepick">
+    <label for="ambHistDateEnd">Até:</label>
+    <input type="date" id="ambHistDateEnd">
   </div>
   <button type="button" class="file-btn sync-btn" id="ambHistTodayBtn">Hoje</button>
   <select id="ambHistDateSelect" class="amb-hist-select">
@@ -1301,27 +1337,102 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="single-panel">
   <table>
     <colgroup>
-      <col style="width:12%"><col style="width:7%"><col style="width:12%"><col style="width:10%"><col style="width:12%"><col style="width:17%"><col style="width:18%"><col style="width:12%">
+      <col style="width:11%"><col style="width:6%"><col style="width:10%"><col style="width:9%"><col style="width:10%"><col style="width:15%"><col style="width:16%"><col style="width:10%"><col style="width:13%">
     </colgroup>
     <tr class="title-row">
-      <th colspan="7">Histórico Ambulância</th>
+      <th colspan="8">Histórico Ambulância</th>
       <th class="total-cell" id="totalAmbHist">Total: 0</th>
     </tr>
     <tr class="head-row" id="headRowAmbHist">
-      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>MOTORISTA</th><th>PERFIL VEÍCULO</th><th>DATA</th>
+      <th>ID ROTA</th><th>SPR</th><th>PLACA</th><th>FACILITY</th><th>MLP</th><th>MOTORISTA</th><th>PERFIL VEÍCULO</th><th>DATA</th><th>JUSTIFICATIVA</th>
     </tr>
   </table>
   <div class="scroll-full">
     <table>
       <colgroup>
-        <col style="width:12%"><col style="width:7%"><col style="width:12%"><col style="width:10%"><col style="width:12%"><col style="width:17%"><col style="width:18%"><col style="width:12%">
+        <col style="width:11%"><col style="width:6%"><col style="width:10%"><col style="width:9%"><col style="width:10%"><col style="width:15%"><col style="width:16%"><col style="width:10%"><col style="width:13%">
       </colgroup>
       <tbody id="bodyAmbHist">
-        <tr><td colspan="8" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
+        <tr><td colspan="9" class="empty-hint">Selecione uma data no calendário para ver o histórico</td></tr>
       </tbody>
     </table>
   </div>
 </div>
+</div>
+
+</div>
+
+<div id="tab-panel-10" class="tab-panel">
+
+<div class="toolbar">
+  <div class="amb-hist-datepick">
+    <label for="ambDashDate">De:</label>
+    <input type="date" id="ambDashDate">
+  </div>
+  <div class="amb-hist-datepick">
+    <label for="ambDashDateEnd">Até:</label>
+    <input type="date" id="ambDashDateEnd">
+  </div>
+  <button type="button" class="file-btn sync-btn" id="ambDashTodayBtn">Hoje</button>
+  <select id="ambDashDateSelect" class="amb-hist-select">
+    <option value="">Datas com histórico...</option>
+  </select>
+  <span id="ambDashStatusMsg" style="font-size:12.5px;color:#555;"></span>
+</div>
+
+<div class="ambulancia-filterbar" id="ambDashFilterBar">
+  <span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>
+</div>
+
+<div class="dashboard">
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Total de Ambulâncias</div>
+      <div class="kpi-value" id="ambDashKpiTotal">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Fechadas</div>
+      <div class="kpi-value" id="ambDashKpiFechadas">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ativas</div>
+      <div class="kpi-value" id="ambDashKpiAtivas">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Retorno à Base</div>
+      <div class="kpi-value" id="ambDashKpiRetorno">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Sem Justificativa</div>
+      <div class="kpi-value" id="ambDashKpiSemJust">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Principal MLP</div>
+      <div class="kpi-value" id="ambDashKpiMlp">-</div>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h4>Ambulâncias por Facility</h4>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="chartAmbDashFacility"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Ambulâncias por MLP</h4>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="chartAmbDashMlp"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Justificativa</h4>
+      <div class="chart-wrap"><canvas id="chartAmbDashJust"></canvas></div>
+    </div>
+    <div class="chart-card" style="grid-column: span 2;">
+      <h4>Distribuição por Horário de Acionamento</h4>
+      <div class="chart-wrap"><canvas id="chartAmbDashHora"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>Status das Rotas</h4>
+      <div class="chart-wrap"><canvas id="chartAmbDashStatus"></canvas></div>
+    </div>
+  </div>
 </div>
 
 </div>
@@ -2224,6 +2335,7 @@ function switchTab(n) {
   document.getElementById('tab-panel-7').classList.toggle('active', n === 7);
   document.getElementById('tab-panel-8').classList.toggle('active', n === 8);
   document.getElementById('tab-panel-9').classList.toggle('active', n === 9);
+  document.getElementById('tab-panel-10').classList.toggle('active', n === 10);
   document.getElementById('tabBtn1').classList.toggle('active', n === 1);
   document.getElementById('tabBtn2').classList.toggle('active', n === 2);
   document.getElementById('tabBtn3').classList.toggle('active', n === 3);
@@ -2233,11 +2345,13 @@ function switchTab(n) {
   document.getElementById('tabBtn7').classList.toggle('active', n === 7);
   document.getElementById('tabBtn8').classList.toggle('active', n === 8);
   document.getElementById('tabBtn9').classList.toggle('active', n === 9);
-  if (n === 6 && !ambHistInitialized) {
+  document.getElementById('tabBtn10').classList.toggle('active', n === 10);
+  if ((n === 6 || n === 10) && !ambHistInitialized) {
     ambHistInitialized = true;
     ambHistPopulateDateSelect();
     ambHistLoadDate(ambHistDateKey());
   }
+  if (n === 10) renderAmbDashboard();
 }
 
 function toggleSidebar() {
@@ -4297,46 +4411,99 @@ function ambHistGetAllLocal() {
 
 function saveAmbulanciaHistorySnapshot(rows, totalRoutes) {
   const key = ambHistDateKey();
-  const payload = { rows: rows, totalRoutes: totalRoutes, savedAt: new Date().toISOString() };
   const all = ambHistGetAllLocal();
+  const previous = all[key];
+  if (previous && Array.isArray(previous.rows)) {
+    const justByRota = {};
+    previous.rows.forEach(r => { if (r.justificativa) justByRota[r.id_rota] = r.justificativa; });
+    rows.forEach(r => { if (justByRota[r.id_rota]) r.justificativa = justByRota[r.id_rota]; });
+  }
+  const payload = { rows: rows, totalRoutes: totalRoutes, savedAt: new Date().toISOString() };
   all[key] = payload;
   try { localStorage.setItem('ambulanciaHistory', JSON.stringify(all)); } catch (err) {}
   saveToCloud('ambulanciaHistory/' + key, payload);
   if (ambHistInitialized) ambHistPopulateDateSelect();
 }
 
-document.getElementById('ambHistDate').max = ambHistDateKey();
-document.getElementById('ambHistDate').addEventListener('change', (e) => {
-  if (e.target.value) ambHistLoadDate(e.target.value);
+let ambHistSelectedEndDate = '';
+
+// IDs espelhados: "Histórico Ambulância" e "Dashboard Ambulância" compartilham o
+// mesmo seletor de data/intervalo — mudar em uma tela reflete na outra.
+const AMB_HIST_DATE_IDS = ['ambHistDate', 'ambDashDate'];
+const AMB_HIST_DATE_END_IDS = ['ambHistDateEnd', 'ambDashDateEnd'];
+const AMB_HIST_DATE_SELECT_IDS = ['ambHistDateSelect', 'ambDashDateSelect'];
+
+function ambHistSetDateValue(v) { AMB_HIST_DATE_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = v; }); }
+function ambHistSetDateEndValue(v) { AMB_HIST_DATE_END_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = v; }); }
+function ambHistSetDateSelectValue(v) { AMB_HIST_DATE_SELECT_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = v; }); }
+
+const todayKeyForMax = ambHistDateKey();
+AMB_HIST_DATE_IDS.concat(AMB_HIST_DATE_END_IDS).forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.max = todayKeyForMax;
 });
-document.getElementById('ambHistTodayBtn').addEventListener('click', () => ambHistLoadDate(ambHistDateKey()));
-document.getElementById('ambHistDateSelect').addEventListener('change', (e) => {
-  if (e.target.value) ambHistLoadDate(e.target.value);
+
+function ambHistTriggerLoad(start, end) {
+  ambHistSetDateValue(start);
+  ambHistSetDateEndValue(end);
+  if (!start) return;
+  if (end && end !== start) {
+    ambHistLoadRange(start, end);
+  } else {
+    ambHistLoadDate(start);
+  }
+}
+
+AMB_HIST_DATE_IDS.forEach((id, i) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', () => ambHistTriggerLoad(el.value, document.getElementById(AMB_HIST_DATE_END_IDS[i]).value));
+});
+AMB_HIST_DATE_END_IDS.forEach((id, i) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', () => ambHistTriggerLoad(document.getElementById(AMB_HIST_DATE_IDS[i]).value, el.value));
+});
+['ambHistTodayBtn', 'ambDashTodayBtn'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', () => {
+    ambHistSetDateEndValue('');
+    ambHistLoadDate(ambHistDateKey());
+  });
+});
+AMB_HIST_DATE_SELECT_IDS.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', (e) => {
+    if (e.target.value) {
+      ambHistSetDateEndValue('');
+      ambHistLoadDate(e.target.value);
+    }
+  });
 });
 document.getElementById('printAmbHistBtn').addEventListener('click', generateHdImageAmbHist);
 document.getElementById('downloadAmbHistBtn').addEventListener('click', downloadAmbHistCsv);
 
 function ambHistPopulateDateSelect() {
-  const sel = document.getElementById('ambHistDateSelect');
   const all = ambHistGetAllLocal();
   const dates = Object.keys(all).sort().reverse();
-  const current = sel.value;
-  sel.innerHTML = '<option value="">Datas com histórico...</option>';
-  dates.forEach(d => {
-    const opt = document.createElement('option');
-    opt.value = d;
-    opt.textContent = ambHistDateLabel(d);
-    sel.appendChild(opt);
+  AMB_HIST_DATE_SELECT_IDS.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Datas com histórico...</option>';
+    dates.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = ambHistDateLabel(d);
+      sel.appendChild(opt);
+    });
+    if (dates.includes(current)) sel.value = current;
   });
-  if (dates.includes(current)) sel.value = current;
 }
 
-async function ambHistLoadDate(dateKey) {
-  const statusEl = document.getElementById('ambHistStatusMsg');
-  statusEl.textContent = 'Carregando...';
-  ambHistSelectedDate = dateKey;
-  document.getElementById('ambHistDate').value = dateKey;
-
+async function ambHistFetchPayload(dateKey) {
   const all = ambHistGetAllLocal();
   const localPayload = all[dateKey];
   const cloudPayload = await loadFromCloud('ambulanciaHistory/' + dateKey);
@@ -4347,21 +4514,100 @@ async function ambHistLoadDate(dateKey) {
     all[dateKey] = cloudPayload;
     try { localStorage.setItem('ambulanciaHistory', JSON.stringify(all)); } catch (err) {}
   }
+  return payload;
+}
+
+function ambHistDedupeRows(rows) {
+  const byId = new Map();
+  rows.forEach(r => {
+    const key = r.id_rota || JSON.stringify(r);
+    byId.set(key, r);
+  });
+  return [...byId.values()];
+}
+
+function ambHistDateRangeKeys(startKey, endKey) {
+  if (startKey > endKey) [startKey, endKey] = [endKey, startKey]; // strings YYYY-MM-DD comparam cronologicamente
+  const [sy, sm, sd] = startKey.split('-').map(Number);
+  const [ey, em, ed] = endKey.split('-').map(Number);
+  const cur = new Date(sy, sm - 1, sd);
+  const end = new Date(ey, em - 1, ed);
+  const keys = [];
+  while (cur <= end) {
+    keys.push(ambHistDateKey(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return keys;
+}
+
+function ambHistSetStatus(text) {
+  ['ambHistStatusMsg', 'ambDashStatusMsg'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = text; });
+}
+
+async function ambHistLoadDate(dateKey) {
+  ambHistSetStatus('Carregando...');
+  ambHistSelectedDate = dateKey;
+  ambHistSelectedEndDate = '';
+  ambHistSetDateValue(dateKey);
+  ambHistSetDateEndValue('');
+
+  const payload = await ambHistFetchPayload(dateKey);
 
   if (!payload || !Array.isArray(payload.rows) || payload.rows.length === 0) {
     ambHistRows = [];
     ambHistTotalRoutes = 0;
-    statusEl.textContent = 'Nenhum histórico encontrado para ' + ambHistDateLabel(dateKey) + '.';
+    ambHistSetStatus('Nenhum histórico encontrado para ' + ambHistDateLabel(dateKey) + '.');
   } else {
-    ambHistRows = payload.rows.map(normalizeAmbulanciaRow);
+    ambHistRows = ambHistDedupeRows(payload.rows.map(normalizeAmbulanciaRow).map(r => { r.__srcDate = dateKey; return r; }));
     ambHistTotalRoutes = payload.totalRoutes || ambHistRows.length;
-    statusEl.textContent = '';
+    ambHistSetStatus('');
   }
 
   resetAmbHistFiltersAndRender();
   document.getElementById('downloadAmbHistBtn').disabled = ambHistRows.length === 0;
   ambHistPopulateDateSelect();
-  document.getElementById('ambHistDateSelect').value = dateKey;
+  ambHistSetDateSelectValue(dateKey);
+}
+
+async function ambHistLoadRange(startKey, endKey) {
+  ambHistSetStatus('Carregando intervalo...');
+  const dateKeys = ambHistDateRangeKeys(startKey, endKey);
+  ambHistSelectedDate = dateKeys[0];
+  ambHistSelectedEndDate = dateKeys[dateKeys.length - 1];
+  ambHistSetDateValue(ambHistSelectedDate);
+  ambHistSetDateEndValue(ambHistSelectedEndDate);
+
+  const payloads = await Promise.all(dateKeys.map(ambHistFetchPayload));
+
+  let combinedRows = [];
+  let totalRoutesSum = 0;
+  let diasComDados = 0;
+  payloads.forEach((payload, i) => {
+    if (payload && Array.isArray(payload.rows) && payload.rows.length > 0) {
+      diasComDados++;
+      const tagged = payload.rows.map(normalizeAmbulanciaRow).map(r => { r.__srcDate = dateKeys[i]; return r; });
+      combinedRows = combinedRows.concat(tagged);
+      totalRoutesSum += payload.totalRoutes || payload.rows.length;
+    }
+  });
+
+  const deduped = ambHistDedupeRows(combinedRows);
+
+  if (deduped.length === 0) {
+    ambHistRows = [];
+    ambHistTotalRoutes = 0;
+    ambHistSetStatus('Nenhum histórico encontrado entre ' + ambHistDateLabel(ambHistSelectedDate) + ' e ' + ambHistDateLabel(ambHistSelectedEndDate) + '.');
+  } else {
+    ambHistRows = deduped;
+    ambHistTotalRoutes = totalRoutesSum;
+    const removidas = combinedRows.length - deduped.length;
+    ambHistSetStatus(diasComDados + ' dia(s) com histórico' + (removidas > 0 ? ' — ' + removidas + ' duplicata(s) removida(s)' : '') + '.');
+  }
+
+  resetAmbHistFiltersAndRender();
+  document.getElementById('downloadAmbHistBtn').disabled = ambHistRows.length === 0;
+  ambHistPopulateDateSelect();
+  ambHistSetDateSelectValue('');
 }
 
 function getAmbHistFilteredRows() {
@@ -4376,6 +4622,7 @@ function applyAmbHistFilters() {
   const filtered = getAmbHistFilteredRows();
   renderAmbHistTable(filtered);
   renderAmbHistCardGroups(filtered, ambHistTotalRoutes);
+  if (document.getElementById('tab-panel-10').classList.contains('active')) renderAmbDashboard();
 }
 
 function resetAmbHistFiltersAndRender() {
@@ -4385,8 +4632,15 @@ function resetAmbHistFiltersAndRender() {
   applyAmbHistFilters();
 }
 
+const AMB_HIST_FILTERBAR_IDS = ['ambHistFilterBar', 'ambDashFilterBar'];
+
 function renderAmbHistFilterBar() {
-  const bar = document.getElementById('ambHistFilterBar');
+  AMB_HIST_FILTERBAR_IDS.forEach(renderAmbHistFilterBarInto);
+}
+
+function renderAmbHistFilterBarInto(containerId) {
+  const bar = document.getElementById(containerId);
+  if (!bar) return;
   bar.innerHTML = '';
   if (ambHistRows.length === 0) {
     bar.innerHTML = '<span class="filterbar-hint">Selecione uma data com histórico para habilitar os filtros.</span>';
@@ -4519,15 +4773,53 @@ function renderAmbHistTable(rows) {
   const body = document.getElementById('bodyAmbHist');
   body.innerHTML = '';
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="8" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
+    body.innerHTML = '<tr><td colspan="9" class="empty-hint">Nenhuma rota de ambulância encontrada</td></tr>';
   } else {
     rows.forEach(r => {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${r.id_rota}</td><td>${r.spr}</td><td>${r.placa}</td><td>${r.facility}</td><td>${r.mlp}</td><td>${r.motorista || '-'}</td><td>${r.perfil || r.vehicleDescriptionForFilter || '-'}</td><td>${r.data || ''}</td>`;
+      const justTd = document.createElement('td');
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'amb-just-input';
+      input.placeholder = 'Adicionar justificativa...';
+      input.value = r.justificativa || '';
+      let saveTimer = null;
+      const doSave = () => ambHistSaveJustificativa(r, input.value);
+      input.addEventListener('input', () => {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(doSave, 700);
+      });
+      input.addEventListener('blur', () => {
+        clearTimeout(saveTimer);
+        doSave();
+      });
+      justTd.appendChild(input);
+      tr.appendChild(justTd);
       body.appendChild(tr);
     });
   }
   document.getElementById('totalAmbHist').textContent = 'Total: ' + rows.length;
+}
+
+function ambHistRowDateKey(row) {
+  return row.__srcDate || ambHistSelectedDate;
+}
+
+async function ambHistSaveJustificativa(row, value) {
+  row.justificativa = value;
+  const dateKey = ambHistRowDateKey(row);
+  if (!dateKey) return;
+  const all = ambHistGetAllLocal();
+  const payload = all[dateKey];
+  if (!payload || !Array.isArray(payload.rows)) return;
+  const idx = payload.rows.findIndex(x => x.id_rota === row.id_rota);
+  if (idx !== -1) payload.rows[idx].justificativa = value;
+  payload.savedAt = new Date().toISOString();
+  all[dateKey] = payload;
+  try { localStorage.setItem('ambulanciaHistory', JSON.stringify(all)); } catch (err) {}
+  await saveToCloud('ambulanciaHistory/' + dateKey, payload);
+  if (document.getElementById('tab-panel-10').classList.contains('active')) renderAmbDashboard();
 }
 
 function renderAmbHistCardGroups(rows, totalRoutes) {
@@ -4560,7 +4852,8 @@ async function generateHdImageAmbHist() {
     });
     const dataUrl = canvas.toDataURL('image/png');
     const link = document.createElement('a');
-    link.download = `ambulancia_historico_${ambHistSelectedDate || ambHistDateKey()}.png`;
+    const filenameDate = ambHistSelectedEndDate ? `${ambHistSelectedDate}_a_${ambHistSelectedEndDate}` : (ambHistSelectedDate || ambHistDateKey());
+    link.download = `ambulancia_historico_${filenameDate}.png`;
     link.href = dataUrl;
     link.click();
   } catch (err) {
@@ -4601,8 +4894,8 @@ function ambDataSortKey(dataBr) {
 
 function downloadAmbHistCsv() {
   if (ambHistRows.length === 0) return;
-  const rows = getAmbHistFilteredRows();
-  const headers = ['id', 'cluster', 'initDate', 'facilityId', 'serviceCenterId', 'status', 'driver.driverName', 'vehicleDescriptionForFilter', 'destinationFacility.destinationFacilityId'];
+  const rows = ambHistDedupeRows(getAmbHistFilteredRows());
+  const headers = ['id', 'cluster', 'initDate', 'facilityId', 'MLP', 'serviceCenterId', 'status', 'driver.driverName', 'vehicleDescriptionForFilter', 'destinationFacility.destinationFacilityId', 'Justificativa'];
   const lines = [headers.join(';')];
   rows.forEach(r => {
     lines.push([
@@ -4610,11 +4903,13 @@ function downloadAmbHistCsv() {
       r.cluster,
       r.initDate,
       r.facility,
+      r.mlp,
       r.serviceCenterId,
       r.status,
       r.motorista,
       r.vehicleDescriptionForFilter,
-      r.destinationFacilityId
+      r.destinationFacilityId,
+      r.justificativa
     ].map(csvEscapeField).join(';'));
   });
   const csvContent = String.fromCharCode(0xFEFF) + lines.join('\r\n');
@@ -4622,9 +4917,147 @@ function downloadAmbHistCsv() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `ambulancia_historico_${ambHistSelectedDate || ambHistDateKey()}.csv`;
+  const filenameDate = ambHistSelectedEndDate ? `${ambHistSelectedDate}_a_${ambHistSelectedEndDate}` : (ambHistSelectedDate || ambHistDateKey());
+  link.download = `ambulancia_historico_${filenameDate}.csv`;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+// ===== Dashboard Ambulância (linkado ao Histórico Ambulância) =====
+let chartAmbDashFacility = null;
+let chartAmbDashMlp = null;
+let chartAmbDashJust = null;
+let chartAmbDashHora = null;
+let chartAmbDashStatus = null;
+
+const AMB_DASH_STATUS_LABELS = { close: 'Fechada', active: 'Ativa', return_to_station: 'Retorno à base' };
+const AMB_DASH_STATUS_COLORS = { close: '#4C9F70', active: '#5B9BD5', return_to_station: '#F2B84B' };
+
+function renderAmbDashboard() {
+  const rows = getAmbHistFilteredRows();
+  const total = rows.length;
+
+  let fechadas = 0, ativas = 0, retorno = 0, semJust = 0;
+  const facilityCounts = {};
+  const mlpCounts = {};
+  const justCounts = {};
+  const horaCounts = {};
+  const statusCounts = {};
+
+  rows.forEach(r => {
+    const st = r.status || '';
+    if (st === 'close') fechadas++;
+    else if (st === 'active') ativas++;
+    else if (st === 'return_to_station') retorno++;
+    statusCounts[st] = (statusCounts[st] || 0) + 1;
+
+    const fac = r.facility || '(vazio)';
+    facilityCounts[fac] = (facilityCounts[fac] || 0) + 1;
+
+    const mlp = r.mlp || '(vazio)';
+    mlpCounts[mlp] = (mlpCounts[mlp] || 0) + 1;
+
+    const just = (r.justificativa || '').trim();
+    if (!just) semJust++;
+    const justKey = just || 'Sem justificativa';
+    justCounts[justKey] = (justCounts[justKey] || 0) + 1;
+
+    const timePart = (r.initDate || '').split(' ')[1];
+    if (timePart) {
+      const hour = timePart.split(':')[0];
+      horaCounts[hour] = (horaCounts[hour] || 0) + 1;
+    }
+  });
+
+  document.getElementById('ambDashKpiTotal').textContent = total;
+  document.getElementById('ambDashKpiFechadas').textContent = fechadas;
+  document.getElementById('ambDashKpiAtivas').textContent = ativas;
+  document.getElementById('ambDashKpiRetorno').textContent = retorno;
+  document.getElementById('ambDashKpiSemJust').textContent = semJust;
+  const mlpEntries = Object.entries(mlpCounts).sort((a, b) => b[1] - a[1]);
+  document.getElementById('ambDashKpiMlp').textContent = mlpEntries.length ? `${mlpEntries[0][0]} (${mlpEntries[0][1]})` : '-';
+
+  if (typeof Chart === 'undefined') return;
+
+  const facilityEntries = Object.entries(facilityCounts).sort((a, b) => b[1] - a[1]);
+  if (chartAmbDashFacility) chartAmbDashFacility.destroy();
+  chartAmbDashFacility = new Chart(document.getElementById('chartAmbDashFacility'), {
+    type: 'bar',
+    data: {
+      labels: facilityEntries.map(e => e[0]),
+      datasets: [{ data: facilityEntries.map(e => e[1]), backgroundColor: '#2d3277', borderRadius: 4, maxBarThickness: 16 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 10 } } } }
+    }
+  });
+
+  if (chartAmbDashMlp) chartAmbDashMlp.destroy();
+  chartAmbDashMlp = new Chart(document.getElementById('chartAmbDashMlp'), {
+    type: 'bar',
+    data: {
+      labels: mlpEntries.map(e => e[0]),
+      datasets: [{ data: mlpEntries.map(e => e[1]), backgroundColor: '#3483FA', borderRadius: 4, maxBarThickness: 16 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 10 } } } }
+    }
+  });
+
+  const justEntries = Object.entries(justCounts).sort((a, b) => b[1] - a[1]);
+  if (chartAmbDashJust) chartAmbDashJust.destroy();
+  chartAmbDashJust = new Chart(document.getElementById('chartAmbDashJust'), {
+    type: 'doughnut',
+    data: {
+      labels: justEntries.map(e => e[0]),
+      datasets: [{ data: justEntries.map(e => e[1]), backgroundColor: justEntries.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]) }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } }
+    }
+  });
+
+  const horaLabels = Object.keys(horaCounts).sort();
+  if (chartAmbDashHora) chartAmbDashHora.destroy();
+  chartAmbDashHora = new Chart(document.getElementById('chartAmbDashHora'), {
+    type: 'bar',
+    data: {
+      labels: horaLabels.map(h => h + 'h'),
+      datasets: [{ data: horaLabels.map(h => horaCounts[h]), backgroundColor: '#FFE600', borderColor: '#2d3277', borderWidth: 1, borderRadius: 4 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      layout: { padding: { top: 16 } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+
+  const statusEntries = Object.entries(statusCounts).sort((a, b) => b[1] - a[1]);
+  if (chartAmbDashStatus) chartAmbDashStatus.destroy();
+  chartAmbDashStatus = new Chart(document.getElementById('chartAmbDashStatus'), {
+    type: 'doughnut',
+    data: {
+      labels: statusEntries.map(e => AMB_DASH_STATUS_LABELS[e[0]] || e[0] || '(vazio)'),
+      datasets: [{ data: statusEntries.map(e => e[1]), backgroundColor: statusEntries.map(e => AMB_DASH_STATUS_COLORS[e[0]] || '#999') }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+    }
+  });
 }
 
 // ===== Solicitações de Ambulância =====
@@ -5105,14 +5538,14 @@ function processGlobalCsvText(text, nomeExibicao) {
 // ===== Sincronizar automaticamente com o executável (via Firebase) =====
 // O executável "Painel de Expedição - Atualizador" publica o CSV bruto de
 // rotas (mesmas colunas do Logistics_api_SPA1_SPA2.csv) em /rawRoutesCsv no
-// mesmo Firebase deste painel. Este botão busca esse CSV e roda o mesmo
-// pipeline de processamento do upload manual, sem precisar baixar/subir arquivo.
-async function syncFromExecutable() {
-  const btn = document.getElementById('syncExecBtn');
+// mesmo Firebase deste painel. Busca esse CSV e roda o mesmo pipeline de
+// processamento do upload manual, sem precisar baixar/subir arquivo.
+// syncFromExecutableCore() é o núcleo (fetch + processamento), reaproveitado
+// tanto pelo clique manual no botão (syncFromExecutable, com feedback visual
+// no botão) quanto pelo laço de sincronização automática mais abaixo (que
+// roda em segundo plano, sem mexer no botão).
+async function syncFromExecutableCore() {
   const statusEl = document.getElementById('globalCsvStatusMsg');
-  const original = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Sincronizando...';
   statusEl.textContent = '';
   setSyncStatus('syncing');
   try {
@@ -5122,19 +5555,68 @@ async function syncFromExecutable() {
     if (!payload || !payload.csv) {
       statusEl.textContent = 'Nenhum dado sincronizado pelo executável ainda.';
       setSyncStatus('idle');
-      return;
+      return false;
     }
     document.getElementById('globalCsvFileName').textContent = 'Sincronizado do executável';
     processGlobalCsvText(payload.csv, `Sincronização automática — ${payload.totalRotas || '?'} rotas`);
     setSyncStatus('idle');
+    return true;
   } catch (err) {
     statusEl.textContent = 'Erro ao sincronizar: ' + err.message;
     setSyncStatus('error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = original;
+    return false;
   }
 }
+
+async function syncFromExecutable() {
+  const btn = document.getElementById('syncExecBtn');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Sincronizando...';
+  await syncFromExecutableCore();
+  btn.disabled = false;
+  btn.textContent = original;
+}
+
+// ===== Sincronização automática em tempo real (igual ao Painel de Expedição) =====
+// Sincroniza sozinho a cada AUTO_SYNC_INTERVAL_MS, sem precisar clicar em
+// "Sincronizar". Pausa entre 23:58 e 05:30 do dia seguinte: os snapshots por
+// dia (ex.: Histórico Ambulância, salvo em ambulanciaHistory/<data>) usam a
+// data do momento em que o CSV é processado, então continuar sincronizando
+// bem na virada do dia sobrescreveria o fechamento do dia anterior com dados
+// já do dia novo antes da operação realmente recomeçar. Pausar nessa janela
+// preserva intacto o último snapshot do dia anterior — nenhuma limpeza é
+// necessária, o histórico de dias passados já fica em chaves separadas por
+// data e nunca é tocado de novo.
+const AUTO_SYNC_INTERVAL_MS = 15000;
+const AUTO_SYNC_PAUSE_START_MIN = 23 * 60 + 58; // 23:58
+const AUTO_SYNC_PAUSE_END_MIN = 5 * 60 + 30;    // 05:30
+
+function autoSyncPausadoAgora(agora) {
+  const minutos = (agora || new Date()).getHours() * 60 + (agora || new Date()).getMinutes();
+  // Janela atravessa a meia-noite (23:58 -> 05:30), por isso o OR em vez de um intervalo simples.
+  return minutos >= AUTO_SYNC_PAUSE_START_MIN || minutos < AUTO_SYNC_PAUSE_END_MIN;
+}
+
+let _autoSyncPausadoAnterior = null;
+
+function autoSyncTick() {
+  const pausado = autoSyncPausadoAgora(new Date());
+  if (pausado !== _autoSyncPausadoAnterior) {
+    _autoSyncPausadoAnterior = pausado;
+    const statusEl = document.getElementById('globalCsvStatusMsg');
+    if (statusEl) {
+      statusEl.textContent = pausado
+        ? 'Sincronização automática pausada (23:58–05:30) — retoma sozinha às 05:30.'
+        : '';
+    }
+  }
+  if (pausado) return;
+  syncFromExecutableCore();
+}
+
+autoSyncTick();
+setInterval(autoSyncTick, AUTO_SYNC_INTERVAL_MS);
 
 // ===== Estratificar Rotas LM (paste parser) =====
 let lmReportText = '';
@@ -5489,7 +5971,7 @@ makeSortable('headRowAmbulancia',
 );
 
 makeSortable('headRowAmbHist',
-  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => r.motorista, r => r.perfil, r => ambDataSortKey(r.data)],
+  [r => r.id_rota, r => r.spr, r => r.placa, r => r.facility, r => r.mlp, r => r.motorista, r => r.perfil, r => ambDataSortKey(r.data), r => r.justificativa || ''],
   () => getAmbHistFilteredRows(),
   renderAmbHistTable
 );
