@@ -1321,7 +1321,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div id="captureAreaAmbHist">
 <div class="ambulancia-cards-columns">
   <div class="ambulancia-cards-col">
-    <div class="cards-col-label">SPA1</div>
+    <div class="cards-col-label">SVC</div>
     <div class="dsorhc-cards-row" id="ambHistCardsOther"></div>
   </div>
   <div class="ambulancia-cards-col">
@@ -4086,6 +4086,12 @@ function normalizeAmbulanciaRow(r) {
   return r;
 }
 
+// No Histórico Ambulância, facility "SPA1" (nome antigo do serviço) é exibida como "SVC".
+function ambHistNormalizeFacility(r) {
+  if (r.facility === 'SPA1') r.facility = 'SVC';
+  return r;
+}
+
 function ambVal(row, key) {
   const v = row[key];
   return (v === undefined || v === null || v === '') ? '(vazio)' : v;
@@ -4560,7 +4566,7 @@ async function ambHistLoadDate(dateKey) {
     ambHistTotalRoutes = 0;
     ambHistSetStatus('Nenhum histórico encontrado para ' + ambHistDateLabel(dateKey) + '.');
   } else {
-    ambHistRows = ambHistDedupeRows(payload.rows.map(normalizeAmbulanciaRow).map(r => { r.__srcDate = dateKey; return r; }));
+    ambHistRows = ambHistDedupeRows(payload.rows.map(normalizeAmbulanciaRow).map(ambHistNormalizeFacility).map(r => { r.__srcDate = dateKey; return r; }));
     ambHistTotalRoutes = payload.totalRoutes || ambHistRows.length;
     ambHistSetStatus('');
   }
@@ -4587,7 +4593,7 @@ async function ambHistLoadRange(startKey, endKey) {
   payloads.forEach((payload, i) => {
     if (payload && Array.isArray(payload.rows) && payload.rows.length > 0) {
       diasComDados++;
-      const tagged = payload.rows.map(normalizeAmbulanciaRow).map(r => { r.__srcDate = dateKeys[i]; return r; });
+      const tagged = payload.rows.map(normalizeAmbulanciaRow).map(ambHistNormalizeFacility).map(r => { r.__srcDate = dateKeys[i]; return r; });
       combinedRows = combinedRows.concat(tagged);
       totalRoutesSum += payload.totalRoutes || payload.rows.length;
     }
