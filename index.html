@@ -2693,6 +2693,12 @@ function copyMeexReport() {
   });
 }
 
+// A facility "SPA1" foi renomeada para "SVC" na origem (CSV/API); o CSV pode
+// trazer qualquer um dos dois códigos em facilityId dependendo da data da
+// rota, então toda comparação com essa facility usa esta lista em vez de
+// comparar só contra o literal 'SPA1'.
+const SPA1_FACILITY_IDS = ['SPA1', 'SVC'];
+
 // ===== Rotas MEEXs NEX — upload de CSV (alternativa ao colar texto) =====
 const MEEX_CSV_HEADERS_NEEDED = [
   'id', 'deliveryType', 'facilityId', 'driver.driverId', 'driver.driverName', 'initDate',
@@ -2708,7 +2714,7 @@ function processMeexCsv(header, dataLines) {
         idx[h] = pos;
       });
 
-      const excluirNEX = DS_XPT_FACILITIES.concat(['SPA1']);
+      const excluirNEX = DS_XPT_FACILITIES.concat(SPA1_FACILITY_IDS);
       const rows = [];
       for (let i = 0; i < dataLines.length; i++) {
         const cols = parseCsvLine(dataLines[i], ';');
@@ -2966,7 +2972,7 @@ function processSpa1Csv(header, dataLines) {
         if (deliveryType !== 'me_extra') continue;
 
         const facilityId = (cols[idx['facilityId']] || '').trim();
-        if (facilityId !== 'SPA1') continue;
+        if (!SPA1_FACILITY_IDS.includes(facilityId)) continue;
 
         const driverId = (cols[idx['driver.driverId']] || '').trim();
         const driverName = (cols[idx['driver.driverName']] || '').trim();
@@ -3768,7 +3774,7 @@ function buildDsOrhcGroups(rows) {
     if (facRows.length > 0) groups.push(makeDsOrhcGroup('XPT', fac, fac, facRows));
   });
 
-  const svcExtraRows = rows.filter(r => r.deliveryType === 'me_extra' && r.facilityId === 'SPA1');
+  const svcExtraRows = rows.filter(r => r.deliveryType === 'me_extra' && SPA1_FACILITY_IDS.includes(r.facilityId));
   if (svcExtraRows.length > 0) groups.push(makeDsOrhcGroup('SVC', 'Envios Extra', 'Envios Extra (SVC)', svcExtraRows));
 
   const svcCarriers = [];
@@ -3785,7 +3791,7 @@ function buildDsOrhcGroups(rows) {
     groups.push(makeDsOrhcGroup('SVC', carrier, carrier, facRows));
   });
 
-  const excluirNEX = DS_XPT_FACILITIES.concat(['SPA1']);
+  const excluirNEX = DS_XPT_FACILITIES.concat(SPA1_FACILITY_IDS);
   const nexExtraRows = rows.filter(r => r.deliveryType === 'me_extra' && !excluirNEX.includes(r.facilityId));
   if (nexExtraRows.length > 0) groups.push(makeDsOrhcGroup('NEX', 'Envios Extra', 'Envios Extra (NEX)', nexExtraRows));
 
