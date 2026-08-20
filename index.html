@@ -5096,7 +5096,7 @@ function renderAmbDashboard() {
   const statusEntries = Object.entries(statusCounts).sort((a, b) => b[1] - a[1]);
   if (chartAmbDashStatus) chartAmbDashStatus.destroy();
   chartAmbDashStatus = new Chart(document.getElementById('chartAmbDashStatus'), {
-    type: 'doughnut',
+    type: 'polarArea',
     data: {
       labels: statusEntries.map(e => AMB_DASH_STATUS_LABELS[e[0]] || e[0] || '(vazio)'),
       datasets: [{ data: statusEntries.map(e => e[1]), backgroundColor: statusEntries.map(e => AMB_DASH_STATUS_COLORS[e[0]] || '#999') }]
@@ -5104,7 +5104,8 @@ function renderAmbDashboard() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+      scales: { r: { ticks: { display: false }, grid: { color: 'rgba(0,0,0,0.08)' } } }
     }
   });
 }
