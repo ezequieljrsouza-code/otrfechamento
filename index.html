@@ -3285,10 +3285,23 @@ function createRouteHistoryFeature(cfg) {
     try { return JSON.parse(localStorage.getItem(cfg.localStorageKey) || '{}'); } catch (err) { return {}; }
   }
 
-  function saveSnapshot(rows) {
+  async function saveSnapshot(rows) {
     const key = routeHistDateKey();
-    const payload = { rows: rows, savedAt: new Date().toISOString() };
     const all = getAllLocal();
+    const localPrevious = all[key];
+    const cloudPrevious = await loadFromCloud(cfg.cloudPath + '/' + key);
+    // Cada aba/computador roda seu próprio auto-sync a cada 15s com o próprio
+    // estado em memória; sem checar o que já está salvo na nuvem antes de
+    // sobrescrever, a sessão mais lenta apagava o "Pendente Devolução"
+    // marcado por outra sessão nos últimos segundos. Mesma lógica do MOTIVO
+    // em saveAmbulanciaHistorySnapshot, aqui casando por rota_id.
+    const previous = (cloudPrevious && (!localPrevious || new Date(cloudPrevious.savedAt || 0) > new Date(localPrevious.savedAt || 0)))
+      ? cloudPrevious : localPrevious;
+    if (previous && Array.isArray(previous.rows)) {
+      const marcados = new Set(previous.rows.filter(r => r.pendenteDevolucao).map(r => r.rota_id));
+      rows.forEach(r => { if (marcados.has(r.rota_id)) r.pendenteDevolucao = true; });
+    }
+    const payload = { rows: rows, savedAt: new Date().toISOString() };
     all[key] = payload;
     try { localStorage.setItem(cfg.localStorageKey, JSON.stringify(all)); } catch (err) {}
     saveToCloud(cfg.cloudPath + '/' + key, payload);
